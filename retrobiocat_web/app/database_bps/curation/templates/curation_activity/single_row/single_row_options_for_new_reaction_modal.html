@@ -1,0 +1,117 @@
+
+
+<div class="modal fade" id="single_options_new_modal" tabindex="-1" role="dialog" aria-labelledby="single_options_new_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Set template for creating new rows</h5>
+            </div>
+            <div class="modal-body">
+                <h5>Copy selected fields from row when creating new entry from template</h5>
+
+                <div class="form-group">
+                    <label for="single_row_select_for_copy">Copy from Row: </label>
+                    <input type="number" id="single_row_select_for_copy" value=1 class="" style="width:100px">
+                </div>
+
+                <button class="btn btn-outline-primary my-2" onclick="single_select_all_options()">Select all</button>
+                <button class="btn btn-outline-secondary my-2" onclick="single_select_no_options()">Select none</button>
+
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_reaction"/>
+                    <label for="single_copy_reaction">Reaction</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_enzyme"/>
+                    <label for="single_copy_enzyme">Enzyme name</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_mw"/>
+                    <label for="single_copy_mw">Enzyme MW</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_conversion_time"/>
+                    <label for="single_copy_conversion_time">Conversion time</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_single_s1_conc"/>
+                    <label for="single_copy_single_s1_conc">Substrate 1 conc. (mM)</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_single_s2_conc"/>
+                    <label for="single_copy_single_s2_conc">Substrate 2 conc. (mM)</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_concentration"/>
+                    <label for="single_copy_concentration">Biocat. Conc.</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_formulation"/>
+                    <label for="single_copy_formulation">Biocatalyst formulation</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_temperature"/>
+                    <label for="single_copy_temperature">Temperature</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_ph"/>
+                    <label for="single_copy_ph">pH</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_reac_vol"/>
+                    <label for="single_copy_reac_vol">Reaction vol.</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_solvent"/>
+                    <label for="single_copy_solvent">Solvent</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_notes"/>
+                    <label for="single_copy_notes">Notes</label>
+                </div>
+                <div class="form-check">
+                    <input type="checkbox" id="single_copy_other_conditions"/>
+                    <label for="single_copy_other_conditions">Other conditions</label>
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var single_copy_checkbox_map = {'single_copy_reaction': 'reaction',
+                                    'single_copy_enzyme': 'enzyme_name',
+                                    'single_copy_conversion_time': 'conversion_time',
+                                    'single_copy_mw': 'mw',
+                                    'single_copy_single_s1_conc': 'substrate_1_conc',
+                                    'single_copy_single_s2_conc': 'substrate_2_conc',
+                                    'single_copy_concentration': 'biocat_conc',
+                                    'single_copy_formulation': 'formulation',
+                                    'single_copy_notes': 'notes',
+                                    'single_copy_other_conditions': 'other_conditions',
+                                    'single_copy_temperature': 'temperature',
+                                    'single_copy_ph': 'ph',
+                                    'single_copy_reac_vol': 'reaction_vol',
+                                    'single_copy_solvent': 'solvent'}
+
+
+    function single_select_all_options() {
+        for (let [key, value] of Object.entries(single_copy_checkbox_map)) {
+            document.getElementById(key).checked = true
+        }
+    }
+
+    function single_select_no_options() {
+        for (let [key, value] of Object.entries(single_copy_checkbox_map)) {
+            document.getElementById(key).checked = false
+        }
+    }
+
+</script>

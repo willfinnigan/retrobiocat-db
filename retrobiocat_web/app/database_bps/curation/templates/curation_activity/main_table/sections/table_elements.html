@@ -1,0 +1,15 @@
+<div class="custom-control custom-checkbox">
+    <input class="custom-control-input" type="checkbox" id="hide_show_empty" onclick="toggle_hide_empty_columns()">
+    <label class="custom-control-label" for="hide_show_empty"><b>Hide empty columns</b></label>
+</div>
+<div class="mb-1">
+    <div id="table"></div>
+    <small class="no_margin text-danger" id="data_not_saved_msg" hidden>Data not saved</small>
+</div>
+<div class="no_margin" id="table_response_div"></div>
+
+{% include 'curation_activity/main_table/table/column_heading_styling.html' %}
+{% include 'curation_activity/main_table/table/table.html' %}
+{% include 'curation_activity/main_table/table/table_edited_tracking.html' %}
+{% include 'curation_activity/main_table/table/table_column_control.html' %}
+

@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <div class="container-fluid">
+    <h2 class="card-title text-center mt-5 mb-3">Search tools</h2>
+        <div class="row justify-content-center">
+            <div class="col-auto mb-3">
+                <div class="card card-form card-hover_green mx-auto mt-4" style="width: 16rem; min-height:325px">
+                    <div class="card-body">
+                        <h6 class="text-center">Enzyme name lookup</h6>
+                        <div class="d-flex justify-content-center">
+                           <i class="bi bi-search fa-6x" style="color: darkgreen"></i>
+                        </div>
+
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('db_analysis.enzyme_name_search') }}" class="stretched-link float-right align-text-bottom">Go</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-auto mb-3">
+                <div class="card card-form card-hover_blue mx-auto mt-4" style="width: 16rem; min-height:325px">
+                    <div class="card-body">
+                        <h6 class="text-center">Sequence BLAST search</h6>
+                        <div class="d-flex justify-content-center">
+                            <i class="bi bi-justify fa-6x" style="color: darkblue"></i>
+                        </div>
+
+                    </div>
+                    <div class="card-footer">
+                        <a href="#" class="stretched-link float-right align-text-bottom">Go</a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-auto mb-3">
+                <div class="card card-form card-hover_red mx-auto mt-4" style="width: 16rem; min-height:325px">
+                    <div class="card-body">
+                        <h6 class="text-center">Substrate/Product similarity search</h6>
+                        <div class="d-flex justify-content-center">
+                            <i class="bi bi-fingerprint fa-6x" style="color: darkred"></i>
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <a href="{{ url_for('db_analysis.substrate_specificity_form') }}" class="stretched-link float-right align-text-bottom">Go</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+

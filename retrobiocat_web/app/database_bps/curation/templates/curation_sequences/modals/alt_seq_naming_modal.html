@@ -1,0 +1,136 @@
+<div class="modal fade" id="alt_seq_naming_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Select alternative enzyme naming to use in this paper</h5>
+                <button type="button" class="close" data-dismiss="modal">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="alt_names_radios_div" class="row justify-content-center mb-5">
+
+                    <div class="card" style="width: 18rem;">
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exampleRadios"  value="option1" checked>
+                            <label class="form-check-label" for="exampleRadios1">Default radio</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exampleRadios" value="option2">
+                            <label class="form-check-label" for="exampleRadios1">Option 2</label>
+                        </div>
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="exampleRadios" value="option3">
+                            <label class="form-check-label" for="exampleRadios1">Option 3</label>
+                        </div>
+                    </div>
+
+                </div>
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success" data-dismiss="modal" onclick="save_alt_naming_selection()">Save</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    window.default_enzyme_names = []
+
+    function create_all_radio_buttons(alt_name_dict) {
+        var alt_names_radios_div = document.getElementById("alt_names_radios_div")
+        alt_names_radios_div.innerHTML = ""
+        window.default_enzyme_names = []
+        for (const [default_name, value] of Object.entries(alt_name_dict)) {
+            window.default_enzyme_names.push(default_name)
+            var all_names = value[0]
+            var selected = value[1]
+            var enzyme_radios_div = create_enzyme_radio(default_name, all_names, selected)
+            alt_names_radios_div.appendChild(enzyme_radios_div)
+        }
+    }
+
+    function alt_name_modal_load() {
+        var paper_id =  "{{paper_id}}"
+        seq_load_ajax.get_possible_alternative_naming_for_paper(paper_id, create_all_radio_buttons)
+    }
+
+    function create_enzyme_radio(default_name, all_names, currently_selected) {
+        var enzyme_radios_div = document.createElement('div')
+        enzyme_radios_div.className = "col-sm-auto mx-auto mb-2"
+
+        var enzyme_radio_card = document.createElement('div')
+        enzyme_radio_card.className = "card"
+        enzyme_radio_card.style = "width: 18rem;"
+        enzyme_radios_div.appendChild(enzyme_radio_card)
+
+        var title = document.createElement('p')
+        title.className = "text-center"
+        title.innerHTML = "<b>" + default_name + "</b>"
+        enzyme_radio_card.appendChild(title)
+
+        all_names.forEach(function (name, index) {
+            var selected = false
+            if (name === currently_selected) {
+                selected = true
+            }
+
+            var radio = create_one_radio(default_name, name, selected)
+            enzyme_radio_card.appendChild(radio)
+        });
+
+        return enzyme_radios_div
+
+    }
+
+    function create_one_radio(default_name, name, selected) {
+        var new_radio = document.createElement('div')
+        new_radio.className = "form-check"
+
+        var new_input = document.createElement('input')
+        new_input.className = "form-check-input"
+        new_input.type = "radio"
+        new_input.name = default_name + "_radios"
+        new_input.value = name
+        new_input.id = name + "_radio"
+        new_input.checked = selected
+
+        var input_label = document.createElement('label')
+        input_label.className = "form-check-label"
+        input_label.for = name + "_radio"
+        input_label.innerHTML = name
+
+        new_radio.appendChild(new_input)
+        new_radio.appendChild(input_label)
+
+        return new_radio
+    }
+
+    function save_alt_naming_selection() {
+        function callback(result) {
+            location.reload()
+        }
+
+        var paper_id =  "{{paper_id}}"
+        var alt_names_to_set = []
+
+        window.default_enzyme_names.forEach(function (name, index) {
+            var selected = Array.from(document.getElementsByName(name+"_radios")).find(r => r.checked).value;
+            alt_names_to_set.push(selected)
+        })
+
+        console.log(alt_names_to_set)
+
+        seq_curate_ajax.save_alt_naming_selection(alt_names_to_set, paper_id, callback, "seq_response")
+    }
+
+
+</script>

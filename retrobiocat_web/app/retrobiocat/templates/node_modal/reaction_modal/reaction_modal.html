@@ -1,0 +1,242 @@
+
+<div class="modal fade" id="reaction_modal" tabindex="-1" role="dialog"
+     aria-labelledby="reaction_modal_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="reaction_node_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-break">
+                <h5>Query reaction:</h5>
+                <div id="query_svg" class="no_margin text-center center"></div>
+
+                <button id="report_button" class="btn btn-sm btn-outline-danger mb-4" onclick="close_reaction_modal()" data-toggle="modal" data-target="#reaction_issue_modal">
+                    Raise an issue
+                </button>
+
+                <button id="send_to_biocathub_button" class="btn btn-sm btn-outline-success mb-4" onclick="send_reaction_to_biocathub()">
+                    Send to BioCatHub
+                </button>
+
+                <button id="sending_to_biocathub_button" class="btn btn-sm btn-outline-primary mb-4" disabled hidden>
+                    Sending...
+                </button>
+
+                <a href="#" target="_blank" id="biocathub_ready_button" class="btn btn-sm btn-outline-primary mb-4" hidden>
+                    BioCatHub ready
+                </a>
+
+                <div id="biocathub_reaction_response_div"></div>
+
+                <div id="retrobiocat_type_reactions">
+                    <h5>Enzyme type selection:</h5>
+                    <div class="form-group text-center center">
+                        <select id="reaction_modal_enzyme_select" class="form-control custom-select w-75">
+                        <option value=""></option>
+                        </select>
+                        <small class="form-text text-muted">Select from possible enzymes for this reaction</small>
+                    </div>
+
+                    <ul class="nav nav-tabs" id="tab_list" role="tablist" hidden>
+                        <li class="nav-item">
+                            <a class="nav-link active" id="top_hits_link"
+                               data-toggle="tab" href="#top_hits"
+                               role="tab" aria-controls="top_hits"
+                               aria-selected="true">
+                                Top hits from BioCatDB
+                            </a>
+                        </li>
+
+                        <li class="nav-item" hidden>
+                            <a class="nav-link" id="activity_data_content_link"
+                               data-toggle="tab" href="#activity_data_content"
+                               role="tab" aria-controls="activity_data_content">
+                                Activity data
+                            </a>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content" id="tab_content">
+                        <div class="tab-pane fade show active" id="top_hits" role="tabpanel" aria-labelledby="top_hits_tab">
+                            {% include 'node_modal/reaction_modal/top_hits.html' %}
+                        </div>
+
+                         <div class="tab-pane fade" id="activity_data_content" role="tabpanel" aria-labelledby="activity_data_content">
+                            {% include 'node_modal/reaction_modal/activity_more_info_content.html' %}
+                         </div>
+                    </div>
+                </div>
+
+                <div id="aizynth_type_reactions"></div>
+
+                <div id="retrorules_type_reactions"></div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    window.currently_selected_reaction_node = ''
+
+    function reaction_modal_launched(node, network_id) {
+        $('a[href="#top_hits"]').tab('show');
+        clear_old_reaction_modal_data()
+        parent_nodes = network.getConnectedNodes(node, 'from')
+        children_nodes = network.getConnectedNodes(node, 'to')
+        label = data['nodes'].get(node)['label']
+        window.currently_selected_reaction_node = node
+        get_reaction_svg(label, parent_nodes, children_nodes)
+        reset_biocathub_button()
+
+        if (data['nodes'].get([window.currently_selected_reaction_node])[0]['reaction_type'] === 'retrobiocat') {
+            get_top_hits(node, network_id, parent_nodes, children_nodes, label, 'selected_enzyme')
+            document.getElementById("retrobiocat_type_reactions").style.display = "inline";
+            document.getElementById("report_button").style.display = "inline";
+            document.getElementById("aizynth_type_reactions").style.display = "none";
+            document.getElementById("aizynth_type_reactions").innerHTML = ""
+            document.getElementById("retrorules_type_reactions").style.display = "none";
+            document.getElementById("retrorules_type_reactions").innerHTML = ""
+        } else if (data['nodes'].get([window.currently_selected_reaction_node])[0]['reaction_type'] === 'retrorules') {
+            add_retrorules_metadata()
+            document.getElementById("report_button").style.display = "none";
+            document.getElementById("retrobiocat_type_reactions").style.display = "none";
+            document.getElementById("aizynth_type_reactions").style.display = "none";
+            document.getElementById("aizynth_type_reactions").innerHTML = ""
+            document.getElementById("retrorules_type_reactions").style.display = "inline";
+            document.getElementById("send_to_biocathub_button").hidden = true
+        } else {
+            add_aizynth_metadata()
+            document.getElementById("aizynth_type_reactions").style.display = "inline";
+            document.getElementById("retrobiocat_type_reactions").style.display = "none";
+            document.getElementById("retrorules_type_reactions").style.display = "none";
+            document.getElementById("retrorules_type_reactions").innerHTML = ""
+            document.getElementById("report_button").style.display = "none";
+            document.getElementById("send_to_biocathub_button").hidden = true
+        }
+    }
+
+    function add_aizynth_metadata() {
+
+        var metadata = data['nodes'].get([window.currently_selected_reaction_node])[0]['metadata']
+
+        var main_div = document.getElementById("aizynth_type_reactions")
+
+        main_div.innerHTML = '<h5 class="text-center mt-3">Aizynthfinder reaction suggestion - metadata</h5>'
+
+        for (const [key, value] of Object.entries(metadata)) {
+            main_div.innerHTML += "<p><strong>" + key + ":</strong> " + value + "</p>"
+        }
+    }
+
+    function add_retrorules_metadata() {
+        var metadata = data['nodes'].get([window.currently_selected_reaction_node])[0]['metadata']
+        console.log(metadata)
+        var main_div = document.getElementById("retrorules_type_reactions")
+
+        main_div.innerHTML = '<h4 class="text-center mt-3">RetroRules reaction suggestion - metadata</h4>'
+
+        main_div.innerHTML += "<h5 class='mt-3'>" + metadata['rule_id'] + "</h5>"
+        main_div.innerHTML += "<p><strong>Similarity: </strong>" + metadata['similarity'] + "</p>"
+        main_div.innerHTML += "<p><strong>Score: </strong>" + metadata['score'] + "</p>"
+        main_div.innerHTML += "<p><strong>Combined score: </strong>" + metadata['score']*metadata['similarity'] + "</p>"
+        main_div.innerHTML += "<p><strong>MNXR_ids: </strong> </p>"
+        metadata['rxn_ids'].forEach(function (item, index) {
+            main_div.innerHTML += "<p class='mx-5'><a target='_blank' href='https://www.metanetx.org/equa_info/" + item + "'>" + item + "</a></p>"
+        })
+        main_div.innerHTML += "<p><strong>EC Numbers: </strong> </p>"
+        metadata['ec_numbers'].forEach(function (item, index) {
+            main_div.innerHTML += "<p class='mx-5'><a target='_blank' href='https://www.rhea-db.org/rhea?query="+item+"'>" + item + "</a></p>"
+        })
+    }
+
+    function get_reaction_svg(label, parents, children) {
+        $.post('/_get_reaction_svg', {
+            parents: JSON.stringify(parents),
+            children: JSON.stringify(children),
+            label: label,
+        }).done(function (data) {
+            document.getElementById("query_svg").innerHTML = data.result.query_reaction_svg
+            document.getElementById("reaction_node_title").innerHTML = data.result.reaction_name
+        }).fail(function(xhr, status, error) {
+            console.log(error)
+        });
+    }
+
+    function get_top_hits(reaction_node, network_id, parents, children, label, enzyme) {
+        console.log("get top hits for " + reaction_node)
+        $.post('/_get_top_biocatdb_hits', {
+            reaction_node: reaction_node,
+            network_id: network_id,
+            parents: JSON.stringify(parents),
+            children: JSON.stringify(children),
+            label: label,
+            enzyme: enzyme
+        }).done(function (data) {
+            set_hit_title(data.result.reaction_name, data.result.enzyme_name)
+            add_hit_data(data.result.node_info, data.result.product_keys)
+        }).fail(function(xhr, status, error) {
+            console.log(error)
+        });
+    }
+
+    document.getElementById('reaction_modal_enzyme_select').onchange = function(){pick_new_enzyme()};
+
+    function pick_new_enzyme() {
+        var node = window.currently_selected_reaction_node
+        var enzyme = document.getElementById('reaction_modal_enzyme_select').value
+        document.getElementById('enzyme_select').value = enzyme;
+        clear_old_reaction_modal_data()
+        parent_nodes = network.getConnectedNodes(node, 'from')
+        children_nodes = network.getConnectedNodes(node, 'to')
+        label = data['nodes'].get(node)['label']
+        get_top_hits(node, window.network_id, parent_nodes, children_nodes, label, enzyme)
+        select_enzyme(data)
+    }
+
+    function close_reaction_modal() {
+        $('#reaction_modal').modal('hide');
+    }
+
+    function reset_biocathub_button() {
+        document.getElementById("send_to_biocathub_button").hidden = true
+        {% if current_user.has_role('experimental') %}
+            {% if config['ALLOW_BIOCATHUB_INTEGRATION'] == True %}
+                document.getElementById("send_to_biocathub_button").hidden = false
+                document.getElementById("sending_to_biocathub_button").hidden = true
+                document.getElementById("biocathub_ready_button").hidden = true
+            {% endif %}
+        {% endif %}
+    }
+
+
+    function send_reaction_to_biocathub() {
+        {% if current_user.has_role('experimental') %}
+            {% if config['ALLOW_BIOCATHUB_INTEGRATION'] == True %}
+                function redirect_callback(url) {
+                    document.getElementById("send_to_biocathub_button").hidden = true
+                    document.getElementById("sending_to_biocathub_button").hidden = true
+                    document.getElementById("biocathub_ready_button").hidden = false
+                    document.getElementById("biocathub_ready_button").href = url
+                }
+
+                var reaction = data['nodes'].get([window.currently_selected_reaction_node])[0]
+                var json_to_send = [get_biocathub_reaction_json(reaction, network)]
+
+                console.log(json_to_send)
+
+                document.getElementById("send_to_biocathub_button").hidden = true
+                document.getElementById("sending_to_biocathub_button").hidden = false
+                document.getElementById("biocathub_ready_button").hidden = true
+                biocathub_ajax.send_and_redirect(JSON.stringify(json_to_send), redirect_callback, "biocathub_reaction_response_div")
+            {% endif %}
+        {% endif %}
+    }
+
+
+
+</script>

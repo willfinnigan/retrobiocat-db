@@ -1,0 +1,118 @@
+<div class="modal fade" id="molecule_edit_modal" tabindex="-1" role="dialog" aria-labelledby="molecule_edit_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="form-group no_margin">
+                    <label for="molecule_edit_title">Mol. name: </label>
+                    <input type="text" id="molecule_edit_title" onchange="molecule_update_mol_name()">
+                </div>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" align="center">
+                {% if config['MARVINJS_ENABLED'] == False %}
+                    <p>MarvinJS is disabled.  A license from chemaxon is required to use this</p>
+                {% else %}
+                    <div id="marvin-molecule_drawer" style="width: 600px; height: 480px"></div>
+                {% endif %}
+            </div>
+
+            <div id="molecules_edit_modal_response_div"></div>
+            <small id="molecule_modal_working_please_wait" hidden>Working, please wait..</small>
+            <div class="modal-footer">
+                {% if config['MARVINJS_ENABLED'] != False %}
+                    <button type="button" class="btn btn-outline-danger float-left mol_edit_btn" onclick="molecule_delete_molecule()">Delete molecule</button>
+                    <button type="button" class="btn btn-outline-secondary float-left mol_edit_btn" onclick="molecule_duplicate_molecule()">Duplicate molecule</button>
+                    <button type="button" class="btn btn-outline-info float-left mol_edit_btn" onclick="molecule_copy_smiles()">Copy SMILES</button>
+                    <button type="button" class="btn btn-success mol_edit_btn" onclick="save_updated_mol()">     Update Molecule     </button>
+
+                {% endif %}
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    {% if config['MARVINJS_ENABLED'] != False %}
+        var molecule_marvin
+        ChemicalizeMarvinJs.createEditor("#marvin-molecule_drawer").then(function (marvin) {
+        molecule_marvin = marvin
+        });
+    {% endif %}
+
+    var current_mol_id = ""
+
+    function disable_enable_mol_edit_buttons(disabled_setting) {
+        var elements = document.getElementsByClassName(' mol_edit_btn')
+            Array.prototype.forEach.call(elements, function(ele, i) {
+                ele.disabled = disabled_setting
+            });
+        document.getElementById("molecule_modal_working_please_wait").hidden = !disabled_setting
+    }
+
+    function save_updated_mol() {
+        var name = document.getElementById('molecule_edit_title').value
+        var paper_id = "{{ paper_id }}"
+        disable_enable_mol_edit_buttons(true)
+
+        function callback(result) {
+            if (result.status === 'success') {
+                molecules_update_table(current_mol_id, result.update_dict)
+            }
+            $('#molecule_edit_modal').modal('hide');
+        }
+
+        function onFinish() {
+            disable_enable_mol_edit_buttons(false)
+        }
+
+        molecule_marvin.exportStructure("smiles").then(function (smiles) {
+            update_activity_molecule_ajax.update_activity_molecule(paper_id, current_mol_id, smiles, name, callback, "molecules_response_div", onFinish)
+        })
+    }
+
+    function molecule_update_mol_name() {
+        var new_name = document.getElementById('molecule_edit_title').value
+        var update_dict = {'name': new_name}
+        molecules_table.getRow(current_mol_id).update(update_dict)
+    }
+
+    function molecule_delete_molecule() {
+        var paper_id = "{{paper_id}}"
+        function callback(result) {
+            molecules_table.getRow(current_mol_id).delete()
+            $('#molecule_edit_modal').modal('hide');
+        }
+        delete_activity_molecule_ajax.delete_activity_molecule(paper_id, current_mol_id, callback, "molecules_response_div")
+    }
+
+    function molecule_duplicate_molecule() {
+        var paper_id = "{{paper_id}}"
+        var smi = molecules_table.getRow(current_mol_id).getData().smi
+        disable_enable_mol_edit_buttons(true)
+
+        function callback(result) {
+            molecules_add_new_row(result.update_dict, true)
+        }
+
+        function onFinish() {
+            disable_enable_mol_edit_buttons(false)
+        }
+        new_activity_molecule_ajax.new_activity_mol(paper_id, smi, callback, "molecules_edit_modal_response_div", onFinish)
+    }
+
+    function molecule_copy_smiles() {
+        molecule_marvin.exportStructure("smiles").then(function (smiles) {
+            navigator.clipboard.writeText(smiles).then(() => {
+                response_msg('SMILES copied', 'success', [], "molecules_edit_modal_response_div")
+            })
+        })
+
+    }
+
+</script>

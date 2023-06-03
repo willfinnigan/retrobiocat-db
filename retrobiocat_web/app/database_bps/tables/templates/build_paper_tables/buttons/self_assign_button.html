@@ -1,0 +1,14 @@
+<script src="{{url_for('tables.static', filename='js/ajax/self_assign_ajax.js')}}?v={{v}}" type="text/javascript"></script>
+
+<script>
+    var paper_self_assignButton = function(cell, formatterParams, onRendered){ //plain text value
+            return "<div><button class='btn btn-sm btn-outline-success'>Self assign</button></div>";
+        };
+
+    var self_assign_button_col = {'title': 'Self Assign', 'width':100, formatter:paper_self_assignButton, cellClick:function(e, cell){self_assign(cell.getRow().getData()._id)}}
+    papers_columns.push(self_assign_button_col)
+
+    function self_assign(id) {
+        self_assign_ajax.self_assign(id,"papers_response")
+    }
+</script>

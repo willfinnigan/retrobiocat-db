@@ -1,0 +1,45 @@
+
+<div id="cascade_tests_table"></div>
+
+<script>
+    var columns = [
+
+        {'title': "_id", 'field': "_id", visible:false},
+
+        {'title': "Run name", 'field': "run_name", 'minWidth':100, formatter:"textarea", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {title:"Date", field:"date", formatter:"datetime", 'minWidth':100, formatterParams:{
+                outputFormat:"DD/MM/YYYY",
+                invalidPlaceholder:"(invalid date)"}},
+
+        {'title': "Mode", 'field': "mode", 'minWidth':100, formatter:"textarea", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "Num. results", 'field': "num_results", 'minWidth':50},
+
+        {'title': "% top 5", 'field': "top_5", 'minWidth':50},
+
+        {'title': "% top 25", 'field': "top_25", 'minWidth':50},
+
+        {'title': "% top 200", 'field': "top_200", 'minWidth':50},
+
+        ]
+
+    var tabledata = {{cascade_tests_table|safe}}
+
+    var table = new Tabulator("#cascade_tests_table", {
+        data:tabledata, //assign data to table
+        maxHeight:"75vh",
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:columns,
+        cellHozAlign:"center",
+        cellVertAlign:"middle",
+        rowClick:function(e, row){
+            var rowData = row.getData();
+            var run_id = rowData['id']
+            location.href = Flask.url_for("retrobiocat.cascade_result", {"run_id": run_id})
+            },
+    });
+
+</script>
+

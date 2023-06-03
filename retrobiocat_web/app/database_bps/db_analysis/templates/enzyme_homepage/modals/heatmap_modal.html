@@ -1,0 +1,80 @@
+<div class="modal fade" id="heatmap_modal" tabindex="-1" role="dialog"
+     aria-labelledby="paper_search_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ enzyme_type }} heatmap</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group mt-2">
+                    <label for="heat_reaction">Reaction</label>
+                    <select id='heat_reaction' class="form-control custom-select w-50">
+                        {% for reaction in reactions %}
+                            <option value="{{ reaction }}">{{ reaction }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="heat_molecule">Molecule</label>
+                    <select id="heat_molecule" class="form-control custom-select w-50">
+                        <option value="product_1_smiles">Product</option>
+                        <option value="substrate_1_smiles">Substrate 1</option>
+                        <option value="substrate_2_smiles">Substrate 2</option>
+                    </select>
+                    <br/><small>Select the molecule in the reaction to show on the heatmap</small>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="heat_negative_data">Negative data</label>
+                    <select id="heat_negative_data" class="form-control custom-select w-50">
+                        <option value="all">Do not include</option>
+                        <option value="false">Include all</option>
+                        <option value="only_negative">Remove molecules with only negative data</option>
+                    </select>
+                </div>
+
+                <div class="custom-control custom-checkbox mt-4">
+                    <input type="checkbox" id='heat_only_reviewed' class="custom-control-input" checked>
+                    <label for='heat_only_reviewed' class="custom-control-label">Only reviewed</label>
+                </div>
+
+
+                <button class="btn btn-success btn-lg mt-3" onclick="launch_heatmap()">Launch Heatmap</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function launch_heatmap() {
+        var options = {"enzyme_type": "{{ enzyme_type }}",
+                       "only_reviewed": "True",
+                       "remove_negative": document.getElementById("heat_negative_data").value,
+                       "mol_type": document.getElementById("heat_molecule").value}
+
+        if (document.getElementById("heat_only_reviewed").checked == false) {
+            options['only_reviewed'] = 'False'
+        }
+
+        var reaction = document.getElementById("heat_reaction").value
+        if (reaction != '-') {
+            options['reaction'] = reaction
+        }
+
+        window.location.href = Flask.url_for("db_analysis.heatmap", options);
+    }
+
+</script>

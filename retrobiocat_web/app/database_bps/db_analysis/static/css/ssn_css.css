@@ -1,0 +1,12 @@
+#myssn {
+    width: 100%;
+    height:87vh;
+    background-color: white;
+    border: 1px solid lightgray;
+    position: relative;
+    float: left; }
+
+#ssn_div {
+    overflow-y: hidden;
+    height:90vh
+}

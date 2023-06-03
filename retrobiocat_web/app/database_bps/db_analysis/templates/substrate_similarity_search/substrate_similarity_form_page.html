@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-7 mx-auto">
+                <div class="card card-form my-5">
+                    <div class="card-body" align="center">
+                        <h3 class="card-title">Substrate specificity search</h3>
+
+                        {% include 'substrate_similarity_search/form.html' %}
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

@@ -1,0 +1,73 @@
+
+<div class="modal fade" id="retrosynthesis_options_modal" tabindex="-1" role="dialog" aria-labelledby="formOptionsLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formOptionsLabel">Other options</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id='options' class="container">
+                    <div>
+                        <b>Rule application</b>
+                        {{ checkbox(retro_config_form.combine_enantiomers) }}
+                        {{ checkbox(retro_config_form.allow_backwards) }}
+                        {{ checkbox(retro_config_form.remove_small_mols) }}
+                        {{ number_inline(retro_config_form.max_reactions ) }}
+                    </div>
+
+                    <div class="mt-3">
+                        <b>RetroBioCat</b>
+                        {{ checkbox(retro_config_form.include_requires_absence_of_water) }}
+                        {{ checkbox(retro_config_form.include_experimental) }}
+                        {{ checkbox(retro_config_form.include_two_step) }}
+
+                        {{ checkbox(spec_config_form.run_similarity_search) }}
+                        {{ number_inline(spec_config_form.similarity_threshold) }}
+                        {{ checkbox(spec_config_form.products_only) }}
+                        {{ checkbox(spec_config_form.only_active) }}
+                        {{ checkbox(spec_config_form.only_reviewed) }}
+                    </div>
+
+                    <div class="mt-3">
+                        <b>RetroRules</b>
+                        {{ number_inline(retro_config_form.rr_diameter) }}
+                        {{ number_inline(retro_config_form.rr_threshold) }}
+                        {{ number_inline(retro_config_form.rr_score_threshold) }}
+                        {{ number_inline(retro_config_form.rr_combined_score_threshold) }}
+                        {{ checkbox(retro_config_form.rr_remove_cofactors) }}
+                        {{ checkbox(retro_config_form.rr_duplicates_must_match_name) }}
+                    </div>
+
+                    <div class="mt-3">
+                        <b>AIZynthfinder</b>
+                        {{ select(retro_config_form.aizynth_reaction_filter) }}
+                        {{ checkbox(retro_config_form.aizynth_use_feasability_filter) }}
+                        {{ number_inline(retro_config_form.aizynth_filter_cutoff) }}
+                        {{ number_inline(retro_config_form.aizynth_cutoff_cumulative) }}
+                        {{ number_inline(retro_config_form.aizynth_cutoff_number) }}
+                    </div>
+
+                    <div class="mt-3">
+                        <b>Visualisation</b>
+                        {{ select(vis_config_form.colour_arrows) }}
+                    </div>
+
+                </div>
+            </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+
+</script>

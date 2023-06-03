@@ -1,0 +1,60 @@
+<!-- Main modal -->
+<div class="modal fade" id="download_modal" tabindex="-1" role="dialog" aria-labelledby="download_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Download sequences</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <button class="btn btn-success" onclick="">Download all selected</button>
+                <button class="btn btn-info" onclick="download_UniRep_selected()">Download UniRep selected</button>
+                <button class="btn btn-primary" onclick="">Download BioCatDB selected</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function download_UniRep_selected() {
+        var currently_selected = network.getSelectedNodes()
+        var node_data = data['nodes'].get(currently_selected)
+        var node_ids = []
+
+        node_data.forEach(function (node_dict, index) {
+            if (node_dict['node_type'] === "uniref") {
+                node_ids.push(node_dict['id'])
+            }
+        })
+
+        function callback_func(result) {
+            var csv = result.csv
+            var fasta = result.fasta
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(fasta);
+            var dlAnchorElem = document.getElementById('downloadAnchorElem');
+            dlAnchorElem.setAttribute("href",     dataStr );
+            dlAnchorElem.setAttribute("download", "sequences.fasta");
+            dlAnchorElem.click();
+
+            var dataStr2 = "data:text/json;charset=utf-8," + encodeURIComponent(csv);
+            var dlAnchorElem2 = document.getElementById('downloadAnchorElem');
+            dlAnchorElem2.setAttribute("href",     dataStr2 );
+            dlAnchorElem2.setAttribute("download", "sequences.csv");
+            dlAnchorElem2.click();
+
+            $('#download_modal').modal('hide');
+        }
+
+        ssn_ajax.download_selected_unireps(node_ids, callback_func)
+    }
+</script>

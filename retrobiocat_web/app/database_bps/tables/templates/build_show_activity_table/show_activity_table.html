@@ -1,0 +1,226 @@
+<p id="loading_please_wait">Loading, please wait...</p>
+<div id="substrate_specificity_table"></div>
+{% set hide_raise_issue = false %}
+
+{% include 'build_show_activity_table/activity_modal.html' %}
+
+<script>
+
+    var high_colour = "#b8ffbf"
+    var medium_colour = "#fbffb8"
+    var low_colour = "#ffdab8"
+    var none_colour = "#ffb8b8"
+
+    function doi_formatter(cell, formatterParams) {
+        var cell_value = cell.getValue();
+        var row_data = cell.getData()
+        var doi = row_data['html_doi']
+        var url = "<a href='" + doi + "' target='_blank'>" + cell_value + "</a>";
+
+        cell.getElement().style.display = 'inline-flex'
+        cell.getElement().style.height  = '158px'
+        cell.getElement().style["white-space"]  = 'pre-wrap'
+        return url
+    }
+
+    function binary_colour_by_activity_formatter(cell, formatterParams) {
+            var row_data = cell.getData()
+            var cell_value = cell.getValue();
+            var value = row_data['categorical']
+            if(value === "High"){
+                  cell.getElement().style.backgroundColor = high_colour
+            } else if (value === 'Medium') {
+                cell.getElement().style.backgroundColor = medium_colour
+            } else if (value === 'Low') {
+                cell.getElement().style.backgroundColor = low_colour
+            } else if (value === 'None') {
+                cell.getElement().style.backgroundColor = none_colour
+            } else if (cell_value === 'True') {
+                cell.getElement().style.backgroundColor = high_colour
+            } else {
+                cell.getElement().style.backgroundColor = none_colour
+            }
+            return cell_value}
+
+    function categorical_colour_by_activity_formatter(cell, formatterParams) {
+            var value = cell.getValue();
+            if(value === "High"){
+                  cell.getElement().style.backgroundColor = high_colour
+            } else if (value === 'Medium') {
+                cell.getElement().style.backgroundColor = medium_colour
+            } else if (value === 'Low') {
+                cell.getElement().style.backgroundColor = low_colour
+            } else if (value === 'None') {
+                    cell.getElement().style.backgroundColor = none_colour
+            }
+            return value
+    }
+
+    function conversion_colour_by_activity_formatter(cell, formatterParams) {
+        var row_data = cell.getData()
+        var cell_value = cell.getValue()
+        if (cell_value !== '') {
+            var value = row_data['categorical']
+            if(value === "High"){
+                  cell.getElement().style.backgroundColor = high_colour
+            } else if (value === 'Medium') {
+                cell.getElement().style.backgroundColor = medium_colour
+            } else if (value === 'Low') {
+                cell.getElement().style.backgroundColor = low_colour
+            } else if (value === 'None') {
+                cell.getElement().style.backgroundColor = none_colour
+            }
+        }
+        return cell_value}
+
+    function specific_activity_colour_by_activity_formatter(cell, formatterParams) {
+        var row_data = cell.getData()
+        var cell_value = cell.getValue()
+        if (cell_value !== '') {
+            var value = row_data['categorical']
+            if(value === "High"){
+                  cell.getElement().style.backgroundColor = high_colour
+            } else if (value === 'Medium') {
+                cell.getElement().style.backgroundColor = medium_colour
+            } else if (value === 'Low') {
+                cell.getElement().style.backgroundColor = low_colour
+            } else if (value === 'None') {
+                cell.getElement().style.backgroundColor = none_colour
+            }
+        }
+        return cell_value}
+
+    var substrate_specificity_columns = [
+
+        {'title': "_id", 'field': "_id", visible:false},
+        {'title': "Reaction", 'field': "reaction", 'minWidth':100, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Enzyme type", 'field': "enzyme_type", 'minWidth':75, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Enzyme name", 'field': "enzyme_name", 'minWidth':75, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Data source", 'field': "short_citation", 'minWidth':100, headerFilter:"list", headerFilterParams:{valuesLookup:"active"}, formatter:doi_formatter},
+        {'title': "Data source doi", 'field': "html_doi", visible:false},
+        {'title': "paper", 'field': "paper", visible:false},
+        {'title': "Substrate 1 SMILES", 'field': "substrate_1_smiles", 'minWidth':150, formatter:"image"},
+        {'title': "Substrate 2 SMILES", 'field': "substrate_2_smiles", 'minWidth':150, formatter:"image"},
+        {'title': "Product 1 SMILES", 'field': "product_1_smiles", 'minWidth':150, formatter:"image"},
+        {'title': "Selectivity", 'field': "selectivity", 'minWidth':100, headerFilter:"input", formatter:"textarea"},
+        {'title': "Similarity", 'field': "similarity", 'minWidth':75, headerFilter:"input", headerFilterPlaceholder:"Min sim.", headerFilterFunc:">="},
+        {'title': "Binary", 'field': "binary", 'minWidth':75, headerFilter:"list", headerFilterParams:{valuesLookup:"active"},
+            formatter:binary_colour_by_activity_formatter},
+        {'title': "Categorical", 'field': "categorical", 'minWidth':75, headerFilter:"list", headerFilterParams:{valuesLookup:"active"},
+            formatter:categorical_colour_by_activity_formatter},
+        {'title': "Conversion (%)", 'field': "conversion", 'minWidth':100, sorter:"number", headerFilter:minMaxFilterEditor, headerFilterFunc:minMaxFilterFunction, headerFilterLiveFilter:false,
+            formatter:conversion_colour_by_activity_formatter},
+        {'title': "Specific activity (U/mg)", 'field': "specific_activity", 'minWidth':100, sorter:"number",
+            headerFilter:minMaxFilterEditor, headerFilterFunc:minMaxFilterFunction, headerFilterLiveFilter:false,
+            formatter:specific_activity_colour_by_activity_formatter},
+        {'title': "Temperature", 'field': "temperature", 'minWidth':75, formatter:"textarea"},
+        {'title': "pH", 'field': "ph", 'minWidth':50, formatter:"textarea"},
+        {'title': "Solvent", 'field': "solvent", 'minWidth':75, formatter:"textarea"},
+        {'title': "Other conditions", 'field': "other_conditions", 'minWidth':200, formatter:"textarea"},
+        {'title': "Notes", 'field': "notes", 'minWidth':200, formatter:"textarea"},
+        {'title': "Reaction volume (ml)", 'field': "reaction_vol", 'minWidth':75, formatter:"textarea"},
+        {'title': "Biocatalyst Formulation", 'field': "formulation", 'minWidth':100, formatter:"textarea"},
+        {'title': "Biocatalyst Concentration (mg/ml)", 'field': "biocat_conc", 'minWidth':100, formatter:"textarea"},
+        {'title': "kcat (min-1)", 'field': "kcat", 'minWidth':100, formatter:"textarea"},
+        {'title': "KM (mM)", 'field': "km", 'minWidth':100, formatter:"textarea"},
+        {'title': "Enz MW (Da)", 'field': "mw", 'minWidth':100, formatter:"textarea"},
+        {'title': "Substrate 1 conc (mM)", 'field': "substrate_1_conc", 'minWidth':100, formatter:"textarea"},
+        {'title': "Substrate 2 conc (mM)", 'field': "substrate_2_conc", 'minWidth':100, formatter:"textarea"},
+        {'title': "Conversion time (hrs)", 'field': "conversion_time", 'minWidth':100, formatter:"textarea"},
+
+    ]
+
+    var substrate_specificity_tabledata = {{substrate_specificity_data|safe}}
+
+    var alt_names = {{alt_names|tojson}}
+    if (Object.keys(alt_names).length >= 1) {
+        add_alt_names_column_and_data()
+    }
+
+    function add_alt_names_column_and_data() {
+        var alt_name_col = {'title': "Alt. name used in paper", 'field': "alt_name", 'minWidth':75, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}}
+        substrate_specificity_columns.splice(4, 0, alt_name_col)
+        substrate_specificity_tabledata.forEach(function (item, index) {
+            if (item['enzyme_name'] in alt_names) {
+                item['alt_name'] = alt_names[item['enzyme_name']]
+            } else {
+                item['alt_name'] = ""
+            }
+        });
+    }
+
+    var substrate_specificity_table = new Tabulator("#substrate_specificity_table", {
+        progressiveRender: true,
+        data:substrate_specificity_tabledata, //assign data to table
+        maxHeight:"80vh",
+        columnDefaults:{
+            hozAlign:"center",
+            vertAlign:"middle"
+        },
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:substrate_specificity_columns,
+        index:"_id"
+    });
+
+     substrate_specificity_table.on("rowClick", function(e, row){
+            var rowData = row.getData();
+            var activity_id = rowData['_id']
+            var enzyme_name = rowData['enzyme_name']
+            var paper_id = rowData['paper']
+            load_sequence_data(enzyme_name)
+            load_single_activity_data(activity_id)
+            load_paper_data(paper_id)
+            $('#substrate_specificity_modal').modal('show');
+        });
+
+    window.addEventListener("load", function(){
+        document.getElementById("loading_please_wait").remove();
+
+        // hide any columns with no data
+        hide_empty()
+    });
+
+
+    function get_columns_with_data() {
+        var columns_with_data = []
+        substrate_specificity_table.getData().forEach(function (item, index) {
+            for (const [key, value] of Object.entries(item)) {
+                if (value !== undefined && value !== '' && columns_with_data.includes(key) === false) {
+                    columns_with_data.push(key)
+                }
+            }
+        })
+        return columns_with_data
+    }
+
+    function get_columns_without_data(columns_with_data) {
+        var columns_without_data = []
+        substrate_specificity_columns.forEach(function(item, i) {
+            if (columns_with_data.includes(item.field) === false) {
+                columns_without_data.push(item.field)
+            }
+        })
+        return columns_without_data
+    }
+
+    function hide_columns(columns_to_hide) {
+        columns_to_hide.forEach(function (col, i) {
+            substrate_specificity_table.hideColumn(col)
+        })
+    }
+
+    function hide_empty() {
+        var columns_with_data = get_columns_with_data()
+        var columns_without_data = get_columns_without_data(columns_with_data)
+        hide_columns(columns_without_data)
+    }
+
+
+
+
+
+
+
+</script>
+

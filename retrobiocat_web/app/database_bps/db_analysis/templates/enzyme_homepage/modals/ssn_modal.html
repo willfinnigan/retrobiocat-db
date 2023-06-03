@@ -1,0 +1,51 @@
+<div class="modal fade" id="SSN_modal" tabindex="-1" role="dialog"
+     aria-labelledby="paper_search_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ enzyme_type }} SSN</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <small><strong>{{ enzyme_type }} SSN status: </strong><span id="ssn_object_status" class="text-success">{{ ssn_status }}</span></small>
+                <br/><small><strong>Num database seqs: </strong>{{db_stats['num_enzymes_w_protein']}}</small>
+                <br/><small><strong>Num uniref50 seqs: </strong>{{db_stats['num_uniref50']}}</small>
+                <div class="form-group mt-2">
+                    <select id="ssn_alignment_score" class="form-control custom-select">
+                        {% for option in ssn_alignment_options %}
+                            <option value={{option[0]}}>{{option[1]}}
+                        {% endfor %}
+                    </select>
+                </div>
+                <small>Select an alignment score to determine the level of connectedness between sequences in the SSN.<br/>(Higher score = only increasingly similar sequences are connected)</small>
+
+                <div class="form-group mt-4">
+                    <button class="btn btn-success btn-lg" onclick="launch_ssn()">Launch SSN</button>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.getElementById('ssn_alignment_score').value = {{score_idt_above_40}}
+
+    if ("{{ ssn_status }}" === "Complete") {
+        document.getElementById('ssn_object_status').className = "text-success"
+    } else {
+        document.getElementById('ssn_object_status').className = "text-danger"
+    }
+
+    function launch_ssn() {
+        console.log('launch ssn')
+        window.location.href = Flask.url_for("db_analysis.ssn", {"enzyme_type": "{{enzyme_type}}", "alignment_score": document.getElementById('ssn_alignment_score').value})
+    }
+
+</script>

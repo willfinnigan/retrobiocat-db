@@ -1,0 +1,52 @@
+<div role="group" class="btn-group">
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            Menu
+        </button>
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            <a class="dropdown-item" data-toggle="modal" data-target="#network_physics_modal">Network physics</a>
+            <a class="dropdown-item" onclick="delete_nodes()">Remove selected nodes</a>
+            <a class="dropdown-item" onclick="select_connected_nodes()">Select connected nodes</a>
+            <a class="dropdown-item" type="button" data-toggle="modal" data-target="#edit_selected_nodes_modal">Edit
+                selected nodes</a>
+            <a class="dropdown-item" onclick="load_all_edges()">Load edges for displayed nodes</a>
+            <a class="dropdown-item" data-toggle="modal" data-target="#clusters_modal" class="btn btn-primary btn-sm">Clusters</a>
+            <a class="dropdown-item" data-toggle="modal" data-target="#cytoscape_modal"
+               class="btn btn-secondary btn-sm">Download to cytoscape</a>
+
+            {% if current_user.has_role('admin') %}
+                <a class="dropdown-item" data-toggle="modal" data-target="#download_modal" class="btn btn-primary btn-sm">Download</a>
+            {% endif %}
+
+        </div>
+    </div>
+
+    <label class="my-auto text-center pl-2 pr-1"><strong>Alignment score: </strong>{{ alignment_score }}</label>
+
+    <div role="group" class="btn-group">
+        <button class="btn btn-sm btn-primary" type="button" data-toggle="modal" data-target="#cluster_analysis_modal">
+            Clusters
+        </button>
+        <button class="btn btn-sm btn-danger" type="button" data-toggle="modal" data-target="#pfam_modal">Pfam domains
+        </button>
+        <button class="btn btn-sm btn-secondary" type="button" data-toggle="modal" data-target="#rhea_modal">Rhea
+            reactions
+        </button>
+        <button class="btn btn-sm btn-primary" type="button" onclick="select_cluster()">Select connected</button>
+        <button class="btn btn-sm btn-success" type="button" data-toggle="modal"
+                data-target="#edit_selected_nodes_modal">Edit
+        </button>
+        <button class="btn btn-sm btn-warning" type="button" data-toggle="modal" data-target="#goto_modal">Go to
+        </button>
+        <button class="btn btn-sm btn-info" type="button" data-toggle="modal"
+                data-target="#heatmap_selected_nodes_modal">Analyse
+        </button>
+    </div>
+
+    <p id="loading_please_wait">Loading, please wait..</p>
+</div>
+
+<div id="live_ssn_response_bar"></div>
+
+

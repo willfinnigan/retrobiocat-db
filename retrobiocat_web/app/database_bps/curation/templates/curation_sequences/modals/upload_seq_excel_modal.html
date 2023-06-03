@@ -1,0 +1,79 @@
+<div class="modal fade" id="upload_seq_excel_modal" tabindex="-1" role="dialog" aria-labelledby="upload_seq_excel_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Excel</h5>
+            </div>
+
+
+            <div class="modal-body">
+                <p class="text-primary">To add sequences which are already in the database by name, use upload existing.  Any sequences which belong to you will have their fields updated if they are unreviewed.</p>
+                <p class="text-info">To create new sequences, use upload new.  Sequences must have unique names. Identifiers will be used to query NCBI and UniProt to download the protein sequence.</p>
+                <form id="upload-file-seq" method="post" enctype="multipart/form-data">
+                    <div id="upload_seq_response_seq"></div>
+                    <p>(only .xlsx files are accepted)</p>
+                    <fieldset>
+                        <label for="file_seq">Select excel file</label>
+                        <input name="file_seq" type="file">
+                    </fieldset>
+
+                    <fieldset>
+                        <button class='btn btn-primary upload-file-btn-seq' id="excel_upload_existing" type="button">Upload existing</button>
+                        <button class='btn btn-info upload-file-btn-seq' id="excel_upload_new" type="button">Upload new</button>
+                    </fieldset>
+                </form>
+
+                <div class="progress">
+                    <div class="progress-bar" id='sequence_excel_upload_progressbar'></div>
+                </div>
+
+                <p class="mt-4">If you wish to enter data via excel, please use
+                    <a href="{{url_for('.static', filename='sequence_template.xltx') }}"> this template.</a>
+                </p>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    function disable_enable_upload_buttons(disabled) {
+        document.getElementById("excel_upload_existing").disabled = disabled
+        document.getElementById("excel_upload_new").disabled = disabled
+    }
+
+    function get_form_data(btn_id) {
+        var form_data = new FormData($('#upload-file-seq')[0]);
+        form_data.append("paper_id_field", "{{paper_id}}")
+        if (btn_id === 'excel_upload_existing') {
+            form_data.append('new_or_existing', 'existing')
+        } else {
+            form_data.append('new_or_existing', 'new')
+        }
+        return form_data
+    }
+
+    $(function() {
+        $('.upload-file-btn-seq').click(function() {
+            var btn_id =  jQuery(this).attr("id");
+            disable_enable_upload_buttons(true)
+            var form_data = get_form_data(btn_id)
+            console.log(form_data)
+
+            function onFinish() {
+                disable_enable_upload_buttons(false)
+            }
+            upload_sequence_excel_ajax.upload_excel(form_data, seq_table, "sequence_excel_upload_progressbar", "upload_seq_response_seq", onFinish)
+        });
+    });
+
+</script>

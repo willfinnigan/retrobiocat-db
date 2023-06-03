@@ -1,0 +1,139 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_molecules" %}
+
+{% block curation_content %}
+    <div class="container-fluid">
+        <h5 class="text-center mb-3">Molecules</h5>
+        <div class="row">
+            <div class="col mx-auto" style="max-width:64rem">
+                 <!-- Table -->
+                <div id="molecules_table"></div>
+
+                 <!-- Buttons -->
+                <div class="mt-2">
+                    <button class="btn btn-info" onclick="molecules_new_molecule()">Draw new mol</button>
+                    <button class="btn btn-secondary" data-toggle='modal' data-target='#molecule_name_lookup_modal'>Mol from name</button>
+                    <button class="btn btn-outline-primary" data-toggle='modal' data-target='#molecule_excel_upload_modal'>Upload excel</button>
+                    <button class="btn btn-danger float-right" data-toggle='modal' data-target='#molecule_delete_modal'>Delete
+                        molecules
+                    </button>
+                </div>
+                <div id="molecules_response_div"></div>
+
+            </div>
+        </div>
+
+
+
+    </div>
+
+    <script>
+        var molecules_columns = [
+            {'title': "_id", 'field': "_id", visible: false},
+            {'title': "Smi", 'field': "smi", visible: false},
+            {'title': "Name (click to edit)", 'field': "name", 'editor': "input", 'headerSort': true,
+                cellEdited:function(cell){update_molecule_name(cell)}},
+            {'title': "Chem. Name", 'field': "chem_name", 'headerSort': true},
+            {'title': "Mol (click to edit)", 'field': "mol", formatter: "image",
+                cellClick: function (e, cell) {molecule_cell_click(cell)}},
+        ]
+
+        var molecules_tabledata = {{molecules_data|safe}}
+
+        var molecules_table = new Tabulator("#molecules_table", {
+            data: molecules_tabledata, //assign data to table
+            history: true,
+            columnDefaults: {
+                hozAlign: "center",
+                vertAlign: "center"
+            },
+            maxHeight: "60vh",
+            layout: "fitColumns",
+            addRowPos: "bottom",
+            columns: molecules_columns,
+            index: '_id'
+        });
+
+        function update_molecule_name(cell) {
+            var row_data = cell.getRow().getData()
+            var mol_id = row_data._id
+            var mol_name = row_data.name
+            var paper_id = "{{paper_id}}"
+
+            function callback(result) {
+                if (result.status !== 'success') {
+                    molecules_table.undo();
+                }
+            }
+
+            function onFinish() {}
+
+            update_activity_molecule_ajax.update_activity_molecule_name_only(paper_id, mol_id, mol_name, callback, "molecules_response_div", onFinish)
+
+        }
+
+
+        function molecule_highlight_stars() {
+            var rows = molecules_table.getRows()
+            rows.forEach(function (row, index) {
+                var row_data = row.getData()
+                if (row_data['smi'].includes('*') === true) {
+                    var rowElement = row.getElement();
+                    rowElement.style.backgroundColor = "red"
+                }
+            })
+        }
+
+        molecule_highlight_stars()
+
+        function molecule_cell_click(cell) {
+            var row_data = cell.getRow().getData()
+            molecule_launch_mol_modal(row_data)
+        }
+
+        function molecule_launch_mol_modal(row_data) {
+            var smi = row_data['smi']
+            $('#molecule_edit_modal').modal('show');
+            if (smi === "") {
+                molecule_marvin.clear()
+            } else {
+                molecule_marvin.importStructure('smiles', smi)
+            }
+
+            current_mol_id = row_data['_id']
+            document.getElementById('molecule_edit_title').value = row_data['name']
+
+        }
+
+        function molecules_update_table(id, update_dict) {
+            var row = molecules_table.getRow(id)
+            row.update(update_dict)
+            row.getElement().style.backgroundColor = "transparent"
+            molecule_highlight_stars()
+        }
+
+        function molecules_add_new_row(update_dict, launch_modal) {
+            molecules_table.addRow(update_dict);
+            var row_data = molecules_table.getRow(update_dict['_id']).getData()
+            if (launch_modal===true) { molecule_launch_mol_modal(row_data)}
+
+        }
+
+        function molecules_new_molecule() {
+            var paper_id = "{{paper_id}}"
+            var empty_smi = ''
+
+            function callback(result) {
+                molecules_add_new_row(result.update_dict, true)
+            }
+
+            new_activity_molecule_ajax.new_activity_mol(paper_id, empty_smi, callback, "molecules_response_div")
+        }
+    </script>
+
+    {% include 'curation_molecules/modals/molecule_excel_upload_modal.html' %}
+    {% include 'curation_molecules/modals/molecule_edit_modal.html' %}
+    {% include 'curation_molecules/modals/molecule_delete_modal.html' %}
+    {% include 'curation_molecules/modals/molecule_lookup_name_modal.html' %}
+
+{% endblock %}

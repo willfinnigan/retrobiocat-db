@@ -1,0 +1,70 @@
+
+<div class="modal fade" id="source_mol_options_modal" tabindex="-1" role="dialog" aria-labelledby="formOptionsLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formOptionsLabel">Source molecules</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id='options' class="container">
+                    <div class="form-group">
+
+                        {{ retro_config_form.source_mol_mode.label() }}
+                        {{ retro_config_form.source_mol_mode(type='select', id='source_mol_mode', onchange="hide_show_vendors()", form="main_form", class="form-control custom-select w-50") }}
+                    </div>
+
+                    <div id="building_blocks_vendors">
+                        <b>Vendors of commercially available molecules</b>
+                        {{ checkbox(retro_config_form.zinc) }}
+                        {{ checkbox(retro_config_form.mcule) }}
+                        {{ checkbox(retro_config_form.molport) }}
+                        {{ checkbox(retro_config_form.askcos) }}
+                        {{ checkbox(retro_config_form.sigma) }}
+                        {{ checkbox(retro_config_form.apollo) }}
+                        {{ checkbox(retro_config_form.flurochem) }}
+                        {{ checkbox(retro_config_form.alfa) }}
+                        {{ checkbox(retro_config_form.lifechem) }}
+                    </div>
+                    <div id="metabolites_vendors" style="{display: None}">
+                        <b>Metabolite databases</b>
+                        {{ checkbox(retro_config_form.ecoli) }}
+                    </div>
+
+                    <div id="other_options" class="mt-3">
+                        <b>Other options</b>
+                        {{ checkbox(retro_config_form.source_mols_can_be_chiral) }}
+                    </div>
+
+                </div>
+            </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+    function hide_show_vendors() {
+        var select = document.getElementById("source_mol_mode");
+        var value = select.options[select.selectedIndex].value;
+
+        if (value === 'building_blocks') {
+            document.getElementById("building_blocks_vendors").style.display = "block";
+            document.getElementById("metabolites_vendors").style.display = "none";
+        } else {
+            document.getElementById("building_blocks_vendors").style.display = "none";
+            document.getElementById("metabolites_vendors").style.display = "block";
+        }
+    }
+
+    hide_show_vendors()
+
+</script>

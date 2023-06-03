@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <div class="container-fluid px-5" style="max-width: 1500px">
+        <div class="row">
+            <div class="col-12 mx-auto">
+                <div class="card card-form my-5">
+                    <div class="card-body">
+                        <h3 class="mb-5 text-center">Enzymes and molecules</h3>
+                        <div class="row">
+                            <div class="col">
+                                <h5>Enzyme type</h5>
+                                <div class="form-group mt-2">
+                                    <select id="enzyme_type_select" onchange="launch_new_page()" class="js-example-basic-single" style="width: 100%">
+                                        <option value="All">All</option>
+                                        {% for enz_type, full_name in enzyme_types.items() %}
+                                            <option value="{{enz_type}}">{{enz_type}} - {{full_name}}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <p class="mt-5 text-info">Click on bars for links to the underlying data</p>
+                                </div>
+                            </div>
+                            <div class="col">
+                                <h5>Reaction</h5>
+                                <div class="form-group mt-2">
+                                    <select id="reaction_select" onchange="launch_new_page()" class="js-example-basic-single" style="width: 100%">
+                                        <option value="All">All</option>
+                                        {% for reac in reactions %}
+                                            <option value="{{ reac }}">{{ reac }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" onchange="launch_new_page()" id="only_positive" {{only_positive}}>
+                            <label class="form-check-label" for="only_positive">Show only positive data</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card card-form my-5">
+                    <div class="card-body">
+
+
+                        {% include 'summary_page/page_parts/top_enzymes_and_molecules_part.html' %}
+
+                        <hr/>
+
+                        {% include 'summary_page/page_parts/molecular_descriptors_part.html' %}
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.enzyme_type = "{{ enzyme_type }}"
+        window.reaction = "{{ reaction }}"
+        document.getElementById('enzyme_type_select').value = "{{enzyme_type}}"
+        document.getElementById('reaction_select').value = "{{reaction}}"
+
+        function launch_new_page() {
+            var arguments = {'enzyme_type': document.getElementById('enzyme_type_select').value,
+                             'reaction': document.getElementById('reaction_select').value}
+
+            console.log(document.getElementById('only_positive').checked)
+
+            if (document.getElementById('only_positive').checked === true) {
+                arguments['only_positive'] = 'true'
+            }
+
+            window.location.href = Flask.url_for("db_analysis.top_enzymes_and_products", arguments)
+        }
+
+    </script>
+
+{% endblock %}

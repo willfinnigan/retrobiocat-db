@@ -1,0 +1,80 @@
+<div class="modal fade" id="molecule_osra_modal" tabindex="-1" role="dialog" aria-labelledby="molecule_osra_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Optical structure recognition</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" align="center">
+
+                <small class="no_margin">This works best with 1 molecule per image - although it can handle multiple
+                    molecules. Only .png or .jpeg are accepted.</small>
+
+                <div id="mol_upload_response"></div>
+
+                <form id='mol_upload_form' method='post' action='' enctype="multipart/form-data">
+                    <input id="mol_paper_id_field" name="mol_paper_id_field" type="hidden" value="{{ paper_id }}">
+                    <input type="file" id='mol_image_files' name="files[]" form="mol_upload_form" multiple><br>
+                    {% if config['OSRA_ENABLED'] == False %}
+                        {% set osra_disable = 'disabled' %}
+                        <p>OSRA microservice is disabled</p>
+                    {% else %}
+                        {% set osra_disable = '' %}
+                    {% endif %}
+                    <input type="button" id="mol_upload_submit" form="mol_upload_form" class="btn btn-success mt-2"
+                           value="Upload and Process" {{osra_disable}}>
+                    <div class="progress">
+                        <div class="progress-bar" id='progressbar'></div>
+                    </div>
+                </form>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    function get_form_data() {
+        var form_data = new FormData();
+
+        // Read selected files
+        var totalfiles = document.getElementById('mol_image_files').files.length;
+        for (var index = 0; index < totalfiles; index++) {
+            form_data.append("file_" + index, document.getElementById('mol_image_files').files[index]);
+        }
+
+        form_data.append("mol_paper_id_field", "{{paper_id}}")
+
+        return form_data
+    }
+
+    $(function () {
+        $('#mol_upload_submit').click(function () {
+            document.getElementById("mol_upload_submit").disabled = true
+            form_data = get_form_data()
+
+            function callback(result) {
+                getProcessingStatus(result.task_id)
+            }
+
+            function onFinish() {
+                document.getElementById("mol_upload_submit").disabled = false
+            }
+
+            osra_activity_molecule_ajax.submit_images_for_processing(form_data, callback, "mol_upload_response", onFinish)
+        });
+    });
+
+    function getProcessingStatus(taskID) {
+        function callback() {location.reload()}
+        get_status_ajax.get_status(taskID, 'osra', "progressbar", 2000, callback)
+    }
+
+
+</script>

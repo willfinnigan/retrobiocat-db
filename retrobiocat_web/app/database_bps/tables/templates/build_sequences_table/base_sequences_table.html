@@ -1,0 +1,64 @@
+<div id="seq_table"></div>
+<div id="seq_response"></div>
+
+
+<script>
+
+    var seq_columns = [
+        {'title':"ID", 'field':"_id", visible:false, headerSort:false},
+        {'title': "Type", 'field': "enzyme_type", 'minWidth':100, headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Name", 'field': "enzyme_name", headerFilter:"input", 'minWidth':100, 'width':160},
+        {'title': "Sequence", 'field': "sequence", hozAlign:"left", 'minWidth':250, headerFilter:"input"},
+        {'title': "Seq. unavailable", 'minWidth':80, 'field': "sequence_unavailable", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Accession", 'minWidth':80, 'field': "accession", headerFilter:"input"},
+        {'title': "PDB", 'minWidth': 80, 'field': "pdb", headerFilter: "input"},
+        {'title': "Mutant of", 'minWidth': 80, 'field': "mutant_of", headerFilter: "input"},
+        {'title': "Notes", 'field': "notes", 'minWidth': 150, headerFilter: "input"},
+        {'title': "Other names", 'field': "other_names", 'minWidth': 150, headerFilter: "input"},
+        {'title': "Curated by", align:"center", 'field': "owner", 'minWidth':100, headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Reviewed", 'minWidth': 40, 'field': "reviewed"},
+        {'title': "Num. papers", 'minWidth':80, 'field': "papers"},
+    ]
+
+    </script>
+
+    {% block add_columns %}{% endblock %}
+
+    <script>
+    var seq_tabledata = {{seq_data|safe}};
+    </script>
+
+    {% block add_data %}{% endblock %}
+
+    <script>
+
+    var seq_table = new Tabulator("#seq_table", {
+        data:seq_tabledata, //assign data to table
+        {% if can_copy %}
+            {% if can_copy == True %}
+                clipboard:'copy',
+            {% endif %}
+        {% endif %}
+        columnDefaults:{
+            hozAlign:"center",
+            vertAlign:"middle"
+        },
+        maxHeight: "{{seq_table_options['table_height']}}",// "60vh",
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:seq_columns,
+        index:"_id"})
+
+    {% if can_copy %}
+        {% if can_copy == True %}
+            function copy_to_clipboard() {
+                console.log('copied')
+                seq_table.copyToClipboard("all")
+            }
+        {% endif %}
+    {% endif %}
+
+
+    </script>
+
+    {% block add_functions %}{% endblock %}

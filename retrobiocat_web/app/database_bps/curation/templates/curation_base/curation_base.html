@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+ <script src="https://marvinjs.chemicalize.com/v1/7588c40bc4424c69848ae9c4dc605b89/client-settings.js"></script>
+ <script src="https://marvinjs.chemicalize.com/v1/client.js"></script>
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-form">
+                    <div class="card-body">
+                        <h5 class="text-center"><b>Curating: </b>{{ paper_title }}</h5>
+                        {% include 'curation_base/curation_navbar.html' %}
+                        {% block curation_content %}
+                        {% endblock %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'curation_base/ajax_scripts.html' %}
+{% endblock %}

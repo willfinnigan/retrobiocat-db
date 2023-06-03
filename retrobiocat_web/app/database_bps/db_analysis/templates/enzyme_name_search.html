@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col mx-auto center-block" style="max-width:64rem">
+                <div class="card card-form my-5">
+                    <div class="card-body">
+                        <div class="center-block">
+                            <h5 class="text-center">Enzyme name search</h5>
+                            <div class="form-group mt-2 text-center">
+                                <select id="enzyme_name_selector" class="js-example-basic-single" style="width: 75%" placeholder="enter name here..">
+                                    <option value="">..</option>
+                                    {% for enz_name in enzyme_names %}
+                                        <option value="{{ enz_name }}">{{ enz_name }}</option>
+                                    {% endfor %}
+                                </select>
+                                <br/><small class="text-center">Enter name here</small>
+                            </div>
+                         
+                        </div>
+
+                        <hr/>
+
+                        <div id="enzyme_info_div" hidden>
+                            {% include 'information_pages/sequence_information.html' %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("enzyme_name_selector").onchange = function() {
+            var enzyme_name = document.getElementById("enzyme_name_selector").value
+            if (enzyme_name !== '') {
+                load_sequence_data(enzyme_name)
+                document.getElementById("enzyme_info_div").hidden = false
+            } else {
+                document.getElementById("enzyme_info_div").hidden = true
+            }
+
+        }
+
+    </script>
+
+{% endblock %}

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div id="response_div_auto"></div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3 class="my-5">Identical sequences for {{ enzyme_type }}</h3>
+
+                        {% for match in matches %}
+                            <p class="my-1">
+                                {% for name in match %}
+                                    {{ name }}
+                                    {% if loop.index < match|length %}
+                                     ==
+                                    {% endif %}
+                                {% endfor %}
+                            </p>
+                        {% endfor %}
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+
+{% endblock %}

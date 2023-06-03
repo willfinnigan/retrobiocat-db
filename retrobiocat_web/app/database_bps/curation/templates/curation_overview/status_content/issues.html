@@ -1,0 +1,17 @@
+<div class="custom-control custom-checkbox mt-1 mb-2">
+    <div id="issues_response_div"></div>
+    <input class="custom-control-input" type="checkbox" id="issues" {{ status['issues_disabled'] }} {{status['issues_checked']}}>
+    <label class="custom-control-label" for="issues">Has issues</label>
+    <small class="form-text text-muted no_margin">Data entry has issues which need to be resolved. See comments.</small>
+</div>
+
+
+
+<script>
+    document.getElementById("issues").onchange = function(){
+        var paper_id = "{{paper_id}}"
+        var issues_checked = document.getElementById("issues").checked
+        paper_issues_ajax.set_paper_has_issues(paper_id, issues_checked, "issues_response_div")
+    };
+
+</script>

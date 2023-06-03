@@ -1,0 +1,121 @@
+<!-- Main modal -->
+<div class="modal fade" id="edit_selected_nodes_modal" tabindex="-1" role="dialog" aria-labelledby="edit_selected_nodes_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit selected node settings</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id="edit_nodes_response"></div>
+                <p><span id="num_selected_nodes"></span> nodes selected</p>
+
+                <p>
+                    <button class="btn btn-danger" onclick="delete_nodes()">Delete selected nodes</button>
+                </p>
+
+                <p>
+                    <button class="btn btn-warning" onclick="delete_non_selected_nodes()">Delete non-selected nodes</button>
+                </p>
+
+                <p>
+                    <button class="btn btn-info" onclick="change_colour()">Change node colours</button>
+                    <input data-jscolor="{alpha:0.95}" id="colour_picker" value="rgba(5, 5, 168, 0.95)" name="Colour picker">
+                </p>
+
+                <button class="btn btn-outline-success" onclick="restore_default_colours()">Restore default colours</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    jscolor.presets.default = {
+        format:'rgba', previewSize:64
+    };
+    function change_cluster_colour(cluster_id) {
+
+    }
+
+    function get_default_colour_dict() {
+        var original_nodes = {{ nodes|tojson }}
+        var colour_dict = {}
+        original_nodes.forEach(function (node_dict, i) {
+            colour_dict[node_dict['id']] = node_dict['color']
+        })
+
+        return colour_dict
+
+    }
+
+    window.colour_dict = get_default_colour_dict()
+
+    function restore_default_colours() {
+
+        var to_update = []
+
+        data['nodes'].forEach(function (node_dict, i) {
+            var id = node_dict['id']
+            var update_dict = {'id': id, 'color': window.colour_dict[id]}
+            to_update.push(update_dict)
+        })
+
+        data['nodes'].update(to_update)
+    }
+
+
+    async function change_colour() {
+        response_msg("Colours are being updated", 'success', [], "edit_nodes_response")
+        var colour = document.getElementById("colour_picker").value
+        var selected_nodes = network.getSelectedNodes()
+        var to_update = []
+
+        selected_nodes.forEach(function (node_id, i) {
+            var update_dict = {'id': node_id, 'color': {background: colour}}
+            to_update.push(update_dict)
+        })
+
+        data['nodes'].update(to_update)
+    }
+
+    function edit_nodes_modal_launched() {
+        var selected_nodes = network.getSelectedNodes()
+        document.getElementById("num_selected_nodes").innerHTML = selected_nodes.length
+    }
+
+    $('#edit_selected_nodes_modal').on('shown.bs.modal', function (e) {
+        edit_nodes_modal_launched()
+    })
+
+    async function delete_nodes() {
+        response_msg("Nodes are being deleted", 'success', [], "edit_nodes_response")
+        var selected_nodes = network.getSelectedNodes()
+        data['nodes'].remove(selected_nodes)
+        window.list_clusters = create_list_clusters(data['nodes'])
+    }
+
+    async function delete_non_selected_nodes() {
+        response_msg("Nodes are being deleted", 'success', [], "edit_nodes_response")
+        var selected_nodes = network.getSelectedNodes()
+        var all_nodes = data['nodes'].getIds()
+        var other_nodes = all_nodes.filter( function( el ) {
+          return !selected_nodes.includes( el );
+        });
+        data['nodes'].remove(other_nodes)
+        window.list_clusters = create_list_clusters(data['nodes'])
+    }
+
+
+
+
+</script>

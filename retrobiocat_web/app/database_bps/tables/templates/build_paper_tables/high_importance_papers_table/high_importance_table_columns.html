@@ -1,0 +1,21 @@
+<script>
+    function doi_formatter(cell, formatterParams) {
+            var cell_value = cell.getValue();
+            var row_data = cell.getData()
+            var doi = row_data['doi']
+            var url = "<a href='https://doi.org/" + doi + "' target='_blank'>" + cell_value + "</a>";
+
+            cell.getElement().style.display = 'inline-flex'
+            cell.getElement().style["white-space"]  = 'pre-wrap'
+            return url
+            }
+
+    var papers_columns = [
+        {'title':"ID", 'field':"_id", visible:false},
+        {'title': "Short citation", 'minWidth':200, 'field': "short_citation", formatter:"textarea"},
+        {'title': "Title", 'field': "title", 'minWidth':300, formatter:"textarea"},
+        {'title': "DOI",  'minWidth':200, 'field': "doi", formatter:doi_formatter},
+    ];
+</script>
+
+{% include 'build_paper_tables/buttons/self_assign_button.html' %}

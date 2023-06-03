@@ -1,0 +1,29 @@
+<div class="modal fade" id="scope_seq_modal" tabindex="-1" role="dialog" aria-labelledby="scope_seq_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p id="test_seqs"></p>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function scope_launch_seq_modal() {
+        $('#scope_seq_modal').modal('show');
+        document.getElementById('test_seqs').innerHTML = JSON.stringify(window.selected_seqs)
+        console.log(window.selected_seqs)
+    }
+</script>
+
+
+

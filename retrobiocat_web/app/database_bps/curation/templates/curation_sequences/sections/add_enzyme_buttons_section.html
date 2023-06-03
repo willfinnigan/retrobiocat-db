@@ -1,0 +1,37 @@
+<div class="mt-3">
+    <p class="no_margin">For a large number of sequences, we recommend the excel upload function.
+        Please use <a href="{{url_for('.static', filename='sequence_template.xltx') }}"> this excel template.</a>
+    </p>
+</div>
+
+<div class="mt-2">
+    <button id="add_enzyme_button" class="btn btn-success" data-toggle="modal"
+            data-target="#add_new_enzyme_modal">Add Enzyme
+    </button>
+
+    <button class="btn btn-outline-primary" id="upload_seq_excel" data-toggle='modal'
+            data-target='#upload_seq_excel_modal'>Upload Excel
+    </button>
+
+    <button class="btn btn-outline-danger" id="remove_all_sequences_button"
+            data-toggle='modal' data-target='#remove_all_sequences_modal' hidden>
+        Remove all
+    </button>
+
+    <button class="btn btn-outline-info" id="alt_seq_naming_button"
+            data-toggle='modal' data-target='#alt_seq_naming_modal' onclick="alt_name_modal_load()">
+        Set alternative naming
+    </button>
+</div>
+
+
+<script>
+    if ("{{access_dict['review_disabled']}}" !== 'disabled') {
+        document.getElementById("remove_all_sequences_button").hidden = false
+    }
+</script>
+
+{% include 'curation_sequences/modals/add_sequence_modal/model_structure.html' %}
+{% include 'curation_sequences/modals/upload_seq_excel_modal.html' %}
+{% include 'curation_sequences/modals/remove_all_sequences_modal.html' %}
+{% include 'curation_sequences/modals/alt_seq_naming_modal.html' %}

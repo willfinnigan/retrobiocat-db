@@ -1,0 +1,10 @@
+<h3 class="text-center">Molecular descriptor distributions for reaction products</h3>
+
+<div class="row justify-content-center mb-5">
+    {% for script_and_div in graphs['descriptor_graphs'] %}
+        <div class='col-sm-auto mx-auto mb-2'>
+            {{script_and_div[1]|safe}}
+            {{script_and_div[0]|safe}}
+        </div>
+    {% endfor %}
+</div>

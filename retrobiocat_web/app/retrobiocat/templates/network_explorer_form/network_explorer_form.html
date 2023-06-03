@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+{% set active_page = "retrosynthesis" %}
+
+{% block content %}
+    {% from 'global/macros/form_macros.html' import number_field with context %}
+    {% from 'global/macros/form_macros.html' import target_smiles with context %}
+    {% from 'global/macros/form_macros.html' import checkbox with context %}
+    {% from 'global/macros/form_macros.html' import select with context %}
+    {% from 'global/macros/form_macros.html' import number_inline with context %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <form id="main_form" method="POST" action="" novalidate>
+                    <div class="card card-form my-5" style="width: 32rem;">
+                        <div class="card-body" align="center">
+                            <h3 class="card-title">Network explorer</h3>
+                            <p> A short tutorial is available
+                                <a href="{{url_for('.static', filename='tutorial_pdfs/network_explorer_tutorial.pdf') }}" target="_blank"> here</a>
+                            </p>
+
+                                {{ form.hidden_tag() }}
+
+                                {{ target_smiles(form.target_smiles) }}
+
+                                <div class="btn-group mb-4 mt-1" role="group">
+                                    <button type="button" class="btn btn-outline-warning" data-toggle="modal" data-target="#example_molecules">
+                                        Examples
+                                    </button>
+
+                                    <button type="button" class="btn btn-outline-secondary" data-toggle="modal" data-target="#my_molecules_modal">
+                                        My Mols
+                                    </button>
+
+                                    <button type="button" class="btn btn-outline-primary" data-toggle="modal" data-target="#save_molecule_modal">
+                                        Save
+                                    </button>
+
+                                    <button type="button" class="btn btn-outline-info" data-toggle="modal" data-target="#fragment_modal">
+                                        Fragment
+                                    </button>
+
+                                    <!--
+                                    <button type="button" class="btn btn-outline-danger" data-toggle="modal" data-target="#chemistry_modal">
+                                        Chemistry
+                                    </button>
+                                    -->
+                                </div>
+
+                                <div class="form-group">
+                                    {{ form.submit(class="btn-lg btn-block btn-success") }}
+                                </div>
+
+                            {{ checkbox(retro_config_form.include_requires_absence_of_water) }}
+
+                            <button type="button" class="btn btn-outline-primary mt-2" data-toggle="modal" data-target="#retrosynthesis_options_modal">
+                                Other options
+                            </button>
+
+                            <button type="button" class="btn btn-outline-success mt-2" data-toggle="modal" data-target="#source_mol_options_modal">
+                                Source molecules
+                            </button>
+
+                            <button type="button" class="btn btn-outline-warning mt-2" data-toggle="modal" data-target="#network_explorer_options_modal">
+                                Network options
+                            </button>
+
+
+                            <div class="progress">
+                                <div class="progress-bar" id='progressbar'></div>
+                            </div>
+
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    {% include 'retrosynthesis_options_modals/retrosynthesis_options.html' %}
+    {% include 'retrosynthesis_options_modals/source_mol_options.html' %}
+    {% include 'retrosynthesis_options_modals/network_explorer_options.html' %}
+    {% include 'global/modals/modal_drawer.html' %}
+    {% include 'global/modals/modal_example_molecules.html' %}
+
+    {% include 'cascade_design_form_modals/save_molecule_modal.html' %}
+    {% include 'cascade_design_form_modals/my_molecules_modal.html' %}
+    {% include 'cascade_design_form_modals/fragment_modal.html' %}
+    {% include 'cascade_design_form_modals/chemistry_modal.html' %}
+
+
+{% endblock %}

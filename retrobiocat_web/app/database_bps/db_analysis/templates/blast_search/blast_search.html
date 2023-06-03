@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col mx-auto center-block" style="max-width:82rem">
+                <div class="card card-form my-5">
+                    <div class="card-body">
+                        <div class="center-block">
+
+                            <h5 class="mt-2 mb-4 text-center">BLAST BioCatDB for homologous sequences</h5>
+
+                             <form method="POST" action="" novalidate>
+                                {{ form.hidden_tag() }}
+                                <div class="form-group">
+                                    <label for="{{form.sequence.id }}">Query sequence</label>
+                                    {{ form.sequence(class="form-control", cols="35", rows="20", placeholder='enter protein sequence') }}
+                                    {% for error in form.sequence.errors %}
+                                        <small style="color: red;">[{{ error }}]</small>
+                                    {% endfor %}
+                                </div>
+
+                                 <div class="form-group w-25 center-block">
+                                    {{ form.submit(class="btn-lg btn-block btn-success") }}
+                                </div>
+
+                             </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

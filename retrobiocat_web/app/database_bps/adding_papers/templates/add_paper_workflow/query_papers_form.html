@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3 class="card-title">Search for papers</h3>
+                        <form id="main_form" method="POST">
+                            {{ form.hidden_tag() }}
+                            <div class="form-group">
+                                <label for="enzyme_type">Enzyme type</label>
+                                {{ form.enzyme_type(type='select', class="form-control custom-select w-50") }}
+                                {% for error in form.enzyme_type.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group">
+                                {{ form.keyword.label() }}
+                                {{ form.keyword(type="text", form="main_form", class="form-control", placeholder='')}}
+                                {% for error in form.keyword.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group my-2">
+                                {{ form.submit(class="btn btn-success", form="main_form") }}
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+{% endblock %}

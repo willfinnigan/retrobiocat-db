@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <h5 class="text-center mt-4 mb-2">{{ title }}</h5>
+        {% include 'build_paper_tables/built_tables/self_assign_papers_table.html' %}
+    </div>
+{% endblock %}

@@ -1,0 +1,78 @@
+<div class="modal fade" id="molecule_grid_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">{{ enzyme_type }} molecule grid</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group mt-2">
+                    <label for="grid_reaction">Reaction</label>
+                    <select id='grid_reaction' class="form-control custom-select w-50">
+                        {% for reaction in reactions %}
+                            <option value="{{ reaction }}">{{ reaction }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="grid_molecule">Molecule</label>
+                    <select id="grid_molecule" class="form-control custom-select w-50">
+                        <option value="product_1_smiles">Product</option>
+                        <option value="substrate_1_smiles">Substrate 1</option>
+                        <option value="substrate_2_smiles">Substrate 2</option>
+                    </select>
+                    <br/><small>Select the molecule in the reaction to show on the heatmap</small>
+                </div>
+
+                <div class="form-group mt-2">
+                    <label for="grid_negative_data">Negative data</label>
+                    <select id="grid_negative_data" class="form-control custom-select w-50">
+                        <option value="all">Do not include</option>
+                        <option value="false">Include all</option>
+                    </select>
+                </div>
+
+                <div class="custom-control custom-checkbox mt-4">
+                    <input type="checkbox" id='grid_only_reviewed' class="custom-control-input" checked>
+                    <label for='grid_only_reviewed' class="custom-control-label">Only reviewed</label>
+                </div>
+
+
+                <button class="btn btn-success btn-lg mt-3" onclick="launch_molecule_grid()">Launch Grid View</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function launch_molecule_grid() {
+        var options = {"enzyme_type": "{{ enzyme_type }}",
+                       "only_reviewed": "True",
+                       "remove_negative": document.getElementById("grid_negative_data").value,
+                       "mol_type": document.getElementById("grid_molecule").value}
+
+        if (document.getElementById("grid_only_reviewed").checked === false) {
+            options['only_reviewed'] = 'False'
+        }
+
+        var reaction = document.getElementById("grid_reaction").value
+        if (reaction !== '-') {
+            options['reaction'] = reaction
+        }
+
+        window.location.href = Flask.url_for("db_analysis.substrate_grid", options);
+    }
+
+</script>

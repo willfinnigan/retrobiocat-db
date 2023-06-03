@@ -1,0 +1,216 @@
+{% extends "base.html" %}
+{% set active_page = "retrosynthesis" %}
+{% set retrosynthesis_type = "network_explorer" %}
+
+{% block content %}
+    <div style="overflow-y: hidden; height:90vh">
+        {% include 'network_explorer/network_top_bar.html' %}
+        <div id="mynetwork"></div>
+    </div>
+
+
+    <script src="{{url_for('.static', filename='js/network.js')}}?v={{v}}" type="text/javascript"></script>
+    <script src="{{url_for('.static', filename='js/node_info.js')}}?v={{v}}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+        // initialize global variables.
+        var container = document.getElementById('mynetwork');
+        var default_options = {physics: {stabilization: {enabled: true, iterations: 1000, updateInterval: 100}},
+                               interaction: {zoomSpeed: 0.5}
+                              }
+
+        var options = $.extend(true, default_options, {{options|safe}});
+        var data = {'nodes': new vis.DataSet({{nodes|tojson}}), 'edges': new vis.DataSet({{edges|tojson}})};
+        var network = new vis.Network(container, data, options);
+        var enzyme_options = {}
+
+        window.task_id = '{{task_id}}'
+        window.network_id = '{{task_id}}'
+
+        window.reaction_mode = 'biocatalysis'
+        window.starting_node = data['nodes'].get()[0]
+        window.helper_text_on = false
+
+        function add_helper_note_to_initial_target() {
+            window.starting_node['label'] = 'Double click me to expand, double click reaction nodes to delete'
+            data['nodes'].update(window.starting_node);
+            window.helper_text_on = true
+        }
+
+        function remove_helper_text() {
+            if (window.helper_text_on === false) {
+                window.starting_node['label'] = ''
+                data['nodes'].update(window.starting_node);
+            }
+        }
+
+        add_helper_note_to_initial_target()
+
+
+        function toggle_reaction_mode() {
+            if (window.reaction_mode === 'biocatalysis') {
+                document.getElementById("rxn_mode_btn").className = "btn btn-danger btn-sm ml-2"
+                document.getElementById("rxn_mode_btn").innerHTML = "<strong>Reaction mode: </strong>Chemistry <small>(Aizynthfinder rules)</small"
+                window.reaction_mode = 'chemistry'
+            } else if (window.reaction_mode === 'chemistry') {
+                document.getElementById("rxn_mode_btn").className = "btn btn-danger btn-sm ml-2"
+                document.getElementById("rxn_mode_btn").innerHTML = "<strong>Reaction mode: </strong>Chemistry <small>(RingBreaker rules)</small"
+                window.reaction_mode = 'ringbreaker'
+            } else if (window.reaction_mode === 'ringbreaker') {
+                window.reaction_mode = 'biosynthesis'
+                document.getElementById("rxn_mode_btn").className = "btn btn-info btn-sm ml-2"
+                document.getElementById("rxn_mode_btn").innerHTML = "<strong>Reaction mode: </strong>Biosynthesis <small>(RetroRules)</small"
+            } else if (window.reaction_mode === 'biosynthesis') {
+                window.reaction_mode = 'biocatalysis'
+                document.getElementById("rxn_mode_btn").className = "btn btn-success btn-sm ml-2"
+                document.getElementById("rxn_mode_btn").innerHTML = "<strong>Reaction mode: </strong>Biocatalysis <small>(RetroBioCat rules)</small"
+            }
+
+
+        }
+
+        network.on("doubleClick", function(params) {
+            if (params['nodes'].length !== 0) {
+                if (data['nodes'].get(params['nodes'])[0]['type'] === 'substrate') {
+                    expand_step(params, data)
+                } else {
+                    delete_step(params, data)
+                }
+                remove_helper_text()
+            }
+        });
+
+        network.on("selectNode", function(params) {
+            window.selected_node = params.nodes[0]
+            console.log(data['nodes'].get([window.selected_node])[0])
+            document.getElementById("custom_product_smiles").value = params.nodes[0]
+
+            if (params['nodes'].length === 1) {
+                if (data['nodes'].get(params['nodes'])[0]['type'] === 'reaction') {
+                    get_possible_enzymes(params['nodes'][0])
+                }
+            }
+        })
+
+        network.on("hold", function(params) {
+            if (params['nodes'].length === 1) {
+                window.selected_node = params.nodes[0]
+                launch_node_modal()
+            }
+        });
+
+        function launch_node_modal() {
+            if (data['nodes'].get([window.selected_node])[0]['type'] === 'reaction') {
+                reaction_modal_launched(window.selected_node, window.task_id)
+                $("#reaction_modal").modal('show');
+            } else if (data['nodes'].get([window.selected_node])[0]['type'] === 'substrate') {
+                substrate_modal_launched(window.selected_node)
+                $("#substrate_modal").modal('show');
+            }
+        }
+
+        function get_possible_enzymes(reaction_node) {
+            $.post('/_get_possible_enzymes', {
+                reaction_node: reaction_node,
+                network_id: window.task_id,
+            }).done(function (data) {
+                set_enzyme_select(data.result.possible_enzymes, data.result.selected_enzyme, 'enzyme_select')
+                set_enzyme_select(data.result.possible_enzymes, data.result.selected_enzyme, 'reaction_modal_enzyme_select')
+            })
+        }
+
+        function set_enzyme_select(choices, selected, id_selector) {
+            document.getElementById(id_selector).innerHTML = '';
+                for (option of choices) {
+                    document.getElementById(id_selector).innerHTML += "<option value=" + option[0] + ">" + option[1] + "</option>";
+                }
+                document.getElementById(id_selector).value = selected
+        }
+
+    </script>
+
+    <script>
+        window.pause_add_nodes = false;
+
+        function pause_off() {
+            window.pause_add_nodes = false;
+            document.getElementById("interaction").innerHTML = " ";
+        }
+
+        function pause_on() {
+            window.pause_add_nodes = true;
+            document.getElementById("interaction").innerHTML = "waiting for server";
+        }
+
+        document.getElementById("reset").addEventListener("click", function () {
+            window.pause_add_nodes = false;
+            document.getElementById("interaction").innerHTML = "";
+        });
+
+        function delete_step(params, network_data) {
+            if (window.pause_add_nodes === false) {
+                pause_on()
+                $.post(Flask.url_for("retrobiocat.delete_step"), {
+                    reaction: params.nodes[0],
+                    task_id: window.network_id
+                }).done(function(response_data) {
+                    let nodesToRemove = response_data.result.to_delete
+                    removeNodes(network_data, nodesToRemove)
+                    pause_off()
+                });
+            }
+        }
+
+        function expand_step(params, network_data) {
+            if (window.pause_add_nodes === false) {
+                pause_on()
+                $.post(Flask.url_for("retrobiocat.step"), {
+                    smiles: params.nodes[0],
+                    x: params.pointer.canvas.x,
+                    y: params.pointer.canvas.y,
+                    max_reactions: document.getElementById("max_reactions").value,
+                    task_id: window.network_id,
+                    reaction_type: window.reaction_mode,
+                    aizynth_reaction_mode: $("input[name=aizynth_mode]:checked").val(),
+                    rr_diameter: document.getElementById("rr_diameter").value,
+                    rr_threshold: document.getElementById("rr_threshold").value
+
+                }).done(function(response_data) {
+                    let new_nodes = response_data.result.nodes
+                    let new_edges = response_data.result.edges
+                    addNodes(network_data, new_nodes, new_edges)
+                    pause_off()
+                });
+            }
+        }
+
+        function renew_session() {
+                setTimeout(function() {renew_session()}, 30000)
+
+                $.post(Flask.url_for("retrobiocat.keep_session_open"), {
+                    task_id: window.task_id
+                })}
+
+        setTimeout(function() {renew_session()}, 30000)
+
+    </script>
+
+    {% include 'network_explorer/modals/custom_reaction_modal.html' %}
+    {% include 'node_modal/report_modal/report_modal.html' %}
+
+    {% if current_user.has_role('experimental') and config['ALLOW_BIOCATHUB_INTEGRATION'] == True %}
+        {% include 'biocathub/biocathub_modal.html' %}
+    {% endif %}
+
+    {% from 'global/macros/modal_macro.html' import modal with context %}
+    {{ modal('help_macro', 'Help', "network_explorer/modals_macro_content/help_modal.html") }}
+    {{ modal('options_macro', 'Options', "network_explorer/modals_macro_content/options_modal.html") }}
+    {{ modal('reaction_options', 'Reaction options', "network_explorer/modals_macro_content/reaction_options_modal.html") }}
+    {{ modal('node_info_macro', 'Node info', "node_info_templates/node_info_modal.html", size='') }}
+    {{ modal('save_modal', 'Save', "network_explorer/modals_macro_content/save_modal.html") }}
+
+
+    {% include 'node_modal/reaction_modal/reaction_modal.html' %}
+    {% include 'node_modal/substrate_modal/substrate_modal.html' %}
+
+{% endblock %}

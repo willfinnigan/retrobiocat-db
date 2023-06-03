@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+
+{% block content %}
+    <div id="save_response"></div>
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3 class="card-title">Admin functions</h3>
+                        <div id="'save_response"></div>
+
+                        <button class="btn btn-info" onclick="assign_papers()" id="assign_papers">Assign papers</button>
+                        <button class="btn btn-danger" onclick="delete_sequences_no_paper()" id="delete_seqs">Delete sequences with no papers</button>
+                        <button class="btn btn-warning" onclick="orphan_enzymes()" id="orphan_enzymes_id">Find orphan enzymes</button>
+                        <button class="btn btn-success" onclick="find_tags()">Find tags</button>
+                        <button class="btn btn-primary" onclick="convert_to_pdb_schema()">convert_to_pdb_schema</button>
+                        <button class="btn btn-info" onclick="clear_all_redis_jobs()">Clear all redis jobs</button>
+                        <button class="btn btn-success" onclick="ensure_correct_sequence_naming()">Ensure correct sequence naming</button>
+                        <button class="btn btn-warning" onclick="update_reviewed()">Update reviewed status</button>
+                        <button class="btn btn-info" onclick="mongo_dump()">Mongo dump</button>
+                        <button class="btn btn-danger" onclick="reblast()">Reblast UniRef50</button>
+                        <button class="btn btn-success" onclick="clear_empty_ssns()">Clear empty SSN records</button>
+                        <button class="btn btn-danger" onclick="clear_autoprocessed_activity_data()">Clear autoprocessed activity data</button>
+                        <button class="btn btn-primary" onclick="clear_ssn_position_info()">Clear SSN positions</button>
+                        <button class="btn btn-info" onclick="ensure_all_rdkit()">Ensure all rdkit smiles</button>
+                        <button class="btn btn-info" onclick="ensure_all_cat_binary_match()">Ensure binary data matches categorical</button>
+                        <button class="btn btn-secondary" onclick="force_all_uniref_update()">Force all UniRefs to update info</button>
+                        <button class="btn btn-danger" onclick="force_no_duplicate_other_names()">Force no duplicate other names</button>
+                        <button class="btn btn-success" onclick="clean_seq_list()">Clean seq list fields</button>
+                        <button class="btn btn-primary" onclick="clear_all_embeddings()">Remove all embeddings</button>
+                        <button class="btn btn-secondary" onclick="convert_other_names_to_data_dicts()">Convert other names to data dicts</button>
+                        <button class="btn btn-danger" onclick="delete_all_users()">Delete all users</button>
+                        <button class="btn btn-danger" onclick="delete_seq_act_with_no_paper()">Delete seqs and acts with no paper</button>
+                        <button class="btn btn-danger" onclick="force_ph_and_temp_into_float()">Force pH and temp into float</button>
+                        <button class="btn btn-info" onclick="force_formulations_to_standard_format()">Force formulations into standard format</button>
+
+
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+    <script>
+        function assign_papers() {
+            $.post('/_assign_papers', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function delete_sequences_no_paper() {
+            $.post('/_delete_sequences_no_paper', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function orphan_enzymes() {
+            $.post('/_orphan_enzymes', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function find_tags() {
+            $.post('/_find_tags', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function convert_to_pdb_schema() {
+            $.post('/_convert_to_pdb_schema', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function clear_all_redis_jobs() {
+            $.post('/_clear_all_redis_jobs', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function ensure_correct_sequence_naming() {
+            $.post('/_ensure_correct_sequence_naming', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function update_reviewed() {
+            $.post('/_update_reviewed_status', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function mongo_dump() {
+            $.post('/_mongo_dump', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function reblast() {
+            $.post('/_set_all_seqs_to_reblast', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function clear_empty_ssns() {
+            $.post('/_clear_empty_ssns', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function clear_autoprocessed_activity_data() {
+            $.post('/_clear_autoprocessed_activity_data', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function clear_ssn_position_info() {
+            $.post('/_clear_ssn_position_info', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function ensure_all_rdkit() {
+            $.post('/_ensure_all_rdkit', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function ensure_all_cat_binary_match() {
+            $.post('/_ensure_all_cat_binary_match', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function force_all_uniref_update() {
+            $.post('/_force_all_uniref_update', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function force_no_duplicate_other_names() {
+            $.post('/_force_no_duplicate_other_names', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function clean_seq_list() {
+            $.post('/_clean_seq_list', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function clear_all_embeddings() {
+            $.post('/_clear_all_embeddings', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function convert_other_names_to_data_dicts() {
+            $.post('/_convert_other_names_to_data_dicts', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function delete_all_users() {
+            $.post('/_delete_all_users', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function delete_seq_act_with_no_paper() {
+            $.post('/_delete_seq_act_with_no_paper', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function force_ph_and_temp_into_float() {
+            $.post('/_force_ph_and_temp_into_float', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+        function force_formulations_to_standard_format() {
+            $.post('/_force_formulations_to_standard_format', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                })
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+{% endblock %}

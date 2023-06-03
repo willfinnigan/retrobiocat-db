@@ -1,0 +1,36 @@
+<script>
+
+
+
+    function get_reaction_names(selected_data) {
+        function get_names(chunks) {
+            console.log('get_names')
+            var chunk_data = chunks.pop()
+            apply_reaction_rules_ajax.autodetect_reaction_names(chunk_data).then((data) => {
+                table.updateData(data.result.new_rows).then(function() {
+                    if (chunks.length !== 0) {
+                        get_names(chunks)
+                    }
+                })
+            })
+        }
+        var chunks = chunk(selected_data, 50)
+        get_names(chunks)
+    }
+
+    function apply_reaction_rules(selected_data) {
+        function apply_rules(chunks) {
+            console.log('apply rules')
+            var chunk_data = chunks.pop()
+            apply_reaction_rules_ajax.apply_reaction_rules(chunk_data).then((data) => {
+                table.updateData(data.result.new_rows).then(function() {
+                    if (chunks.length !== 0) {
+                        apply_rules(chunks)
+                    }
+                })
+            })
+        }
+        var chunks = chunk(selected_data, 50)
+        apply_rules(chunks)
+    }
+</script>

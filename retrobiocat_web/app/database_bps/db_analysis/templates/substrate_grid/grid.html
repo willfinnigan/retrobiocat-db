@@ -1,0 +1,26 @@
+<div class="row row-cols-xs-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 row-cols-xl-5">
+
+    {% for smi in smis %}
+        <div class="col mb-4">
+            <div class="card" id="smi_card_{{smi}}" style="width: 250px; min-height:150px">
+
+                <div class="card-body">
+                    {{ svgs[smi]|safe}}
+                    <p class="text-center no_margin text-success">{{mols[smi]['active']}} active records</p>
+                    <p class="text-center no_margin text-success"><small>({{mols[smi]['active_enzymes']}} enzymes, {{mols[smi]['active_papers']}} papers)</small></p>
+                    <p class="text-center no_margin text-danger">{{mols[smi]['inactive']}} inactive records</p>
+                    <p class="text-center no_margin text-danger"><small>({{mols[smi]['inactive_enzymes']}} enzymes, {{mols[smi]['inactive_papers']}} papers)</small></p>
+                </div>
+
+                <!--Card footer for links out-->
+                <div class="card-footer">
+                    <p class="text-center no_margin">
+                        <a class="btn btn-sm btn-outline-primary" href="{{url_for('tables.show_activity', mol_type=mol_type, smiles=[smi])}}">
+                            View in activity table
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>

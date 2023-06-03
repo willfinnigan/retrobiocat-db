@@ -1,0 +1,117 @@
+<div class="custom-control custom-checkbox mt-1">
+    <input class="custom-control-input" type="checkbox" id="activity_ready_for_review" {{reviewed_dict['activity_review_ready']}}>
+    <label class="custom-control-label" for="activity_ready_for_review" id="activity_ready_for_review_label">
+        Activity data entry complete - ready for review
+    </label>
+</div>
+
+<div class="custom-control custom-checkbox mt-1">
+    <input class="custom-control-input" type="checkbox" id="paper_activity_reviewed" {{reviewed_dict['activity_reviewed']}} {{access_dict['review_disabled']}}>
+    <label class="custom-control-label" for="paper_activity_reviewed" id="paper_activity_reviewed_label">
+        Activity reviewed
+    </label>
+    <small class='form-text text-muted no_margin'>{{ reviewed_dict['activity_reviewed_by'] }}</small>
+    <small class='form-text text-success' id="reviewing_activity_please_wait"></small>
+    <small class='form-text text-danger' id="review_disabled_due_to_unsaved_data" hidden>Save data to enable reviewing</small>
+</div>
+
+<button class="btn btn-sm btn-outline-primary" id="activity_review_unreview_button" hidden {{access_dict['unreview_disabled']}}>Unreview to allow editing</button>
+
+<div id="activity_review_response_div"></div>
+
+<script>
+
+    function lock_review_on_table_edit() {
+        document.getElementById("paper_activity_reviewed").disabled = true
+        document.getElementById("activity_ready_for_review").disabled = true
+        document.getElementById("review_disabled_due_to_unsaved_data").hidden = false
+    }
+
+    table.on("cellEdited", function(cell){
+        lock_review_on_table_edit()
+    })
+
+    function reviewing_activity_please_wait() {
+        document.getElementById("paper_activity_reviewed").disabled = true
+        document.getElementById("reviewing_activity_please_wait").innerHTML = 'Reviewing activity please wait..'
+        document.getElementById("activity_review_unreview_button").disabled = true
+    }
+
+    document.getElementById("paper_activity_reviewed").onchange = function(){
+        var reviewed = document.getElementById("paper_activity_reviewed").checked
+        var paper_id = "{{paper_id}}"
+
+        function callback(status) {
+            if (status === 'success') {
+                console.log('success')
+                location.reload()
+            } else {
+                document.getElementById("paper_activity_reviewed").checked = !reviewed
+                document.getElementById("paper_activity_reviewed").disabled = false
+                document.getElementById("reviewing_activity_please_wait").innerHTML = ''
+            }
+        }
+        reviewing_activity_please_wait()
+        reviewing_ajax.activity_review(paper_id, reviewed, callback, 'response_div')
+    };
+
+    document.getElementById("activity_ready_for_review").onchange = function(){
+        var ready = document.getElementById("activity_ready_for_review").checked
+        var paper_id = "{{paper_id}}"
+        function callback(status) {
+            if (status === 'success') {
+                console.log('success')
+            } else {
+                document.getElementById("activity_ready_for_review").checked = !ready
+            }
+        }
+        reviewing_ajax.activity_ready_review(paper_id, ready, callback, "activity_review_response_div")
+    };
+
+
+    function activity_reviewed_lock() {
+        // lock review ready button
+        document.getElementById("activity_ready_for_review").disabled = true
+
+        // Lock tabulator buttons
+        document.getElementById("upload_excel").disabled = true
+        document.getElementById("test_and_save").disabled = true
+        document.getElementById("activity_single_save_all").disabled = true
+
+        // show unreview button if its not disabled
+        if (document.getElementById("activity_review_unreview_button").disabled !== true) {
+            document.getElementById("activity_review_unreview_button").hidden = false
+        }
+    }
+
+    $(document).ready(function () {
+        if ("{{reviewed_dict['activity_reviewed']}}" === 'checked') {
+            activity_reviewed_lock()
+            window.disable_all_activity_fields = true
+        }
+    })
+
+    document.getElementById("activity_review_unreview_button").onclick = function () {
+        document.getElementById("paper_activity_reviewed").checked = false
+        var reviewed = false
+        var paper_id = "{{paper_id}}"
+
+        function callback(status) {
+            if (status === 'success') {
+                console.log('success')
+                location.reload()
+            } else {
+                document.getElementById("paper_activity_reviewed").checked = !reviewed
+                document.getElementById("paper_activity_reviewed").disabled = false
+                document.getElementById("reviewing_activity_please_wait").innerHTML = ''
+            }
+        }
+
+        reviewing_activity_please_wait()
+        reviewing_ajax.paper_activity_review(paper_id, reviewed, callback, 'response_div')
+    }
+
+
+
+
+</script>

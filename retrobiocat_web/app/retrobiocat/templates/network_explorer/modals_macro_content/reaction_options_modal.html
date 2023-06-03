@@ -1,0 +1,51 @@
+<div class="container">
+    <p>
+        Select the method you would like to use when filtering reactions more than the maxmimum allowed..
+    </p>
+
+    <h5 class="mt-4">Biocatalysis: RetroBioCat reaction selection</h5>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="retrobiocat_mode" id="rbc_complexity" value="complexity" checked>
+        <label class="form-check-label" for="rbc_complexity">
+            Select best change in complexity
+        </label>
+    </div>
+
+    <h5 class="mt-4">Chemistry: Aizynth reaction selection</h5>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="aizynth_mode" id="aiz_policy" value="policy" checked>
+        <label class="form-check-label" for="aiz_policy">
+            Select highest prediction by policy model
+        </label>
+    </div>
+
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="aizynth_mode" id="aiz_complexity" value="complexity">
+        <label class="form-check-label" for="aiz_policy">
+            Select best change in complexity
+        </label>
+    </div>
+
+    <h5 class="mt-4">Biosynthesis: RetroRules reaction selection</h5>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="retrorules_mode" id="rr_complexity" value="complexity" checked>
+        <label class="form-check-label" for="rr_complexity">
+            Select best change in complexity
+        </label>
+    </div>
+
+    <div class="form-inline">
+        <label for='rr_diameter' class="mx-2 my-1">Diameter</label>
+        <input type="number" step=2 max=16 min=2 id="rr_diameter" value="{{rr_diameter}}" class="form-control form-control-sm w-25 mx-2 my-1"/>
+    </div>
+
+    <div class="form-inline">
+        <label for='rr_threshold' class="mx-2 my-1">Similarity</label>
+        <input type="number" step=0.05 max=1.0 min=0 id="rr_threshold" value="{{rr_threshold}}" class="form-control form-control-sm w-25 mx-2 my-1"/>
+    </div>
+
+
+</div>
+
+
+

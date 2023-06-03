@@ -1,0 +1,59 @@
+<div class="container">
+
+    <div class="form-group">
+        <label>Edge colours</label>
+        <select id="edge_colour_select" class="form-control custom-select w-50">
+            <option value="None">None</option>
+            <option value="Complexity change">Complexity change</option>
+        </select>
+    </div>
+
+    <div class="custom-control custom-switch">
+        <input type="checkbox" id="physics_switch" class="custom-control-input" checked>
+        <label class='custom-control-label' for="physics_switch">Graph physics:</label>
+    </div>
+
+    <button class="btn btn-outline-info" onclick="remove_node_labels()">Remove node labels</button>
+
+</div>
+
+<script>
+    function remove_node_labels() {
+        var update_array = []
+        var all_nodes = data['nodes'].getIds()
+        all_nodes.forEach(function (node, i) {
+        var update_node = {'id': node, 'label': ''}
+            update_array.push(update_node)
+        })
+        data['nodes'].update(update_array)
+    }
+
+    document.getElementById("edge_colour_select").onchange = function() {
+        set_network_options(data)
+    }
+
+    function set_network_options(network_data) {
+        $.post('/_change_network_options',
+            {
+                edge_colours: document.getElementById("edge_colour_select").value,
+                task_id: window.task_id
+            }
+            ).done(function(response_data) {
+                let new_nodes = response_data.result.nodes
+                let new_edges = response_data.result.edges
+                addNodes(network_data, new_nodes, new_edges)
+            })
+        }
+
+    document.getElementById("physics_switch").onclick = function()
+        {
+            console.log('Physics changed')
+            var checkBox = document.getElementById("physics_switch");
+            if (checkBox.checked == true) {
+                network.setOptions({physics: {enabled:true}, "edges": {"smooth": {"forceDirection": "none"}}})
+            } else {
+                network.setOptions({physics: {enabled:false}, "edges": {"smooth": false}})
+            }
+    }
+
+</script>

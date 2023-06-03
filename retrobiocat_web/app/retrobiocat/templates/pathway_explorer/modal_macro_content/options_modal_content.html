@@ -1,0 +1,80 @@
+{% from 'global/macros/html_form_macros.html' import select with context %}
+{% from 'global/macros/html_form_macros.html' import checkbox with context %}
+
+<div class="container">
+
+    {{ checkbox('Graph physics', 'physics_switch') }}
+
+    <button class="btn btn-outline-info btn-sm mb-4 mt-2" onclick="remove_node_labels()">Remove node labels</button>
+
+    {{ select('Reaction colours',
+              'reaction_colour_select',
+               ['Substrate specificity', 'Complexity change', 'Off']) }}
+
+    {{ select('Edge colours',
+              'edge_colour_select',
+               ['Off', 'Complexity change']) }}
+
+    <button class="btn btn-success" id="change_options">Submit</button>
+    <p id="please_wait" hidden>Changing options - please wait</p>
+
+</div>
+
+<script>
+    function remove_node_labels() {
+        var update_array = []
+        var all_nodes = data['nodes'].getIds()
+        all_nodes.forEach(function (node, i) {
+        var update_node = {'id': node, 'label': ''}
+            update_array.push(update_node)
+        })
+        data['nodes'].update(update_array)
+    }
+
+    document.getElementById("change_options").onclick = function() {
+        set_pathway_options(data)
+    }
+
+    function set_pathway_options(data) {
+        document.getElementById("please_wait").hidden = false
+        $.post('/_change_pathway_options', {
+            reaction_colours: document.getElementById("reaction_colour_select").value,
+            pathway_num: window.pathway_num,
+            varient_num: window.pathway_varient,
+            task_id: window.task_id,
+            edge_colours: document.getElementById("edge_colour_select").value,
+
+        }).done(function(response) {
+            getStatusOptions(response.data.task_id, data)
+        })
+    }
+
+    function getStatusOptions(taskID, data) {
+        $.get('/_check_options_status/' + taskID, {
+        }).done(function(response) {
+            const taskStatus = response.data.task_status;
+            if (taskStatus === 'finished') {
+                let new_nodes = response.result.nodes
+                let new_edges = response.result.edges
+                addNodes(data, new_nodes, new_edges)
+                document.getElementById("please_wait").hidden = true
+            } else if (taskStatus === 'failed') {
+                return false;
+            } else {
+                setTimeout(function() {getStatusOptions(response.data.task_id, data);}, 2000);
+            }
+        })
+    }
+
+    document.getElementById("physics_switch").onclick = function()
+    {
+        console.log('Physics changed')
+        var checkBox = document.getElementById("physics_switch");
+        if (checkBox.checked == true) {
+            network.setOptions({physics: {enabled:true}, "edges": {"smooth": {"forceDirection": "none"}}})
+        } else {
+            network.setOptions({physics: {enabled:false}, "edges": {"smooth": false}})
+        }
+    }
+
+</script>

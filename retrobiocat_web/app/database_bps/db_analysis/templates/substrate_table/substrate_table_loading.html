@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% set active_page = "enzyme_database" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div id='card_div' class="card card-form my-5" style="width: 32rem;">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Loading substrate table</h3>
+
+                        <div class="progress">
+                            <div class="progress-bar" id='progressbar'></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+    <script>
+        function getStatus(taskID) {
+            $.get('substrate_table_status/' + taskID, {
+            }).done(function(response) {
+                console.log('status')
+                const taskStatus = response.data.task_status;
+                const taskProgress = response.data.task_progress;
+                if (taskProgress === 'started') {
+                    document.getElementById("progressbar").style = "width: 50%"
+                    document.getElementById("progressbar").innerText = "Loading table"
+                    document.getElementById("progressbar").className = "progress-bar"
+                } else if (taskProgress === 'heatmap ready') {
+                    document.getElementById("progressbar").style = "width: 90%"
+                    document.getElementById("progressbar").innerText = "Preparing HTML"
+                }
+
+                if (taskStatus === 'finished') {
+                    document.getElementById("progressbar").style = "width: 100%"
+                    document.getElementById("progressbar").innerText = "Done"
+                    location.reload()
+                    return false;
+                } else if (taskStatus === 'failed') {
+                    document.getElementById("progressbar").style = "width: 50%"
+                    document.getElementById("progressbar").innerText = "Failed"
+                    document.getElementById("progressbar").className = "progress-bar bg-danger"
+                    return false;
+                } else {
+                    setTimeout(function() {
+                        getStatus(response.data.task_id);
+                        }, 3000);
+                }
+            })
+        }
+
+        var task_id = '{{task_id}}'
+
+        console.log(task_id)
+
+        if (task_id !== '') {
+            document.getElementById("progressbar").style = "width: 33%"
+            document.getElementById("progressbar").innerText = "Queuing"
+            setTimeout(function(){
+                getStatus(task_id);
+            }, 3000);
+        }
+
+    </script>
+
+{% endblock %}

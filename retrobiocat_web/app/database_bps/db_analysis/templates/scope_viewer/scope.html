@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <div class="container-fluid" align="center" style="width:90vw">
+        <p></p>
+        <h6 class="mx-3">{{ title }}</h6>
+        {% include 'scope_viewer/scope_top_bar.html' %}
+        <p id="loading_please_wait">Loading, please wait..</p>
+
+
+        <div id="scope_div" style="height:80vh; width:90vw">
+            {{ div|safe }}
+        </div>
+    </div>
+
+    {{ script|safe}}
+
+    {% include 'scope_viewer/scope_mol_modal.html' %}
+    {% include 'scope_viewer/scope_seq_modal.html' %}
+
+    <script>
+        window.addEventListener("load", function(){
+            document.getElementById("loading_please_wait").remove();
+        });
+
+        window.selected_mols = {{all_mols|tojson}}
+        window.selected_seqs = {{all_seqs|tojson}}
+
+        window.all_mols = {{all_mols|tojson}}
+        window.all_seqs = {{all_seqs|tojson}}
+    </script>
+
+{% endblock %}

@@ -1,0 +1,94 @@
+
+<div id="activity_save_response"></div>
+<div class="row my-auto">
+    <div class="col-xs-6 mx-3">
+        <h5 class="mt-2">Functions</h5>
+        <button class="btn btn-success" onclick="save()" id="test_and_save">Save</button>
+        <button class="btn btn-outline-primary" id="upload_excel" data-toggle='modal' data-target='#upload_excel_modal'>Upload Excel</button>
+        <button class="btn btn-outline-success" id='smi_name_switch_btn' onclick="smi_name_col_switch()">Mol name mode</button>
+        <br/><small class="no_margin float-right" id="mol_smiles_converting_msg" hidden>Converting, please wait</small>
+        <div id="activity_function_response"></div>
+    </div>
+
+    <div class="col-xs-6 mx-3">
+        <h5 class="mt-2">New rows</h5>
+        <button class="btn btn-warning" id="add_row">Add row</button>
+        <button class="btn btn-info" id="duplicate_rows">Duplicate rows</button>
+    </div>
+
+    <div class="col-xs-6 mx-3">
+        <h5 class="mt-2">Links out</h5>
+        <a href="{{url_for('tables.show_activity', reviewed=False, paper_id=paper_id)}}" target="_blank">
+            <button class="btn btn-danger">
+                View in DB
+            </button>
+        </a>
+    </div>
+</div>
+<p id="please_wait" class="no_margin"hidden>Saving, please wait..</p>
+
+<script>
+
+    //Add row on "Add Row" button click
+    $("#add_row").click(function(){
+        var num_rows = table.getDataCount()
+        table.addRow({n: num_rows + 1});
+        table.scrollToRow(num_rows + 1, "center", true);
+    });
+
+        //Add row on "Add Row" button click
+    $("#duplicate_rows").click(function(){
+        var selectedRows = table.getSelectedData()
+        selectedRows.forEach(function (item, index) {
+            var new_data = JSON.parse(JSON.stringify(item));
+            new_data._id = ''
+            new_data.n = table.getDataCount() + 1
+            new_data['kcat'] = ''
+            new_data['km'] = ''
+            new_data['mw'] = ''
+            new_data['conversion'] = ''
+            new_data['specific_activity'] = ''
+            new_data['categorical'] = ''
+            new_data['binary'] = ''
+            new_data['selectivity'] = ''
+            table.addRow(new_data);
+            table.scrollToRow(table.getDataCount(), "center", true);
+        })
+    });
+
+
+    function save() {
+        var data = table.getData()
+        var paper_id = "{{paper_id}}"
+        var edited_rows = JSON.stringify(window.tabulator_edited_rows)
+        document.getElementById("please_wait").hidden = false
+
+        function onFinish() {
+             document.getElementById("please_wait").hidden = true
+        }
+
+        update_activity_ajax.save_activity_data(data, paper_id, edited_rows, "activity_save_response", onFinish)
+        }
+
+    function delete_row(cell) {
+        cell.getRow().delete()
+        update_table_numbering()
+    }
+
+    function update_table_numbering() {
+        var data = table.getData()
+        data.forEach(function (item, index) {
+            if (item.n !== index+1) {
+                data[index].n = index+1
+            }
+        });
+        table.replaceData(data)
+
+    }
+
+
+
+
+
+</script>
+

@@ -1,0 +1,16 @@
+<div class="row">
+    <div class="form-group no_margin inline">
+        <label for="molecule_edit_title">Mol. name: </label>
+        <input type="text" id="name_for_{{osr_smiles}}" onchange="">
+    </div>
+    <button type="button" class="btn btn-success ml-4" onclick="add_smi_to_paper('{{osr_smiles}}')">Add to paper</button>
+    <button type="button" class="btn btn-outline-danger" onclick="remove_smi_from_osr('{{osr_smiles}}')">Delete</button>
+</div>
+
+<div id="marvin-molecule_drawer_{{marvin_num}}" style="width: 600px; height: 350px"></div>
+
+<script>
+    ChemicalizeMarvinJs.createEditor("#marvin-molecule_drawer_{{marvin_num}}").then(function (marvin) {
+        marvin.importStructure('smiles', '{{osr_smiles}}')
+        });
+</script>

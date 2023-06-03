@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% set active_page = "more_info" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-10 mx-auto">
+                <div class="card card-form my-5">
+                    <div class="card-body" align="center">
+                        <h3 class="card-title py-5">Database stats</h3>
+                        <p><b>Number of activity rows: </b>{{ num_activity }}</p>
+                        <p><b>Number of enzymes: </b>{{ num_enzymes }}</p>
+                        <p><b>Number of unique produce molecules: </b>{{ num_product_mols }}</p>
+                        <p><b>Number of papers: </b>{{ num_papers }}</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <div>
+
+
+{% endblock %}

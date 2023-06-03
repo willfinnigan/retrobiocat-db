@@ -1,0 +1,110 @@
+<div class="modal fade" id="merge_modal" tabindex="-1" role="dialog" aria-labelledby="merge_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="merge_modalLabel">Merge sequence</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p class="text-danger"><strong>Warning - merging is quite drastic - proceed with caution</strong></p>
+
+                <p>
+                    Merge should only be used where multiple versions of the same enzyme have been entered into the database.
+                    Merge the entry with the least data into the one with the most data.
+                </p>
+
+                <p> All references to this sequence in any activity data will be
+                    overwritten with that of the merged sequence, and this entry will be deleted.
+                    <strong>This can not be undone</strong>
+                </p>
+
+                <p>If you are not sure, please ask the RetroBioCat admins.</p>
+
+                <p><strong id="original_name_merge"></strong></p>
+                <label for="c" class="control-label">Select a sequence to merge this entry
+                    into:</label>
+                <select id="merge_seq_select" class="form-control custom-select w-75">
+                </select>
+
+                <div class="custom-control custom-checkbox">
+                    <input class="custom-control-input" type="checkbox" id="save_other_name_on_merge" checked>
+                    <label class="custom-control-label" for="save_other_name_on_merge" id="save_other_name_on_merge_label">
+                        Save the extra name and information into other names
+                    </label>
+                </div>
+
+                <div class="my-5"></div>
+                <div class="my-5"></div>
+
+                <div id="merge_response"></div>
+                <p id="merge_please_wait"></p>
+                <div class="modal-footer">
+                    <p id="saving"></p>
+                    <button type="button" id='merge' class="btn btn-success" onclick="show_merge_confirm()">Merge</button>
+                    <button type="button" onclick="merge()" id='merge2' class="btn btn-danger">Definitely
+                        merge?
+                    </button>
+                    <button type="button" onclick="close_alerts()" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    function merge_operation_complete() {
+            document.getElementById("merge_please_wait").innerHTML = ''
+            document.getElementById("merge2").disabled = false;
+        }
+
+    function merge() {
+        document.getElementById("merge2").disabled = true;
+        document.getElementById("merge_please_wait").innerHTML = 'Merging please wait...'
+
+        function callback(merge_with, to_merge) {
+            location.reload()
+        }
+
+        var merge_with = document.getElementById("merge_seq_select").value
+        var to_merge = document.getElementById("original_name_merge").innerHTML
+        var save_other_name = document.getElementById("save_other_name_on_merge").checked
+        seq_curate_ajax.merge_seqs(merge_with, to_merge, save_other_name, callback, "merge_response", merge_operation_complete)
+    }
+
+    function hide_merge_confirm() {
+        document.getElementById("merge2").style.display = "none"
+    }
+
+    function show_merge_confirm() {
+        document.getElementById("merge2").style.display = "block"
+    }
+
+    document.getElementById("merge_seq_select").onchange = function() {
+        hide_merge_confirm()
+    }
+
+    // this function should be called when loading the modal
+    function get_merge_data(name) {
+        function callback(seq_dict) {
+            set_select("merge_seq_select", seq_dict)
+        }
+        seq_load_ajax.get_sequences_of_same_type(name, callback)
+    }
+
+    $("#merge_modal").on("hidden.bs.modal", function () {
+        hide_merge_confirm()
+        merge_operation_complete()
+        document.getElementById("merge_seq_select").disabled = false
+    }).on("show.bs.modal", function () {
+        hide_merge_confirm()
+    })
+
+
+</script>

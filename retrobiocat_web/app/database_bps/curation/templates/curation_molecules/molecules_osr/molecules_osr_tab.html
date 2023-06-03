@@ -1,0 +1,109 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_molecules" %}
+{% set identified_smiles = session[paper_id + '_osr_smiles'] %}
+
+{% block curation_content %}
+    <div class="container-fluid">
+        <h5 class="text-center mb-3">Molecule optical structure recognition</h5>
+        <div class="row">
+            <div class="col mx-auto" style="max-width:64rem">
+
+                <small class="no_margin">This works best with 1 molecule per image - although it can handle multiple
+                    molecules. Only .png or .jpeg are accepted.</small>
+
+                <div id="mol_upload_response"></div>
+
+                <form id='mol_upload_form' method='post' action='' enctype="multipart/form-data">
+                    <input id="mol_paper_id_field" name="mol_paper_id_field" type="hidden" value="{{ paper_id }}">
+                    <input type="file" id='mol_image_files' name="files[]" form="mol_upload_form" multiple><br>
+                    {% if config['OSRA_ENABLED'] == False %}
+                        {% set osra_disable = 'disabled' %}
+                        <p>OSRA microservice is disabled</p>
+                    {% else %}
+                        {% set osra_disable = '' %}
+                    {% endif %}
+                    <input type="button" id="mol_upload_submit" form="mol_upload_form" class="btn btn-success mt-2"
+                           value="Upload and Process" {{osra_disable}}>
+                    <div class="progress">
+                        <div class="progress-bar" id='progressbar'></div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="osr_section_response"></div>
+
+        <div class="row">
+            <div class="col mx-auto" style="max-width:64rem">
+
+            {% for smi in redis_content %}
+                {% set marvin_num = loop.index %}
+                {% set osr_smiles = smi %}
+                <div id="osr_section_{{ smi }}" class="my-4 py-4">
+                    {% include 'curation_molecules/molecules_osr/identified_smiles_row.html' %}
+                </div>
+            {% endfor %}
+
+            </div>
+        </div>
+    </div>
+
+    <script>
+
+    function remove_smi_from_osr(smi) {
+        function callback() {
+            var section_id = "osr_section_" + smi
+            document.getElementById(section_id).remove()
+        }
+        osra_activity_molecule_ajax.remove_osr_molecule('{{ paper_id }}', smi, "osr_section_response", callback)
+    }
+
+    function add_smi_to_paper(smi) {
+        var name = document.getElementById("name_for_"+smi).value
+        function callback() {
+            var section_id = "osr_section_" + smi
+            document.getElementById(section_id).remove()
+        }
+        osra_activity_molecule_ajax.add_smi_to_paper('{{ paper_id }}', smi, name, "osr_section_response", callback)
+    }
+
+    function get_form_data() {
+        var form_data = new FormData();
+
+        // Read selected files
+        var totalfiles = document.getElementById('mol_image_files').files.length;
+        for (var index = 0; index < totalfiles; index++) {
+            form_data.append("file_" + index, document.getElementById('mol_image_files').files[index]);
+        }
+
+        form_data.append("mol_paper_id_field", "{{paper_id}}")
+
+        return form_data
+    }
+
+    $(function () {
+        $('#mol_upload_submit').click(function () {
+            document.getElementById("mol_upload_submit").disabled = true
+            form_data = get_form_data()
+
+            function callback(result) {
+                getProcessingStatus(result.task_id)
+            }
+
+            function onFinish() {
+                document.getElementById("mol_upload_submit").disabled = false
+            }
+
+            osra_activity_molecule_ajax.submit_images_for_processing(form_data, callback, "mol_upload_response", onFinish)
+        });
+    });
+
+    function getProcessingStatus(taskID) {
+        function callback() {location.reload()}
+        get_status_ajax.get_status(taskID, 'osra', "progressbar", 2000, callback)
+    }
+
+
+</script>
+
+{% endblock %}

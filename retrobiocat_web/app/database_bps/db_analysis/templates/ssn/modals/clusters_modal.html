@@ -1,0 +1,80 @@
+<!-- Main modal -->
+<div class="modal fade" id="clusters_modal" tabindex="-1" role="dialog" aria-labelledby="clusters_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Clusters</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div id="cluster_div"></div>
+            </div>
+
+            <button class="btn btn-success w-50 mx-2 my-2 text-center" id="get_csv_btn" onclick="get_csv(clusters)">Get CSV</button>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function write_clusters(clusters) {
+            var main_div = document.getElementById('cluster_div')
+            main_div.innerHTML = ""
+
+            for (const [num, ids] of Object.entries(clusters)) {
+                main_div.innerHTML += "<p><b>Cluster " + num + "</b></p>"
+                for (const node of ids) {
+                    main_div.innerHTML += "<p>" + node + "</p>"
+                }
+                main_div.innerHTML += "<br/>"
+            }
+
+        }
+
+    function get_clusters() {
+        var clusters_without_uniref = {}
+        data['nodes'].forEach(function (node, index) {
+            if (node['node_type'] === 'biocatdb') {
+                var cluster = node['cluster_label']
+                if (!(cluster in clusters_without_uniref)) {
+                    clusters_without_uniref[cluster] = []
+                }
+                clusters_without_uniref[cluster].push(node['id'])
+            }
+        })
+        return clusters_without_uniref
+    }
+
+
+    $('#clusters_modal').on('shown.bs.modal', function (e) {
+        var clusters = get_clusters()
+        write_clusters(clusters)
+    })
+
+
+    function get_csv(clusters) {
+        var new_clusters = []
+
+        for (const [num, ids] of Object.entries(clusters)) {
+            for (const node of ids) {
+                var pair = [node, num]
+                new_clusters.push(pair)
+            }
+        }
+
+        let csvContent = "data:text/csv;charset=utf-8," + new_clusters.map(e => e.join(",")).join("\n");
+
+        var encodedUri = encodeURI(csvContent);
+        window.open(encodedUri);
+    }
+
+
+</script>

@@ -1,0 +1,152 @@
+
+<div class="mx-5 mt-2 mb-5">
+    <h5>1. Select enzyme type</h5>
+    <div class="form-group mt-2">
+        <select id="new_enzyme_type" class="js-example-basic-single" style="width: 75%">
+            <option value=""></option>
+            {% for enz_type in enzyme_types %}
+                <option value="{{ enz_type }}">{{ enz_type }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<hr/>
+
+<div class="mx-5 mt-2 mb-5">
+    <h5>2. Either..</h5>
+    <h6 class="text-muted">a) Select an existing entry</h6>
+    <button class="btn btn-outline-success float-right" id='add_existing_enzyme_btn' onclick="add_existing_sequence()">Add existing</button>
+    <div class="form-group mt-2 mb-3">
+        <select id="existing_enzyme" class="js-example-basic-single" style="width: 75%">
+            <option value=""></option>
+        </select>
+    </div>
+
+
+    <p class="my-4">or</p>
+
+    <button class="btn btn-outline-info float-right" id='add_new_enzyme_btn' onclick="add_new_sequence()">Create new</button>
+    <h6 class="text-muted">b) Create a new entry</h6>
+    <div class="form-group mt-2 mb-3">
+        <label for='new_enzyme_name'>Name:</label>
+        <input type="text" class="form-control w-75" id="new_enzyme_name" placeholder="">
+    </div>
+
+    <div id="add_enzyme_save_response"></div>
+    <span id="adding_enzyme_please_wait"></span>
+
+</div>
+
+<script>
+
+    function set_existing_enzymes_select(object_of_seqs) {
+        $('#existing_enzyme').empty().trigger("change"); // clears select
+
+        var newOption = new Option('', '', false, false); // adds first option as empty
+        $('#existing_enzyme').append(newOption).trigger('change');
+
+        for (const [key, value] of Object.entries(object_of_seqs)) {
+            var newOption = new Option(key, value, false, false);
+            $('#existing_enzyme').append(newOption).trigger('change');
+        }
+
+    }
+
+    function get_names_of_type() {
+        function callback(sequences_dict) {
+            set_existing_enzymes_select(sequences_dict)
+        }
+
+        var enzyme_type = document.getElementById("new_enzyme_type").value
+        seq_load_ajax.get_sequences_of_type_with_other_names(enzyme_type, callback)
+        }
+
+    document.getElementById("new_enzyme_type").onchange = function() {
+        get_names_of_type()
+        console.log('enzyme type changed')
+    }
+
+    function clear_enzyme_type() {
+        document.getElementById('new_enzyme_type').value=''
+    }
+
+    function adding_enzyme_please_wait() {
+            document.getElementById("adding_enzyme_please_wait").innerHTML = 'Adding enzyme please wait..'
+            document.getElementById("add_existing_enzyme_btn").disabled = true;
+            document.getElementById("add_new_enzyme_btn").disabled = true;
+        }
+
+    function add_enzyme_operation_complete() {
+            document.getElementById("adding_enzyme_please_wait").innerHTML = ''
+            document.getElementById("add_existing_enzyme_btn").disabled = false;
+            document.getElementById("add_new_enzyme_btn").disabled = false;
+        }
+
+    function clear_sequence_fields() {
+        $("#existing_enzyme").val('');
+        $("#existing_enzyme").trigger('change');
+         document.getElementById("new_enzyme_name").value = ""
+    }
+
+    function add_new_sequence() {
+        callback = function (table_dict) {
+            clear_sequence_fields()
+            seq_table.addData([table_dict], false)
+            console.log(table_dict)
+        }
+
+        // variables
+        var new_name = document.getElementById("new_enzyme_name").value
+        var enzyme_type = document.getElementById("new_enzyme_type").value
+        var paper = "{{paper_id}}"
+
+
+        // data checks..
+        // check enzyme_type is specified
+        if (enzyme_type === '') {
+            response_msg('Must choose an enzyme type',
+                'danger', ['Enzyme type field is blank'], "add_enzyme_save_response")
+            return
+        }
+
+
+        // if new enzyme, run ajax call to create new seq
+        else if (new_name !== '') {
+            adding_enzyme_please_wait()
+            seq_curate_ajax.add_new_sequence(new_name, enzyme_type, paper, callback, "add_enzyme_save_response", add_enzyme_operation_complete)
+        }
+
+    }
+
+    function add_existing_sequence() {
+
+        callback = function (table_dict) {
+            clear_sequence_fields()
+            seq_table.addData([table_dict], false)
+            console.log(table_dict)
+        }
+
+        // variables
+        var existing_name = document.getElementById("existing_enzyme").value
+        var enzyme_type = document.getElementById("new_enzyme_type").value
+        var paper = "{{paper_id}}"
+
+
+        // data checks..
+        // check enzyme_type is specified
+        if (enzyme_type === '') {
+            response_msg('Must choose an enzyme type',
+                'danger', ['Enzyme type field is blank'], "add_enzyme_save_response")
+            return
+        }
+
+        // if existing enzyme, add to paper ajax call
+        if (document.getElementById("existing_enzyme").value !== '') {
+            adding_enzyme_please_wait()
+            seq_curate_ajax.add_existing_sequence(existing_name, paper, callback, "add_enzyme_save_response", add_enzyme_operation_complete)
+        }
+
+    }
+
+</script>

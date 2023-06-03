@@ -1,0 +1,65 @@
+<!-- Main modal -->
+<div class="modal fade" id="goto_modal" tabindex="-1" role="dialog" aria-labelledby="goto_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Go to sequence</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for='single_reaction_name'>Sequence name</label>
+                    <input list="enzymes_datalist" id="enzyme_datalist_input" class="form-control w-75"/>
+                    <datalist id="enzymes_datalist" class="">
+
+                    </datalist>
+                    <small class="form-text text-muted">Enter sequence ID to zoom network to sequence location</small>
+                </div>
+
+                <button class="btn btn-success" onclick="zoom_to_sequence()">Go to sequence</button>
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function update_select_enzyme_list() {
+        // Get nodes and iterate to get biocatdb nodes
+        // Add biocatdb nodes to datalist
+        // <option value=""> </option>
+        var datalist = document.getElementById('enzymes_datalist')
+        datalist.innerHTML = ''
+        data['nodes'].forEach(function (node_dict, i) {
+
+            if (node_dict['node_type'] == 'biocatdb') {
+                datalist.innerHTML += "<option value='" + node_dict['id'] + "'>" + node_dict['id'] + "</option>"
+            }
+
+        })
+    }
+
+    $('#goto_modal').on('shown.bs.modal', function (e) {
+        update_select_enzyme_list()
+    })
+
+    function zoom_to_sequence() {
+        var seq_id = document.getElementById('enzyme_datalist_input').value
+        var node = data['nodes'].get([seq_id])[0]
+        var pos = {'x': node['x'], 'y': node['y']}
+        network.moveTo({position: pos,
+                        scale: 0.5})
+        network.selectNodes([seq_id])
+    }
+
+
+
+</script>

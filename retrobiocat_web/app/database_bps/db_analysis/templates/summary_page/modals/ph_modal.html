@@ -1,0 +1,49 @@
+
+<div class="modal fade" id="ph_modal" tabindex="-1" role="dialog" aria-labelledby="formOptionsLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formOptionsLabel">pH query</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>from
+                    <div class="form-inline">
+                        <label for='ph_left' class=""></label>
+                        <input type="number" id="ph_left" value="0" onchange="set_ph_link()" class="form-control form-control-sm w-25"/>
+                    </div>
+                    to
+                    <div class="form-inline">
+                        <label for='ph_right' class=""></label>
+                        <input type="number" id="ph_right" value="0" onchange="set_ph_link()" class="form-control form-control-sm w-25"/>
+                    </div>
+                </p>
+
+                <a id='link_for_ph_activity' href=""><button class="btn btn-outline-success">Activity data within this pH range</button></a>
+
+            </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+    function set_ph_link() {
+        var arguments = {'enzyme_type': window.enzyme_type,
+                         'reaction': window.reaction,
+                         'ph_left': document.getElementById('ph_left').value,
+                         'ph_right': document.getElementById('ph_right').value}
+
+
+        document.getElementById('link_for_ph_activity').href = Flask.url_for("tables.show_activity", arguments)
+    }
+</script>
+

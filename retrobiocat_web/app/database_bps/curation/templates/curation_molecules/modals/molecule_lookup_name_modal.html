@@ -1,0 +1,47 @@
+<div class="modal fade" id="molecule_name_lookup_modal" tabindex="-1" role="dialog"
+     aria-labelledby="molecule_name_lookup_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Get molecule from name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" align="center">
+
+                <small class="no_margin">Uses CIRpy to get a SMILES from a molecule name</small>
+                <div id="mol_name_to_smi_response"></div>
+                <div class="form-group">
+                    <label for="molecule_name_to_lookup">Name: </label>
+                    <input type="text" id="molecule_name_to_lookup">
+                </div>
+                <small id='please_wait_mol_name_lookup' class="no_margin" hidden>Working, please wait..</small>
+                <button class="btn btn-success" id="mol_name_lookup_button" onclick="molecules_lookup_name()">Lookup</button>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function molecules_lookup_name() {
+        document.getElementById('please_wait_mol_name_lookup').hidden = false
+        document.getElementById("mol_name_lookup_button").disabled = true
+        var paper_id = "{{paper_id}}"
+        var mol_name = document.getElementById('molecule_name_to_lookup').value
+
+        function callback(result) {
+            $('#molecule_name_lookup_modal').modal('hide');
+            molecules_add_new_row(result.update_dict, false)
+        }
+
+        function onFinish() {
+            document.getElementById('please_wait_mol_name_lookup').hidden = true
+            document.getElementById("mol_name_lookup_button").disabled = false
+        }
+        new_activity_molecule_ajax.activity_mol_from_name(paper_id, mol_name, callback, "mol_name_to_smi_response", onFinish)
+    }
+</script>

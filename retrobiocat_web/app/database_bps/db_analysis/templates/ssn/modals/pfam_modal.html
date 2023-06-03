@@ -1,0 +1,135 @@
+<!-- Main modal -->
+<div class="modal fade" id="pfam_modal" tabindex="-1" role="dialog" aria-labelledby="pfam_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Pfam selection</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body" align="center">
+
+                {% for code in pfams %}
+                    <div id="{{code}}_div">
+                        <p>
+                            <a href="https://pfam.xfam.org/family/{{ code }}" target='_blank'>{{ code }}</a>
+                            - {{ pfams[code] }} - <span id="num_{{code}}"></span>
+                            <button class="btn btn-sm btn-outline-success" onclick="select_pfam('{{code}}')">Select</button>
+                        </p>
+                    </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    function get_current_pfams() {
+        var pfam_ids = {{pfams|safe}}
+
+        var pfam_counts = {}
+        for (const [key, value] of Object.entries(pfam_ids)) {
+          pfam_counts[key] = 0
+        }
+
+        data['nodes'].forEach(function (node_dict, i) {
+            var node_pfams = node_dict['pfam_codes']
+            node_pfams.forEach(function (pfam, j) {
+                if (!(pfam in pfam_counts)) {
+                    pfam_counts[pfam] = 0
+                }
+                pfam_counts[pfam] += 1
+            })
+        })
+
+        return pfam_counts
+    }
+
+    function add_pfam_counts() {
+        console.log('updating pfam counts')
+        var pfam_counts = get_current_pfams()
+        for (const [code, num] of Object.entries(pfam_counts)) {
+            if (num === 0) {
+                document.getElementById(code+'_div').innerHTML = ''
+            } else {
+                document.getElementById('num_'+code).innerHTML = num
+            }
+        }
+    }
+
+    $('#pfam_modal').on('shown.bs.modal', function (e) {
+        add_pfam_counts()
+    })
+
+    function make_all_nodes_white() {
+
+        var to_update = []
+        data['nodes'].forEach(function (node_dict, i) {
+            var new_colour_dict = {background: "rgba(250,250,250,0.7)",
+                                   border: node_dict['color']['background'],
+                                   highlight: {border: node_dict['color']['background']}}
+
+            var id = node_dict['id']
+            var update_dict = {'id': id, 'color': new_colour_dict}
+            to_update.push(update_dict)
+        })
+        data['nodes'].update(to_update)
+
+    }
+
+    function highlight_pfam(pfam_code) {
+        restore_default_colours()
+        make_all_nodes_white()
+
+        var pfam_colour = "rgb(0,150,7)"
+
+        var to_update = []
+        data['nodes'].forEach(function (node_dict, i) {
+            if (node_dict['pfam_codes'].includes(pfam_code)) {
+                var new_colour_dict = {background: pfam_colour}
+                var id = node_dict['id']
+                var update_dict = {'id': id, 'color': new_colour_dict}
+                to_update.push(update_dict)
+            }
+        })
+        data['nodes'].update(to_update)
+
+    }
+
+    function select_pfam(pfam_code) {
+        var to_select = []
+        data['nodes'].forEach(function (node_dict, i) {
+            if (node_dict['pfam_codes'].includes(pfam_code)) {
+                to_select.push(node_dict['id'])
+            }
+        })
+        network.selectNodes(to_select)
+        move_view(to_select)
+        $('#pfam_modal').modal('hide');
+    }
+
+    function remove_pfam(pfam_code) {
+        var div_id = pfam_code + '_div'
+        var myobj = document.getElementById(div_id);
+        myobj.remove();
+
+        var to_remove = []
+        data['nodes'].forEach(function (node_dict, i) {
+            if (node_dict['pfam_codes'].includes(pfam_code)) {
+                to_remove.push(node_dict['id'])
+            }
+        })
+
+        data['nodes'].remove(to_remove)
+    }
+
+</script>

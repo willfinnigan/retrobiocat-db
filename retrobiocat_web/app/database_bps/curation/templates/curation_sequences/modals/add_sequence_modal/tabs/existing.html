@@ -1,0 +1,81 @@
+
+<div class="mt-2 mx-5 mb-5">
+    <button class="btn btn-outline-info float-right" onclick="show_sequence_tab('sequences_addition_new_enzyme')">Create new entry</button>
+    <h5 class="card-title">2. Either:</h5>
+    <h6 class="card-subtitle mb-2 text-muted">a) select an existing enzyme</h6>
+
+    <div class="form-group mt-2">
+        <select id="existing_enzyme" class="js-example-basic-single" style="width: 75%">
+            <option value="Test">Test1</option>
+            <option value="Tes2">Test2</option>
+        </select>
+        <button class="btn btn-outline-success mt-2" id='add_existing_enzyme_btn' onclick="add_existing_enzyme()">Add enzyme</button>
+    </div>
+    <div id="add_existing_enzyme_save_response"></div>
+    <span id="adding_existing_enzyme_please_wait"></span>
+
+     <h6 class="card-subtitle mb-2 text-muted">b) select an existing enzyme</h6>
+</div>
+
+<script>
+    function get_names_of_type() {
+        function callback(sequences_dict) {
+            //$('#mySelect2').val(null).trigger('change');
+
+        }
+
+        var enzyme_type = document.getElementById("new_enzyme_type").value
+        seq_load_ajax.get_sequences_of_type(enzyme_type, callback)
+    }
+
+    function adding_existing_enzyme_please_wait() {
+        document.getElementById("adding_existing_enzyme_please_wait").innerHTML = 'Adding enzyme please wait..'
+        document.getElementById("add_existing_enzyme_btn").disabled = true;
+    }
+
+    function add_existing_enzyme_operation_complete() {
+            document.getElementById("adding_existing_enzyme_please_wait").innerHTML = ''
+            document.getElementById("add_existing_enzyme_btn").disabled = false;
+        }
+
+    function add_existing_enzyme() {
+
+        // callback for when sequence is added
+        var callback = function (result) {
+            console.log('no add sequence callback mode set')
+        }
+
+        // if this modal is part of the edit_sequences_table, use this callback
+        if (window.seq_save_callback_mode === 'tabulator') {
+            callback = function (table_dict) {
+                document.getElementById("existing_enzyme").value = ""
+                seq_table.addData([table_dict], false)
+                console.log(table_dict)
+            }
+        }
+
+        // variables
+        var existing_name = document.getElementById("existing_enzyme").value
+        var enzyme_type = document.getElementById("new_enzyme_type").value
+        var paper = "{{paper_id}}"
+
+
+        // data checks..
+        // check enzyme_type is specified
+        if (enzyme_type === '') {
+            response_msg('Must choose an enzyme type',
+                'danger', ['Enzyme type field is blank'], "add_existing_enzyme_save_response")
+            return
+        }
+
+
+        // add to paper ajax call
+        else if (document.getElementById("existing_enzyme").value !== '') {
+            adding_existing_enzyme_please_wait()
+            seq_curate_ajax.add_existing_sequence(existing_name, paper, callback, "add_existing_enzyme_save_response", add_existing_enzyme_operation_complete)
+        }
+    }
+
+
+
+</script>

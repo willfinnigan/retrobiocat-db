@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+
+{% block content %}
+     <script src="{{url_for('curation.static', filename='js/ajax/sequences_ajax/sequence_curation_ajax.js')}}?v={{v}}" type="text/javascript"></script>
+    {% include 'build_sequences_table/modals/merge_modal.html' %}
+
+    <div class="container-fluid">
+        <div id="response_div_auto"></div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3 class="my-5">Identical sequences for {{ enzyme_type }}</h3>
+
+
+                        {% for match in matches %}
+                            <hr/>
+                            <p class="my-1">
+                                {% for name in match %}
+                                    {{name}}
+                                    {% if loop.index < match|length %}
+                                        <button class="btn btn-sm btn-outline-success" onclick="single_merge_load(`{{match[loop.index]}}`, `{{match[loop.index0]}}`)">
+                                            <
+                                        </button>
+                                        <button class="btn btn-sm btn-outline-danger" onclick="single_merge_load(`{{match[loop.index0]}}`, `{{match[loop.index]}}`)">
+                                            >
+                                        </button>
+                                    {% endif %}
+                                {% endfor %}
+                             </p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    <script>
+        function single_merge_load(merge_from, merge_to) {
+            var set_select_dict = {}
+            set_select_dict[merge_to] = merge_to
+            set_select("merge_seq_select", set_select_dict)
+            document.getElementById("merge_seq_select").value = merge_to
+            document.getElementById("original_name_merge").innerHTML = merge_from
+            document.getElementById("merge_seq_select").disabled = true
+            $('#merge_modal').modal('show');
+        }
+
+    </script>
+
+{% endblock %}

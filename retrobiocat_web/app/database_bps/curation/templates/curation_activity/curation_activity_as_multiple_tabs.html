@@ -1,0 +1,33 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_activity" %}
+
+{% block curation_content %}
+    <div class="container-fluid">
+        <h5 class="text-center mb-3">Activity</h5>
+
+        <ul class="nav nav-tabs" id="activity_tab_list" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="activity_subtab_main_link" data-toggle="tab" href="#activity_subtab_main"
+                   role="tab" aria-selected="true">Main table</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="activity_subtab_single_link" data-toggle="tab" href="#activity_subtab_single"
+                   role="tab" aria-controls="status">Single reactions</a>
+            </li>
+        </ul>
+
+
+        <div class="tab-content" id="activity_TabContent">
+            <div class="tab-pane fade show active" id="activity_subtab_main" role="tabpanel"
+                 aria-labelledby="activity_subtab_main_tab">
+                {% include 'curation_activity/main_table/main_table_tab.html' %}
+            </div>
+
+            <div class="tab-pane fade" id="activity_subtab_single" role="tabpanel"
+                 aria-labelledby="activity_subtab_single_link">
+            </div>
+        </div>
+
+    </div>
+
+{% endblock %}

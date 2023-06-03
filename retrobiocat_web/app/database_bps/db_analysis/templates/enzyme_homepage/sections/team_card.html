@@ -1,0 +1,32 @@
+
+<div class="card card-form mx-auto mt-4">
+    <div class="card-body">
+        <h4 class="mb-1">{{ enzyme_type }} curation team</h4>
+        {% if team_info['team_members']|length + team_info['enzyme_champions']|length == 0 %}
+            <p class="no_margin">
+                Currently no team members.
+            </p>
+        {% endif %}
+        {% for user in team_info['enzyme_champions']%}
+            <p class="no_margin">
+                <span class="text-info">({{user[2]}})</span> <strong><span class="text-danger"> * </span> {{user[0]}}</strong> - <small>{{user[1]}}</small>
+            </p>
+        {% endfor %}
+        {% for user in team_info['team_members']%}
+            <p class="no_margin text-dark">
+                <span class="text-info">({{user[2]}})</span><strong> {{user[0]}}</strong> - <small>{{user[1]}}</small>
+            </p>
+        {% endfor %}
+        <p class="mt-3">
+            <small class="text-danger">* indicates team admin</small> <br/>
+            <small class="text-info">( ) shows number of papers curated </small>
+        </p>
+        {% if user_in_team == True %}
+            <a class="btn btn-sm btn-outline-danger" href="{{url_for('curation.leave_team', enzyme_type=enzyme_type)}}">Leave team</a>
+        {% elif current_user.has_role('contributor') %}
+            <a class="btn btn-sm btn-outline-success" href="{{url_for('curation.join_team', enzyme_type=enzyme_type)}}">Join team</a>
+        {% else %}
+            <a class="btn btn-sm btn-outline-primary" href="{{url_for('curation.contributor_sign_up')}}">Become a contributor to join this team</a>
+        {% endif %}
+    </div>
+</div>

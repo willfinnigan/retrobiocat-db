@@ -1,0 +1,62 @@
+
+
+<script>
+    var smi_to_name_map = {{smi_to_name_map|tojson}}
+    var name_to_smi_map = {{name_to_smi_map|tojson}}
+    var mol_names = Object.keys(name_to_smi_map)
+</script>
+
+    {% include 'curation_activity/main_table/table/columns.html' %}
+
+<script>
+    function smi_to_name(row_data, col) {
+        var smi_col = col + '_smiles'
+        var name_col = col + '_name'
+        if (row_data[smi_col] in smi_to_name_map) {
+            row_data[name_col] = smi_to_name_map[row_data[smi_col]]
+        } else if (row_data[smi_col] !== '' && row_data[smi_col] !== undefined) {
+            row_data[name_col] = '-'
+        }
+        return row_data
+    }
+
+    function name_to_smi(row_data, col) {
+        var smi_col = col + '_smiles'
+        var name_col = col + '_name'
+        if (row_data[name_col] in name_to_smi_map) {
+                row_data[smi_col] = name_to_smi_map[row_data[name_col]]
+            }
+        return row_data
+        }
+
+
+    function add_molecule_names_to_data(tabledata) {
+        tabledata.forEach(function(row_data, i) {
+            tabledata[i] = smi_to_name(row_data, 'substrate_1')
+            tabledata[i] = smi_to_name(row_data, 'substrate_2')
+            tabledata[i] = smi_to_name(row_data, 'product_1')
+        })
+        return tabledata
+    }
+
+    var tabledata = {{activity_data|safe}};
+    tabledata = add_molecule_names_to_data(tabledata, smi_to_name_map)
+
+
+    var table = new Tabulator("#table", {
+        data:tabledata, //assign data to table
+        columnDefaults:{
+           headerHozAlign:"center"
+        },
+        height:"55vh",
+        //maxHeight:"55vh",
+        movableColumns: true,
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:columns,
+        rowHeight:40,
+        index:"n",
+        resizableRows:true,
+    });
+
+</script>

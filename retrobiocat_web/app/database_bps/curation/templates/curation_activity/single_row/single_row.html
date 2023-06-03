@@ -1,0 +1,612 @@
+<div class="container-fluid">
+    <div class="row">
+        <div class="col">
+            <button class="btn btn-sm btn-success mr-1" id='activity_single_save_all' onclick="single_save_all()">Save all</button>
+            <div class="btn-group my-auto text-center" role="group">
+                <label class="pl-2 pr-1"><strong>Row:</strong></label>
+                <button class="btn btn-sm btn-outline-success" onclick="single_previous_row()"><-</button>
+                <input type="number" id="single_row_select" onchange="single_row_changed()" class="" style="width:100px">
+                <button class="btn btn-sm btn-outline-success" onclick="single_next_row()">-></button>
+            </div>
+                <button class="btn btn-sm btn-outline-primary mx-1 my-1" onclick="single_new_reaction(false)">New reaction</button>
+                <button class="btn btn-sm btn-outline-warning mx-1 my-1" data-toggle='modal' data-target='#single_options_new_modal'>Set template</button>
+            <button class="btn btn-sm btn-outline-info mx-1 my-1" onclick="single_new_reaction(true)">New template reaction</button>
+                <button class="btn btn-sm btn-outline-danger mx-1 my-1 float-right" onclick="single_delete_reaction()">Delete reaction</button>
+            <br/>
+            <small>Press shift + left/right to move rows</small>
+        </div>
+    </div>
+</div>
+<div class="container-fluid">
+    <div class="row" align="center">
+        <div class="col"></div>
+        <div class="col-10">
+            <hr/>
+            <h5>Reaction data - row <span id="single_reaction_row_num"></span></h5>
+            <p>
+                <button class="btn btn-outline-secondary mol_btn" id="single_s1_btn" onclick="single_launch_select_mol('single_s1_btn')">Choose molecule</button>
+                +
+                <button class="btn btn-outline-secondary mol_btn" id="single_s2_btn" onclick="single_launch_select_mol('single_s2_btn')">Choose molecule</button>
+                --
+                <button class="btn btn-outline-warning" onclick="new_reaction_apply_reaction_fwd()">Fwd-></button>
+                <button class="btn btn-outline-info" onclick="new_reaction_apply_reaction_rev()"><-Rev</button>
+                -->
+                <button class="btn btn-outline-secondary mol_btn" id="single_p_btn" onclick="single_launch_select_mol('single_p_btn')">Choose molecule</button>
+            </p>
+
+            <div class="form-check">
+                <button class="btn btn-sm btn-outline-secondary mb-3 mx-4" onclick="single_switch_substrate_positions()">Switch substrate positions</button>
+                <input type="checkbox" id="single_combine_enantiomers_checkbox" checked/>
+                <label for="single_combine_enantiomers_checkbox">Combine enantiomers</label>
+                <span class="mx-2"></span>
+                <input type="checkbox" id="single_no_stereo_checkbox" />
+                <label  for="single_no_stereo_checkbox">No stereo</label>
+                <span class="mx-2"></span>
+                <input type="checkbox" id="single_force_rdkit" />
+                <label  for="single_force_rdkit">Use RdKit</label>
+            </div>
+
+
+            <div class="form-group">
+                <label for='single_reaction_name'>Reaction name</label>
+                <input list="single_reactions_datalist" id="single_reaction_name" class="form-control w-75"/>
+                <datalist id="single_reactions_datalist" class="">
+                    {% for reac in reactions %}
+                        <option value="{{reac}}">{{reac}}</option>
+                    {% endfor %}
+                </datalist>
+                <small class="form-text text-muted">The name of the reaction, eg 'Carboxylic acid
+                    reduction'</small>
+            </div>
+
+            <div class="form-group">
+                <label for='single_enzyme_name'>Enzyme name</label>
+                <input list="single_enzyme_datalist" id="single_enzyme_name" class="form-control w-50"/>
+                <datalist id="single_enzyme_datalist" class="">
+                    {% for enz in enzyme_names %}
+                        <option value="{{enz}}">{{enz}}</option>
+                    {% endfor %}
+                </datalist>
+                <small class="form-text text-muted">The name of the enzyme. This should have been entered in the sequence tab</small>
+            </div>
+
+            <hr/>
+            <h5>Activity data - row <span id="single_activity_row_num"></span></h5>
+
+            <div class="row align-items-start">
+                <div class="col-xs-2 mx-auto">
+                    <p><strong>Full kinetics</strong></p>
+                    <div class="form-group">
+                        <label for='single_kcat'>kcat (min-1)</label>
+                        <input type="number" id="single_kcat" step="0.1" class="form-control w-75"/>
+                    </div>
+                    <div class="form-group">
+                        <label for='single_km'>Km (mM)</label>
+                        <input type="number" id="single_km" class="form-control w-75"/>
+                    </div>
+                    <div class="form-group">
+                        <label for='single_mw'>Enzyme MW (Da)</label>
+                        <input type="number" id="single_mw" class="form-control w-75"/>
+                    </div>
+                </div>
+                <div class="col-xs-2 mx-auto">
+                    <p><strong>Specific activity</strong></p>
+                    <div class="form-group">
+                        <label for='single_sa'>umol/min/mg</label>
+                        <input type="number" id="single_sa" step="0.1" class="form-control w-75"/>
+                    </div>
+                </div>
+                <div class="col-xs-2 mx-auto">
+                    <p><strong>Percentage conversion</strong></p>
+                    <div class="form-group">
+                        <label for='single_conversion'>% conv.</label>
+                        <input type="number" id="single_conversion" class="form-control w-75"/>
+                    </div>
+                    <div class="form-group">
+                        <label for='single_conv_time'>Conv. time (hrs)</label>
+                        <input type="number" id="single_conv_time" class="form-control w-75"/>
+                    </div>
+                </div>
+                <div class="col-xs-2 mx-auto">
+                    <p><strong>Categorical</strong></p>
+                    <div class="form-group">
+                        <label for='single_categorical'>Category</label>
+                        <select id="single_categorical" class="form-control custom-select w-75">
+                            <option value=""></option>
+                            <option value="High">High</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Low">Low</option>
+                            <option value="None">None</option>
+                        </select>
+                    </div>
+                    <p><strong>Binary</strong></p>
+                    <div class="form-group">
+                        <label for='single_binary'>Active</label>
+                        <select id="single_binary" class="form-control custom-select w-75">
+                            <option value=""></option>
+                            <option value="1">True</option>
+                            <option value="0">False</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row align-items-start">
+                <div class="col-xs-6 mx-auto">
+                    <div class="form-group">
+                        <label for='single_selectivity'>Selectivity</label>
+                        <input id="single_selectivity" class="form-control"/>
+                    </div>
+                </div>
+            </div>
+
+            <hr/>
+            <h5>Meta data - row <span id="single_meta_row_num"></span></h5>
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-xs-10">
+                    <div class="row">
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_s1_conc'>Substrate 1 conc. (mM)</label>
+                                <input id="single_s1_conc" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_s2_conc'>Substrate 2 conc. (mM)</label>
+                                <input id="single_s2_conc" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_formulation'>Biocat. Forumlation</label>
+                                <input id="single_formulation" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_concentration'>Biocat. Conc.</label>
+                                <input id="single_concentration" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="row ">
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_temperature'>Temperature</label>
+                                <input id="single_temperature" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_ph'>pH</label>
+                                <input id="single_ph" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_reac_vol'>Reaction vol.</label>
+                                <input id="single_reac_vol" class="form-control w-75"/>
+                            </div>
+                        </div>
+
+                        <div class="col-xs-3 mx-auto">
+                            <div class="form-group">
+                                <label for='single_solvent'>Solvent</label>
+                                <input id="single_solvent" class="form-control w-75"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="single_other_conditions">Other conditions</label>
+                <textarea class="form-control" id="single_other_conditions" placeholder=""
+                          rows="2"></textarea>
+                <small class="form-text text-muted">
+                    Any other reaction conditions. (Eg buffer, cofactor concentrations ect..)
+                </small>
+            </div>
+
+            <div class="form-group">
+                <label for="single_notes">Notes</label>
+                <textarea class="form-control" id="single_notes" placeholder=""
+                          rows="2"></textarea>
+                <small class="form-text text-muted">
+                    Anything to note about this entry
+                </small>
+            </div>
+
+        </div>
+        <div class="col"></div>
+    </div>
+</div>
+
+<script>
+    var single_s1_smi = ""
+    var single_s2_smi = ""
+    var single_p_smi = ""
+
+    var single_fields_id_map = {'single_conversion': 'conversion',
+                                'single_conv_time': 'conversion_time',
+                                'single_kcat': 'kcat',
+                                'single_km': 'km',
+                                'single_mw': 'mw',
+                                'single_sa': 'specific_activity',
+                                'single_categorical': 'categorical',
+                                'single_binary': 'binary',
+                                'single_selectivity': 'selectivity',
+                                'single_reaction_name': 'reaction',
+                                'single_enzyme_name': 'enzyme_name',
+                                'single_temperature': 'temperature',
+                                'single_ph': 'ph',
+                                'single_s1_conc': 'substrate_1_conc',
+                                'single_s2_conc': 'substrate_2_conc',
+                                'single_reac_vol': 'reaction_vol',
+                                'single_solvent': 'solvent',
+                                'single_formulation': 'formulation',
+                                'single_concentration': 'biocat_conc',
+                                'single_notes': 'notes',
+                                'single_other_conditions': 'other_conditions'}
+
+    var single_must_be_number = ['conversion', 'kcat', 'km', 'mw', 'specific_activity', 'conversion_time']
+
+    var molecules_svg_all = {...{{activity_mols['product_mols']|tojson}},
+                             ...{{activity_mols['substrate_1_mols']|tojson}},
+                             ...{{activity_mols['substrate_2_mols']|tojson}}};
+
+    var paper_molecules_names_dict = {}
+    var paper_molecules_smi_dict = {}
+    var paper_molecules = {{paper_molecules|tojson}}
+    paper_molecules.forEach(function (item, index) {
+        molecules_svg_all[item[1]] = item[2]
+        paper_molecules_names_dict[item[1]] = item[0]
+        paper_molecules_smi_dict[item[0]] = item[1]
+    })
+
+    document.getElementById('single_row_select').value = 1
+
+    function single_set_button(smi, button_id) {
+        if (smi in paper_molecules_names_dict) {
+            name = "<small>"+paper_molecules_names_dict[smi]+"</small>"
+        } else {
+            name = ""
+        }
+
+        if (smi === "") {
+            document.getElementById(button_id).innerHTML = "Choose molecule"
+        } else if (smi in molecules_svg_all) {
+            document.getElementById(button_id).innerHTML = molecules_svg_all[smi]
+            document.getElementById(button_id).innerHTML += name
+        } else {
+            document.getElementById(button_id).innerHTML = smi
+        }
+
+        if (button_id === 'single_s1_btn') {
+            single_s1_smi = smi
+            single_update_field(single_s1_smi, 'substrate_1_smiles')
+        } else if (button_id === 'single_s2_btn') {
+            single_s2_smi = smi
+            single_update_field(single_s2_smi, 'substrate_2_smiles')
+        } else if (button_id === 'single_p_btn') {
+            single_p_smi = smi
+            single_update_field(single_p_smi, 'product_1_smiles')
+        }
+    }
+
+    function single_set_all_buttons(row_data) {
+        if (typeof row_data['substrate_1_smiles'] !== 'undefined') {
+            var s1 = row_data['substrate_1_smiles']
+        } else {
+            var s1 = ''
+        }
+
+        if (typeof row_data['substrate_2_smiles'] !== 'undefined') {
+            var s2 = row_data['substrate_2_smiles']
+        } else {
+            var s2 = ''
+        }
+
+        if (typeof row_data['product_1_smiles'] !== 'undefined') {
+            var p = row_data['product_1_smiles']
+        } else {
+            var p = ''
+        }
+
+        single_set_button(s1, 'single_s1_btn')
+        single_set_button(s2, 'single_s2_btn')
+        single_set_button(p, 'single_p_btn')
+    }
+
+    function single_set_field(dom_id, data_id, row_data) {
+
+        if (data_id in row_data) {
+            if (typeof row_data[data_id] !== 'undefined') {
+                document.getElementById(dom_id).value = row_data[data_id]
+            } else {
+                document.getElementById(dom_id).value = ""
+            }
+        } else {
+            document.getElementById(dom_id).value = ""
+        }
+    }
+
+    function single_update_field(update_to, col_name) {
+        var row_num = document.getElementById('single_row_select').value
+        var row = table.getRow(row_num)
+        var update_obj = {}
+        if (single_must_be_number.includes(col_name) === true) {
+            update_to = parseFloat(update_to)
+        }
+        update_obj[col_name] = update_to
+        table.updateRow(row, update_obj);
+
+        var row_data = row.getData()
+        if (row_data['_id'] !== '') {
+            if (!window.tabulator_edited_rows.includes(row_data['_id'])) {
+                window.tabulator_edited_rows.push(row_data['_id'])
+            }
+        }
+
+    }
+
+    for (let [key, value] of Object.entries(single_fields_id_map)) {
+        document.getElementById(key).onchange = function () {
+            single_update_field(document.getElementById(key).value, value)
+        }
+
+    }
+
+    function single_set_other_fields(row_data) {
+        for (let [key, value] of Object.entries(single_fields_id_map)) {
+            single_set_field(key, value, row_data)
+        }
+    }
+
+    function single_row_changed() {
+        var row_num = document.getElementById('single_row_select').value
+        var row_data = table.getRow(row_num).getData()
+        single_set_all_buttons(row_data)
+        single_set_other_fields(row_data)
+
+        document.getElementById('single_reaction_row_num').innerHTML = row_num
+        document.getElementById('single_activity_row_num').innerHTML = row_num
+        document.getElementById('single_meta_row_num').innerHTML = row_num
+
+
+    }
+
+    function single_next_row() {
+        var current_row_num = document.getElementById('single_row_select').value
+        var plus_one_row_num = current_row_num - 2 + 3
+        var plus_one_row = table.getRow(plus_one_row_num)
+        if (plus_one_row === false) {
+            return
+        }
+        document.getElementById('single_row_select').value = plus_one_row_num
+        single_row_changed()
+    }
+
+    function single_previous_row() {
+        var current_row_num = document.getElementById('single_row_select').value
+        var minus_one_row_num = current_row_num - 1
+        var minus_one_row = table.getRow(minus_one_row_num)
+        if (minus_one_row === false) {
+            return
+        }
+        document.getElementById('single_row_select').value = minus_one_row_num
+        single_row_changed()
+    }
+
+    $(document.body).on("click", "a[data-toggle='tab']", function (event) {
+        var hash_tag = this.getAttribute("href")
+        if (hash_tag.includes('activity_subtab_single') === true) {
+            single_row_changed()
+        }
+    });
+
+    function update_svg_dict(smi, svg) {
+        if (smi in molecules_svg_all) {
+            return
+        } else {
+            molecules_svg_all[smi] = svg
+        }
+
+    }
+
+    function new_reaction_apply_reaction_rev() {
+        console.log("Apply reverse rule")
+        $.post('/_apply_reaction_rev', {
+            p: single_p_smi,
+            reaction: document.getElementById('single_reaction_name').value,
+            combine_enantiomers: document.getElementById('single_combine_enantiomers_checkbox').checked,
+            no_stereo: document.getElementById('single_no_stereo_checkbox').checked,
+            use_rdkit: document.getElementById('single_force_rdkit').checked
+        }).done(function (data) {
+            if (data.result.status === 'success') {
+                new_reaction_rev_reaction_results(data.result.products, data.result.svg_dict, data.result.reaction_svgs)
+            }
+        }).fail(function(xhr, status, error) {
+            console.log(error)
+        });
+    }
+
+    function single_update_substrates(s1, s2, svg_s1, svg_s2) {
+        single_s1_smi = s1
+        single_update_field(single_s1_smi, 'substrate_1_smiles')
+        update_svg_dict(single_s1_smi, svg_s1)
+        document.getElementById('single_s1_btn').innerHTML = svg_s1
+        if (s2 !== '') {
+            single_s2_smi = s2
+            single_update_field(single_s2_smi, 'substrate_2_smiles')
+            update_svg_dict(single_s2_smi, svg_s2)
+            document.getElementById('single_s2_btn').innerHTML = svg_s2
+        }
+    }
+
+    function single_update_product(p1, svg_p1) {
+        single_p_smi = p1
+        single_update_field(single_p_smi, 'product_1_smiles')
+        update_svg_dict(single_p_smi, svg_p1)
+        document.getElementById('single_p_btn').innerHTML = svg_p1
+    }
+
+    function new_reaction_rev_reaction_results(products, svg_dict, reaction_svgs) {
+        console.log(products)
+        if (products.length === 1) {
+            var s1 = products[0][0]
+            var svg_s1 = svg_dict[products[0][0]]
+            var s2 = ''
+            var svg_s2 = ''
+            if (products[0].length === 2) {
+                s2 = products[0][1]
+                svg_s2 = svg_dict[products[0][1]]
+            }
+            single_update_substrates(s1, s2, svg_s1, svg_s2)
+        } else {
+            $('#select_reaction_modal').modal('show');
+            make_rxn_buttons(products, reaction_svgs, svg_dict, 'rev')
+        }
+    }
+
+    function new_reaction_apply_reaction_fwd() {
+        $.post('/_apply_reaction_fwd', {
+            s1: single_s1_smi,
+            s2: single_s2_smi,
+            reaction: document.getElementById('single_reaction_name').value,
+            combine_enantiomers: document.getElementById('single_combine_enantiomers_checkbox').checked,
+            no_stereo: document.getElementById('single_no_stereo_checkbox').checked,
+            use_rdkit: document.getElementById('single_force_rdkit').checked
+        }).done(function (data) {
+            if (data.result.status === 'success') {
+                new_reaction_fwd_reaction_results(data.result.products, data.result.svg_dict, data.result.reaction_svgs)
+            }
+        }).fail(function(xhr, status, error) {
+            console.log(error)
+        });
+    }
+
+    function new_reaction_fwd_reaction_results(products, svg_dict, reaction_svgs) {
+        console.log(products)
+        if (products.length === 1) {
+            single_update_product(products[0][0], svg_dict[products[0][0]])
+        } else {
+            $('#select_reaction_modal').modal('show');
+            make_rxn_buttons(products, reaction_svgs, svg_dict, 'fwd')
+        }
+    }
+
+    function single_save_all() {
+        $('[href="#activity_subtab_main"]').tab('show')
+        save()
+        var scrollingElement = (document.scrollingElement || document.body);
+        scrollingElement.scrollTop = scrollingElement.scrollHeight;
+    }
+
+    function single_set_edit_mol_button(smi) {
+        var svg = ""
+        if (smi in molecules_svg_all) {
+            svg = molecules_svg_all[smi]
+        }
+        document.getElementById('single_current_mol_svg').innerHTML = svg
+    }
+
+    function single_launch_select_mol(button_id) {
+        select_mol_button_id = button_id
+        $('#select_molecule_modal').modal('show');
+        if (button_id === 'single_s1_btn') {
+            single_set_edit_mol_button(single_s1_smi)
+        } else if (button_id === 'single_s2_btn') {
+            single_set_edit_mol_button(single_s2_smi)
+        } else if (button_id === 'single_p_btn') {
+            single_set_edit_mol_button(single_p_smi)
+        }
+    }
+
+    function single_get_data_to_copy_to_new_row() {
+        var row_num_copy_from = document.getElementById('single_row_select_for_copy').value
+        var row_copy_data = table.getRow(row_num_copy_from).getData()
+        var filtered_copy_data = {}
+
+        for (let [key, value] of Object.entries(single_copy_checkbox_map)) {
+            if (document.getElementById(key).checked === true) {
+                filtered_copy_data[value] = row_copy_data[value]
+            }
+        }
+        return filtered_copy_data
+    }
+
+    function single_new_reaction(use_template) {
+
+        if (use_template === true) {
+            var data = single_get_data_to_copy_to_new_row()
+        } else {
+            data = {}
+        }
+        data['n'] = table.getDataCount() + 1
+        table.addRow(data);
+        var last_row = table.getDataCount()
+        document.getElementById('single_row_select').value = last_row
+        single_row_changed()
+    }
+
+    function single_delete_reaction() {
+        var current_row = document.getElementById('single_row_select').value
+        var row = table.getRow(current_row)
+        row.delete()
+        update_table_numbering()
+        var new_row = current_row-1
+        if (new_row === 0) {
+            new_row = 1
+        }
+        document.getElementById('single_row_select').value = new_row
+        single_row_changed()
+    }
+
+    var shifted
+    $(document).on('keyup keydown', function(e){shifted = e.shiftKey} );
+
+    window.addEventListener("keydown", function (event) {
+        if (event.defaultPrevented) {
+            return; // Do nothing if the event was already processed
+        }
+
+        switch (event.key) {
+            case "Left": // IE/Edge specific value
+            case "ArrowLeft":
+                // Do something for "left arrow" key press.
+                if (shifted === true) {single_previous_row()}
+                break;
+            case "Right": // IE/Edge specific value
+            case "ArrowRight":
+                // Do something for "right arrow" key press.
+                if (shifted === true) {single_next_row()}
+                break;
+        }
+    })
+
+    function single_switch_substrate_positions() {
+        var s1 = single_s2_smi
+        var s2 = single_s1_smi
+        single_set_button(s1, 'single_s1_btn')
+        single_set_button(s2, 'single_s2_btn')
+    }
+
+
+</script>
+
+{% include '/tabulator_tables/activity_table/select_reaction_modal.html' %}
+{% include '/tabulator_tables/activity_table/hide_columns_modal.html' %}
+{% include '/tabulator_tables/activity_table/select_molecule_modal.html' %}
+{% include 'data_submission/components/activity/single_row_options_for_new_reaction_modal.html' %}
+{% include 'data_submission/components/activity/single_row_molecule_edit_modal.html' %}

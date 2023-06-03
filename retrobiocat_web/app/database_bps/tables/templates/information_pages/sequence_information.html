@@ -1,0 +1,247 @@
+<style>
+    .seq_heading {
+        font-weight: bold;
+        margin: 0px;
+        padding: 0px;
+
+    }
+
+    .seq_field {
+        margin: 0px;
+        padding: 5px;
+        padding-left:30px;
+    }
+
+</style>
+
+<div class="container-fluid">
+    <div class="row">
+        <div class='col'>
+            <small class='no_margin text-success float-right' id="seq_reviewed">Reviewed</small>
+            <h3 class="text-center mt-3"><span id="enzyme_name_query"></span></h3>
+            <p class="no_margin text-center"><small id="other_names_query"></small></p>
+
+
+            <p class="seq_heading">Enzyme type</p>
+            <p class="seq_field"><span id="enzyme_type_query"></span> - <span id="enzyme_type_full_query"></span></p>
+
+            <p class="seq_heading text-break" id="n_tag_query_heading">N-terminal tag</p>
+            <p class="seq_field"><span id="n_tag_query"></span></p>
+
+
+            <p class="seq_heading text-break">Sequence</p>
+            <p class="seq_field"><span id="sequence_query" style="word-wrap: break-word"></span></p>
+
+            <p class="seq_heading text-break" id="c_tag_query_heading">C-terminal tag</p>
+            <p class="seq_field"><span id="c_tag_query"></span></p>
+
+            <p class="seq_heading" id="accession_heading_query">Identifier / Accession number</p>
+            <p class="seq_field my-auto">
+                <span id="accession_query"></span>
+                <a href="#" id="uni_accession_link" target="_blank"><button id="uni_accession_link_button" class="btn btn-sm btn-outline-success">UniProt</button></a>
+            </p>
+
+            <p class="seq_heading" id="pdb_heading_query">PDB</p>
+            <p class="seq_field my-auto">
+                <span id="pdb_query"></span>
+            <a href="#" id="pdb_link" target="_blank"><button class="btn btn-sm btn-outline-danger">PDB</button></a>
+
+            <p class="seq_heading" id="other_names_data_heading_query">Alternative naming differences</p>
+            <p class="seq_field"><span id="other_names_data_query"></span></p>
+
+            <p class="seq_heading" id="other_identifiers_heading_query">Other identifiers</p>
+            <p class="seq_field"><span id="other_identifiers_query"></span></p>
+
+            <p class="seq_heading" id="mutant_of_heading_query">Mutant of:</p>
+            <p class="seq_field"><span id="mutant_of_query"></span></p>
+
+            <p class="seq_heading" id="notes_heading_query">Notes:</p>
+            <p class="seq_field"><span id="notes_query"></span></p>
+
+            <p class="seq_heading">Links:</p>
+            <div class="custom-control custom-checkbox">
+                <input type="checkbox" class="custom-control-input" id="reviewed_checkbox" checked>
+                <label for="reviewed_checkbox" class="custom-control-label">Only reviewed data</label>
+            </div>
+            <div class="text-center">
+                <a id="substrate_spec_of_seq_query" href=""><button class="btn btn-outline-primary">Substrate specificity of <span id="enzyme_name_2_query"></span></button></a>
+                <a id="paper_feat_seq_query" href=""><button class="btn btn-outline-info">Papers featuring <span id="enzyme_name_3_query"></span></button></a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row mt-5">
+        <div class="col">
+            <p><strong>Enzyme entry curated by: </strong><span id="sequence_owner_query"></span></p>
+        </div>
+    </div>
+
+</div>
+
+<script>
+
+    window.current_enzyme_name = ""
+
+    function add_other_names_info(other_names_data) {
+        var span = document.getElementById("other_names_data_query")
+        span.innerHTML = ''
+
+        if (other_names_data.length === 0) {
+            document.getElementById("other_names_data_heading_query").style.display = "none";
+            document.getElementById("other_names_data_query").style.display = "none";
+            return false
+        }
+
+        document.getElementById("other_names_data_heading_query").style.display  = 'block';
+        document.getElementById("other_names_data_query").style.display  = 'block';
+
+        other_names_data.forEach(function (item, index) {
+            if ('name' in item) {
+                span.innerHTML += "<p class='no_margin'><b>Name:</b> " + item.name + "</p>"
+                 if ('n_tag' in item) {
+                     span.innerHTML += "<p class='no_margin'><b>Alt. N tag:</b> " + item.n_tag + "</p>"
+                 }
+                 if ('c_tag' in item) {
+                     span.innerHTML += "<p class='no_margin'><b>Alt. C tag:</b> " + item.c_tag + "</p>"
+                 }
+                 if ('notes' in item) {
+                     span.innerHTML += "<p class='no_margin'><b>Alt. Notes:</b> " + item.notes + "</p>"
+                 }
+                 span.innerHTML += "<p></p>"
+            }
+
+
+        });
+    }
+
+    function parse_sequence_data(result) {
+        document.getElementById("enzyme_type_query").innerHTML = result.enzyme_type;
+        document.getElementById("enzyme_type_full_query").innerHTML = result.enzyme_type_full;
+        document.getElementById("enzyme_name_query").innerHTML = result.enzyme_name;
+        document.getElementById("enzyme_name_2_query").innerHTML = result.enzyme_name;
+        document.getElementById("enzyme_name_3_query").innerHTML = result.enzyme_name;
+        document.getElementById("other_names_query").innerHTML = result.other_names;
+        document.getElementById("sequence_query").innerHTML = result.sequence;
+        document.getElementById("n_tag_query").innerHTML = result.n_tag;
+        document.getElementById("c_tag_query").innerHTML = result.c_tag;
+
+        if (result.reviewed === true) {
+            document.getElementById("seq_reviewed").style.display = "block";
+        } else {
+            document.getElementById("seq_reviewed").style.display = "none";
+        }
+
+        if (result.sequence === '' && result.sequence_unavailable === true) {
+            document.getElementById("sequence_query").innerHTML = "Sequence not available"
+        }
+
+        document.getElementById("mutant_of_query").innerHTML = result.mutant_of;
+        document.getElementById("notes_query").innerHTML = result.notes;
+        document.getElementById("accession_query").innerHTML = result.accession;
+        document.getElementById("pdb_query").innerHTML = result.pdb;
+
+        document.getElementById('uni_accession_link').href = "https://www.uniprot.org/uniparc/?query=" + result.accession
+        document.getElementById('pdb_link').href = "https://www.ebi.ac.uk/pdbe/entry/pdb/" + result.pdb
+
+        if (result.pdb === '') {
+            document.getElementById("pdb_link").style.display = "none";
+            document.getElementById("pdb_heading_query").style.display = "none";
+        } else {
+            document.getElementById("pdb_link").style.display = "inline";
+            document.getElementById("pdb_heading_query").style.display = "inline";
+        }
+
+
+
+        if (result.accession === '' || result.accession === '-') {
+            document.getElementById("accession_query").style.display = "none";
+            document.getElementById("accession_heading_query").style.display = "none";
+            document.getElementById("uni_accession_link").style.display = "none";
+            document.getElementById("uni_accession_link_button").style.display = "none";
+        } else {
+            document.getElementById("accession_query").style.display = "inline";
+            document.getElementById("accession_heading_query").style.display = "inline";
+            document.getElementById("uni_accession_link").style.display = "inline";
+            document.getElementById("uni_accession_link_button").style.display = "inline";
+        }
+
+
+
+
+
+        if (result.other_identifiers === '') {
+            document.getElementById("other_identifiers_query").style.display = "none";
+            document.getElementById("other_identifiers_heading_query").style.display = "none";
+        } else {
+            document.getElementById("other_identifiers_query").style.display = "inline";
+            document.getElementById("other_identifiers_heading_query").style.display = "inline";
+        }
+
+
+        if (result.c_tag === '') {
+            document.getElementById("c_tag_query").style.display = "none";
+            document.getElementById("c_tag_query_heading").style.display = "none";
+        } else {
+            document.getElementById("c_tag_query").style.display = "inline";
+            document.getElementById("c_tag_query_heading").style.display = "inline";
+        }
+
+        if (result.n_tag === '') {
+            document.getElementById("n_tag_query").style.display = "none";
+            document.getElementById("n_tag_query_heading").style.display = "none";
+        } else {
+            document.getElementById("n_tag_query").style.display = "inline";
+            document.getElementById("n_tag_query_heading").style.display = "inline";
+        }
+
+        if (result.mutant_of === '') {
+            document.getElementById("mutant_of_query").style.display = "none";
+            document.getElementById("mutant_of_heading_query").style.display = "none";
+        } else {
+            document.getElementById("mutant_of_query").style.display = "inline";
+            document.getElementById("mutant_of_heading_query").style.display = "inline";
+        }
+
+        if (result.notes === '') {
+            document.getElementById("notes_query").style.display = "none";
+            document.getElementById("notes_heading_query").style.display = "none";
+        } else {
+            document.getElementById("notes_query").style.display = "inline";
+            document.getElementById("notes_heading_query").style.display = "inline";
+        }
+
+        add_other_names_info(result.other_names_data)
+
+        window.current_enzyme_name = result.enzyme_name
+        set_enzyme_links()
+
+        document.getElementById('sequence_owner_query').innerHTML = result.owner;
+    }
+
+    function set_enzyme_links() {
+        var reviewed = document.getElementById('reviewed_checkbox').checked
+        var enzyme_name = window.current_enzyme_name
+
+        if (reviewed === true) {
+            document.getElementById('paper_feat_seq_query').href = Flask.url_for("tables.show_papers", {"enzyme_name": enzyme_name, "reviewed": 'reviewed'});
+            document.getElementById('substrate_spec_of_seq_query').href = Flask.url_for("tables.show_activity", {"enzyme_name": enzyme_name, "reviewed": 'reviewed'});
+        } else {
+            document.getElementById('paper_feat_seq_query').href = Flask.url_for("tables.show_papers", {"enzyme_name": enzyme_name});
+            document.getElementById('substrate_spec_of_seq_query').href = Flask.url_for("tables.show_activity", {"enzyme_name": enzyme_name});
+        }
+    }
+
+    document.getElementById('reviewed_checkbox').onchange = function() {
+        set_enzyme_links()
+    }
+
+    function load_sequence_data(enzyme_name) {
+        var callback = function (result) {
+            parse_sequence_data(result)
+        }
+        seq_load_ajax.load_seq_data(enzyme_name, callback)
+    }
+
+
+
+</script>

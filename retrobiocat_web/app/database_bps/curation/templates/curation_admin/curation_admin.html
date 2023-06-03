@@ -1,0 +1,61 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_admin" %}
+
+{% block curation_content %}
+    <div class="container-fluid">
+        <h5 class="text-center mb-3">Admin</h5>
+        <div class="row">
+            <div class="col mx-auto" style="max-width:48rem">
+                <div class="form-group">
+                    <label for="set_paper_owner" class="control-label">Paper owner: </label>
+                    <select id="set_paper_owner" class="form-control custom-select w-75">
+                        {% for contributor in admin_dict['contributors'] %}
+                            {% if contributor[1] == admin_dict['owner'] %}
+                                <option selected="selected" value="{{ contributor[1] }}">{{ contributor[0] }}</option>
+                            {% else %}
+                                <option value="{{ contributor[1] }}">{{ contributor[0] }}</option>
+                            {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <button class="btn btn-outline-success" onclick="admin_activity_to_owner()">Assign activity data to
+                    owner
+                </button>
+                <button class="btn btn-outline-primary" onclick="admin_unassigned_seqs_to_owner()">Assign unassigned
+                    seqs to owner
+                </button>
+                <button class="btn btn-outline-danger" onclick="admin_all_seqs_to_owner()">Assign ALL seqs to owner
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("set_paper_owner").onchange = function () {
+            function callback() {
+            }
+
+            var paper_id = "{{paper_id}}"
+            var new_owner_id = document.getElementById("set_paper_owner").value
+            curation_admin_ajax.admin_set_owner(paper_id, new_owner_id, callback, "response_div")
+            admin_set_owner()
+        };
+
+        function admin_activity_to_owner() {
+            var paper_id = "{{paper_id}}"
+            curation_admin_ajax.admin_activity_to_owner(paper_id, "response_div")
+        }
+
+        function admin_unassigned_seqs_to_owner() {
+            var paper_id = "{{paper_id}}"
+            curation_admin_ajax.admin_unassigned_seqs_to_owner(paper_id, "response_div")
+        }
+
+        function admin_all_seqs_to_owner() {
+            var paper_id = "{{paper_id}}"
+            curation_admin_ajax.admin_all_seqs_to_owner(paper_id, "response_div")
+        }
+    </script>
+
+{% endblock %}

@@ -1,0 +1,91 @@
+<!-- Main modal -->
+<div class="modal fade" id="rhea_modal" tabindex="-1" role="dialog" aria-labelledby="rhea_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Rhea reactions</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                {% for code in rhea %}
+                    <div id="{{code}}_div" class="mb-2">
+                        <p>
+                            <a href='https://www.rhea-db.org/rhea?query={{ code }}' target='_blank'>{{ code }}</a>
+                            {% for ec in rhea[code][1] %}
+                                - <a href='https://www.rhea-db.org/rhea?query={{ ec }}' target='_blank'>{{ ec }}</a>
+                            {% endfor %}
+                            - <span id="rhea_count_{{code}}"></span>
+                            <button class="btn btn-sm btn-outline-success" onclick="select_rhea('{{code}}')">Select</button>
+                        </p>
+
+                        <p class="ml-3">{{rhea[code][0]}}</p>
+
+                    </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function select_rhea(code) {
+        var to_select = []
+        data['nodes'].forEach(function (node_dict, i) {
+            if (node_dict['rhea'].includes(code)) {
+                to_select.push(node_dict['id'])
+            }
+        })
+        network.selectNodes(to_select)
+
+        move_view(to_select)
+
+        $('#rhea_modal').modal('hide');
+    }
+
+    function get_current_rhea_counts() {
+
+        var rhea_counts = {}
+        for (const [key, value] of Object.entries(window.rhea_equations)) {
+          rhea_counts[key] = 0
+        }
+
+        data['nodes'].forEach(function (node_dict, i) {
+            var node_rhea = node_dict['rhea']
+            node_rhea.forEach(function (rhea, j) {
+                if (!(rhea in rhea_counts)) {
+                    rhea_counts[rhea] = 0
+                }
+                rhea_counts[rhea] += 1
+            })
+        })
+
+        return rhea_counts
+    }
+
+    function add_rhea_counts() {
+        console.log('updating rhea counts')
+        var rhea_counts = get_current_rhea_counts()
+        for (const [code, num] of Object.entries(rhea_counts)) {
+            if (num === 0) {
+                document.getElementById(code+'_div').innerHTML = ''
+            } else {
+                document.getElementById('rhea_count_'+code).innerHTML = num
+            }
+        }
+    }
+
+    $('#rhea_modal').on('shown.bs.modal', function (e) {
+        add_rhea_counts()
+    })
+
+
+</script>

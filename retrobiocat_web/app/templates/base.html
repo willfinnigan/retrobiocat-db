@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <title>RetroBioCat</title>
+        {{ JSGlue.include() }}
+        {% include 'metatags.html' %}
+        {% include 'style.html' %}
+        {% include 'head_scripts.html' %}
+    </head>
+
+    <body>
+        {% set v = "151221" %}
+        {% include 'navbar/navbar.html' %}
+        {% include 'flash_msgs.html' %}
+        {% block extra_js %}{% endblock %}
+        {% block content %}{% endblock %}
+        {% include 'cookieconsent.html' %}
+        {% include 'body_scripts.html' %}
+    </body>
+    {% block post_body_scripts %}{% endblock %}
+</html>
+

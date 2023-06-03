@@ -1,0 +1,19 @@
+
+<div id="{{tag_ids[tag]}}_table_div"></div>
+
+<script>
+    var {{tag_ids[tag]}}_table_data = {{data_by_tag[tag]|safe}}
+
+    var {{tag_ids[tag]}}_papers_table = new Tabulator("#{{tag_ids[tag]}}_table_div", {
+        data: {{tag_ids[tag]}}_table_data, //assign data to table
+        maxHeight: "40vh",
+        columnDefaults:{
+            hozAlign:"center",
+            vertAlign:"center"
+        },
+        layout: "fitColumns",
+        addRowPos: "bottom",
+        columns: papers_columns,
+    })
+
+</script>

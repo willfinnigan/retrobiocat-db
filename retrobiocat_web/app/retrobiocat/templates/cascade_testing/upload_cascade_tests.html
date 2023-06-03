@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div id="init_response_div"></div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3 class="card-title">Create new test sets</h3>
+                        <form id="main_form" enctype="multipart/form-data" action="" method="POST" novalidate >
+                            {{ form.hidden_tag() }}
+
+                            <div class="form-group">
+                                <label for="test_set_name">Test set name</label>
+                                {{ form.test_set_name(form="main_form")}}
+                                {% for error in form.test_set_name.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="excel_file">Upload tests excel file</label>
+                                {{ form.excel_file(type="file", form="main_form")}}
+                                {% for error in form.excel_file.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group my-2">
+                                {{ form.submit(class="btn btn-success", form="main_form") }}
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+{% endblock %}

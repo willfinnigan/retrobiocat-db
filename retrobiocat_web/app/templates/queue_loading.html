@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div id='card_div' class="card card-form my-5" style="width: 32rem;">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">{{ title }}</h3>
+
+                        <p>{{queue_details}}</p>
+                        <p>{{task_details}}</p>
+
+                        <div class="progress">
+                            <div class="progress-bar" id='progressbar'></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+    <script>
+        function getStatus(taskID, taskQueue) {
+            function callback() {
+                location.reload()
+            }
+            get_status_ajax.get_status(taskID, taskQueue, "progressbar", {{ajax_timer|int}}, callback)
+        }
+
+        var task_id = '{{task_id}}'
+        var task_queue = '{{task_queue}}'
+        getStatus(task_id, task_queue)
+    </script>
+
+{% endblock %}

@@ -1,0 +1,45 @@
+<div class="modal fade" id="paper_search_modal" tabindex="-1" role="dialog"
+     aria-labelledby="paper_search_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Search for {{ enzyme_type }} papers</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+
+                <div class="form-group">
+                    <label for='search_term'>Search terms</label>
+                    <input type="text" class="form-control" id="search_term" value="{{fullname}} biocatalysis">
+                </div>
+                <small class="form-text text-muted">
+                    Enter keywords to launch a search via pubmed.  Papers can then be added or marked as not relevant.
+                </small>
+                <button type="button" class="btn btn-primary mt-2" onclick="launch_paper_search()">Search</button>
+
+                <p class="mt-2">Once you have completed your search, create an paper search record (the other button)
+                    to help keep track of how well we are keeping track of the biocatalysis literature</p>
+
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    function launch_paper_search() {
+        var search_term = document.getElementById("search_term").value
+        window.location.href = Flask.url_for("adding_papers.paper_search_results", {"enzyme_type": "{{enzyme_type}}", "keywords": search_term})
+    }
+
+    </script>
+

@@ -1,0 +1,46 @@
+<div class="tab-" id="sequences_addition_enzyme_type">
+    {% include 'curation_sequences/content/../add_sequence_modal/tabs/../new_add_sequence_modal.html/select_enzyme_type.html' %}
+</div>
+
+<div class="tab" id="sequences_addition_existing_enzyme">
+    {% include 'curation_sequences/content/../add_sequence_modal/tabs/tabs/existing.html' %}
+</div>
+
+<div class="tab" id="sequences_addition_new_enzyme">
+    {% include 'curation_sequences/content/../add_sequence_modal/tabs/new.html' %}
+</div>
+
+<script>
+    function show_sequence_tab(tab_id) {
+        var tabs = ["sequences_addition_enzyme_type",
+                    "sequences_addition_existing_enzyme",
+                    "sequences_addition_new_enzyme"]
+
+        // loop tabs, if tab_id is passed in, show.  Hide all others
+        tabs.forEach(function (item, index) {
+            if (tab_id == item) {
+                document.getElementById(item).style.display = "inline";
+            } else {
+                document.getElementById(item).style.display = "none";
+            }
+        })
+
+        // remove enzyme name from titles if on enzyme_select tab
+        if (tab_id === "sequences_addition_enzyme_type") {
+            document.getElementById("enzyme_type_name_span").innerHTML = ""
+            document.getElementById("enzyme_type_name_span2").innerHTML = ""
+            document.getElementById("enzyme_type_name_span3").innerHTML = ""
+        }
+
+    }
+
+    function reset_sequence_tab() {
+        document.getElementById("enzyme_type_name_span").innerHTML = ""
+        document.getElementById("enzyme_type_name_span2").innerHTML = ""
+        document.getElementById("enzyme_type_name_span3").innerHTML = ""
+        show_sequence_tab('sequences_addition_enzyme_type')
+    }
+
+    reset_sequence_tab()
+
+</script>

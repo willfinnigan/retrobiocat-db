@@ -1,0 +1,16 @@
+{% include 'build_sequences_table/modals/seq_papers_modal.html' %}
+
+<script>
+
+    var seePapersButton = function(cell, formatterParams, onRendered){ //plain text value
+        return "<button class='btn btn-sm btn-outline-primary' data-toggle='modal' data-target='#seq_papers_modal'>Papers</button>";
+    };
+
+    function load_seq_papers(name) {
+        document.getElementById("papers_sequence_table_title").innerHTML = name
+        load_papers_for_table(name)
+    }
+
+    var show_papers_button = {'title': 'See papers', 'width':80, formatter:seePapersButton, cellClick:function(e, cell){load_seq_papers(cell.getRow().getData().enzyme_name)}}
+    seq_columns.push(show_papers_button)
+</script>

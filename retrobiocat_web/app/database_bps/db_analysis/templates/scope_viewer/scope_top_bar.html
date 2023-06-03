@@ -1,0 +1,23 @@
+
+<div role="group" class="btn-group">
+    <button type="button" class="btn btn-danger btn-sm" onclick="launch_heatmap()">Selection to Heatmap</button>
+</div>
+
+<script>
+    function launch_heatmap() {
+        var options = {{ args|tojson }}
+        options['enzyme_names'] = window.selected_seqs
+
+        var mols_safe = []
+        window.selected_mols.forEach(function (item, index) {
+            var safe_mol = item.replace("#", "[hash]")
+            mols_safe.push(safe_mol)
+        });
+
+        options['mols'] = mols_safe
+
+        window.location.href = Flask.url_for("db_analysis.heatmap", options)
+
+
+    }
+</script>

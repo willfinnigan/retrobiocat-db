@@ -1,0 +1,36 @@
+<div class="modal fade" id="molecule_delete_modal" tabindex="-1" role="dialog"
+     aria-labelledby="molecule_delete_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Delete molecules</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" align="center">
+                <button class="btn btn-danger" onclick="molecule_delete_mols('all')">Delete all</button>
+                <button class="btn btn-outline-warning" onclick="molecule_delete_mols('empty')">Delete empty</button>
+                <br/>
+                <small>Empty molecules are those with no smiles string saved in the database</small>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function molecule_delete_mols(mode) {
+        var paper_id = "{{paper_id}}"
+        function callback(result) {
+            var deleted = result.deleted
+            deleted.forEach(function (item, index) {
+                molecules_table.getRow(item).delete()
+            })
+            $('#molecule_delete_modal').modal('hide');
+        }
+        delete_activity_molecule_ajax.delete_many_paper_molecules(paper_id, mode, callback, "molecules_response_div")
+    }
+</script>

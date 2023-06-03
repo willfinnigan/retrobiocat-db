@@ -1,0 +1,74 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_paper" %}
+
+{% block curation_content %}
+    <div class="container">
+        <h5 class="text-center mb-3">Paper metadata</h5>
+        <div class="row">
+            <div class="col mx-auto" style="max-width:48rem">
+                {% include 'curation_paper_metadata/main_form.html' %}
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        window.paper_id = "{{paper['id']}}"
+
+        // ---- Get metadata ----
+        function query_journal_db(service) {
+
+            function set_fields_from_result(result) {
+                for (const [key, value] of Object.entries(result.paper)) {
+                    document.getElementById(key).value = value
+                }
+            }
+
+            crossref_pubmed_lookup_ajax.query_pubmed_or_crossref(window.paper_id, service, set_fields_from_result, "save_response")
+        }
+
+        // ---- Save paper ----
+        function save_paper() {
+            function callback() {location.reload()}
+            var update_dict = {'short_cit': document.getElementById("short_cit").value,
+                                'doi': document.getElementById("doi").value,
+                                'date': document.getElementById("date").value,
+                                'title': document.getElementById("title").value,
+                                'journal': document.getElementById("journal").value,
+                                'authors': document.getElementById("authors").value,
+                                'tags': document.getElementById("tags").value}
+
+            update_paper_metadata_ajax.save_updated_paper_metadata(window.paper_id, update_dict, callback, "save_response")
+        }
+
+        // ---- Importance tick box ----
+        document.getElementById("importance").onchange = function(){
+            var importance_bool = document.getElementById("importance").checked
+            update_paper_metadata_ajax.update_paper_importance(window.paper_id, importance_bool, "response_div")
+        };
+
+
+        // ---- Review tick box ----
+        function disable_or_enable_paper_metadata_fields(disabled_setting) {
+            var elements = document.getElementsByClassName('paper_form_field')
+            Array.prototype.forEach.call(elements, function(ele, i) {
+                ele.disabled = disabled_setting
+            });
+        }
+
+        document.getElementById("paper_metadata_reviewed").onchange = function(){
+            var reviewed = document.getElementById("paper_metadata_reviewed").checked
+            var paper_id = "{{paper['id']}}"
+            function callback() {
+                disable_or_enable_paper_metadata_fields(reviewed)
+            }
+            reviewing_ajax.review_paper_metadata(paper_id, reviewed, callback, 'response_div')
+        };
+
+        // run on page load
+        disable_or_enable_paper_metadata_fields(document.getElementById("paper_metadata_reviewed").checked)
+
+
+    </script>
+
+{% endblock %}

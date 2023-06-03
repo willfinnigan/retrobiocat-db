@@ -1,0 +1,9 @@
+<div class="card card-form mx-auto mt-4">
+    <div class="card-body">
+        <h4 class="mb-1">{{ enzyme_type }} database statistics</h4>
+        <p>{{db_stats['num_enzymes']}} enzyme records, {{db_stats['num_enzymes_w_protein']}} with protein sequences</p>
+        <p>{{db_stats['num_uniref50']}} UniRef50 homologues</p>
+        <p>{{db_stats['num_activity']}} activity records - <span class="text-success">{{(db_stats['pc_active']*100)|int}} % active </span>, <span class="text-danger">{{(db_stats['pc_inactive']*100)|int}} % inactive</span></p>
+        <p>{{db_stats['num_unique_products']}} unique product molecules</p>
+    </div>
+</div>

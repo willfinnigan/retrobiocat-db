@@ -1,0 +1,108 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div id="init_response_div"></div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3 class="card-title">Init DB</h3>
+                        <form id="main_form" enctype="multipart/form-data" action="" method="POST" novalidate >
+                            {{ form.hidden_tag() }}
+                            <h5>Enter a mongo_dump.gz</h5>
+                            <p><b>Connection to mongodb: </b>{{db_name}}</p>
+                            <div class="form-group">
+                                <label for="sequences">mongo_dump.gz</label>
+                                {{ form.mongo_dump(type="file", form="main_form")}}
+                                {% for error in form.mongo_dump.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group my-2">
+                                {{ form.submit(class="btn btn-success", form="main_form") }}
+                            </div>
+                        </form>
+
+
+                        <hr/>
+                        <h5>Download additional required files</h5>
+
+                        <button class="btn btn-info mt-1" id='dl_aizynther_finder' onclick="download_aizynthfinder()">Download Aizynthfinder files</button>
+                        <button class="btn btn-success mt-1" id='load_retrorules' onclick="load_retrorules()">Download RetroRules files</button>
+                        <button class="btn btn-danger mt-1" id='load_building_blocks' onclick="load_building_blocks()">Download Buyable DB</button>
+                        <button class="btn btn-warning mt-1" id='load_ringbreaker_files' onclick="load_ringbreaker_files()">Download RingBreaker files</button>
+                        <button class="btn btn-primary mt-1" id='create_analysis_folders' onclick="create_analysis_folders()">Create analysis folders</button>
+                        <br/>
+                        <small class="no_margin">Please look at the worker terminal for successful job completion</small>
+                        <br/>
+                        <small class="no_margin">You may need to restart the retrobiocat containers after downloads are complete, if running via docker </small>
+                        <br/>
+                        <small class="no_margin">Warning - this fails on MacOS, please manually add these files to the correct folders if so.</small>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    <script>
+        function download_aizynthfinder() {
+            response_msg('Working, please wait...', 'warning', [], "init_response_div")
+            document.getElementById('dl_aizynther_finder').disabled = true
+            document.getElementById('dl_aizynther_finder').classList.add('disabled')
+            $.post('/_load_aizynthfinder_files', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "init_response_div")
+                })
+            }
+
+        function create_analysis_folders() {
+            response_msg('Working, please wait...', 'warning', [], "init_response_div")
+            document.getElementById('create_analysis_folders').disabled = true
+            document.getElementById('create_analysis_folders').classList.add('disabled')
+            $.post('/_create_analysis_folders', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "init_response_div")
+                })
+            }
+
+        function load_retrorules() {
+            response_msg('Working, please wait...', 'warning', [], "init_response_div")
+            document.getElementById('load_retrorules').disabled = true
+            document.getElementById('load_retrorules').classList.add('disabled')
+            $.post('/_load_retrorules', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "init_response_div")
+                })
+            }
+
+        function load_building_blocks() {
+            response_msg('Working, please wait...', 'warning', [], "init_response_div")
+            document.getElementById('load_building_blocks').disabled = true
+            document.getElementById('load_building_blocks').classList.add('disabled')
+            $.post('/_load_building_blocks', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "init_response_div")
+                })
+            }
+
+        function load_ringbreaker_files() {
+            response_msg('Working, please wait...', 'warning', [], "init_response_div")
+            document.getElementById('load_ringbreaker_files').disabled = true
+            document.getElementById('load_ringbreaker_files').classList.add('disabled')
+            $.post('/_load_ringbreaker_files', {
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "init_response_div")
+                })
+            }
+
+    </script>
+
+{% endblock %}

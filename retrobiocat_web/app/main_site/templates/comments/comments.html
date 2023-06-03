@@ -1,0 +1,56 @@
+<div class="container text-center">
+    <h4 class="">Comments</h4>
+    {% for comment in comments %}
+        <div class="card my-2">
+            <div class="card-header text-left">
+
+                <p class="no_margin">
+                    {{ comment['user'] }}
+                    <small class="no_margin">{{ comment['date'] }}</small>
+                    <span class="float-right">
+                        {% if comment['can_edit'] == True %}
+                            <button id="{{ comment['comment_id'] }}_edit"
+                                    class="btn btn-sm btn-outline-warning"
+                                    onclick="load_comment_info('{{ comment['comment_id'] }}')"
+                                    data-toggle="modal" data-target="#edit_comment_modal">
+                                Edit
+                            </button>
+                        {% endif %}
+
+                        {% if comment['can_delete'] == True %}
+
+                            <button class="btn btn-sm btn-outline-danger" data-toggle="confirmation"
+                                    id="{{ comment['comment_id'] }}_delete"
+                                    onclick="delete_comment('{{ comment['comment_id'] }}')">
+                                Delete
+                            </button>
+
+                        {% endif %}
+                    </span>
+                </p>
+            </div>
+
+            <div class="card-body text-left">
+                <p class="card-text">{{ comment['comment'] }}</p>
+            </div>
+
+        </div>
+    {% endfor %}
+    <button class="btn btn-primary px-5" data-toggle="modal" data-target="#comment_modal">Comment</button>
+</div>
+
+<script>
+    function delete_comment(comment_id) {
+        $.post('/_delete_comment', {
+            comment_id: comment_id
+        }).done(function (data) {
+            response_msg(data.result.msg, data.result.status, data.result.issues, "response_div")
+            location.reload()
+        }).fail(function (xhr, status, error) {
+            console.log(error)
+        });
+    }
+</script>
+
+{% include 'comments/comment_modal.html' %}
+{% include 'comments/edit_comment_modal.html' %}

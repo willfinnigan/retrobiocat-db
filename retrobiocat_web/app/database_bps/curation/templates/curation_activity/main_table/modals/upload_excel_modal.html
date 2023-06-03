@@ -1,0 +1,104 @@
+<div class="modal fade" id="upload_excel_modal" tabindex="-1" role="dialog" aria-labelledby="upload_excel_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Upload Excel</h5>
+            </div>
+
+
+            <div class="modal-body">
+                <form id="upload-file" method="post" enctype="multipart/form-data">
+                    <div id="upload_response"></div>
+                    <p>(only .xlsx files are accepted)</p>
+                    <fieldset>
+                        <label for="file">Select excel file</label>
+                        <input name="file" type="file">
+                    </fieldset>
+                    <fieldset>
+                        <button class="btn btn-primary" id="upload-file-btn" type="button">Upload</button>
+                    </fieldset>
+                </form>
+
+                <div class="progress">
+                    <div class="progress-bar" id='excel_upload_progressbar'></div>
+                </div>
+
+                <p class="mt-4">If you wish to enter data via excel, please use
+                    <a href="{{url_for('.static', filename='Template_for_substrate_specificity_data_V5.xltx') }}"> this template.</a>
+                </p>
+
+                <p class="mt-4">Download current table <a onclick="download_csv()" href="#">as csv</a></p>
+
+
+
+
+            </div>
+
+            <div class="modal-footer">
+                <button id="clear_current_data" class="btn btn-danger" onclick="clear_current_data()">Clear current data</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function download_csv() {
+        table.download("csv", "data.csv", {delimiter:","})
+    }
+
+    function clear_current_data() {
+        table.replaceData([])
+        response_msg('Data cleared. Not saved.', 'success', ['(click save to update the database)'], "activity_save_response")
+        lock_review_on_table_edit()
+        add_table_has_been_edited_msg()
+    }
+
+    let progress_bar_obj = document.getElementById("excel_upload_progressbar")
+    let upload_btn = document.getElementById("upload-file-btn")
+
+
+    function add_data_to_table(data_list, table) {
+        var row_num = table.getData().length + 1
+        data_list.forEach(function (item, index) {
+            data_list[index]['n'] = row_num+index+1
+        });
+        table.addData(data_list, false);
+        update_table_numbering()
+    }
+
+    function data_loaded_success() {
+        upload_btn.disabled = false
+        $('#upload_excel_modal').modal('hide')
+        lock_review_on_table_edit()
+        add_table_has_been_edited_msg()
+
+    }
+
+    function upload_callback(result) {
+        set_progress_bar(progress_bar_obj, "width: 75%", "Processing...", "progress-bar")
+        add_data_to_table(result.data_list, table)
+        set_progress_bar(progress_bar_obj, "width: 100%", "Complete...", "progress-bar")
+        data_loaded_success()
+        set_progress_bar(progress_bar_obj, "width: 0%", "", "progress-bar")
+    }
+
+    function upload_onFail() {
+         set_progress_bar(progress_bar_obj, "width: 50%", "Error...", "progress-bar bg-danger")
+    }
+
+    $(function() {
+        $('#upload-file-btn').click(function() {
+            set_progress_bar(progress_bar_obj, "width: 50%", "Uploading...", "progress-bar")
+            upload_btn.disabled = true
+            var form_data = new FormData($('#upload-file')[0]);
+            form_data.append("paper_id_field", "{{paper_id}}")
+            activity_excel_ajax.upload_activity_excel(form_data, table, "upload_response", upload_callback, upload_onFail)
+            });
+    });
+
+</script>

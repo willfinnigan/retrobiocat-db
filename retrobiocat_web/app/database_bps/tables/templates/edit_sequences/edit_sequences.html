@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+{% block content %}
+    <script src="{{url_for('curation.static', filename='js/ajax/sequences_ajax/sequence_curation_ajax.js')}}?v={{v}}" type="text/javascript"></script>
+    <div class="container-fluid">
+        <h5 class="text-center mt-4 mb-2">{{ title }}</h5>
+        {% include 'build_sequences_table/built_tables/edit_sequences_table.html' %}
+    </div>
+{% endblock %}

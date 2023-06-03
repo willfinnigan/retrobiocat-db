@@ -1,0 +1,29 @@
+<div class="row row-cols-xs-1 row-cols-sm-2 row-cols-md-2 row-cols-lg-3 row-cols-xl-4">
+
+    {% for example in examples %}
+        <!--Each example gets its own box, just like the main summary page-->
+        <div class="col mb-4">
+            <div class="card" id="example_{{example['smi']}}" style="width: 250px; min-height:150px">
+
+                <!--Card body shows mol image, and the numbers of active/inactive-->
+                <div class="card-body">
+                    {{example['mol']|safe}}
+                    <p class="text-center no_margin text-success">{{mol_stats[example['smi']]['active']}} active records</p>
+                    <p class="text-center no_margin text-success"><small>({{mol_stats[example['smi']]['active_enzymes']}} enzymes, {{mol_stats[example['smi']]['active_papers']}} papers)</small></p>
+                    <p class="text-center no_margin text-danger">{{mol_stats[example['smi']]['inactive']}} inactive records</p>
+                    <p class="text-center no_margin text-danger"><small>({{mol_stats[example['smi']]['inactive_enzymes']}} enzymes, {{mol_stats[example['smi']]['inactive_papers']}} papers)</small></p>
+                </div>
+
+                <!--Card footer for links out-->
+                <div class="card-footer">
+                    <p class="text-center no_margin">
+                        <a class="btn btn-sm btn-outline-primary" href="{{url_for('tables.show_activity', mol_type=mol_type, smiles=[example['smi']])}}">
+                            View in activity table
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+

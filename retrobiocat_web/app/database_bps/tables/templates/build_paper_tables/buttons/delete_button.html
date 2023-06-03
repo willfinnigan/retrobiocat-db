@@ -1,0 +1,22 @@
+{% include 'build_paper_tables/modals/paper_delete_modal.html' %}
+
+<script>
+
+    var paper_deleteButton = function(cell, formatterParams, onRendered){ //plain text value
+        return "<div><button class='btn btn-sm btn-outline-danger' data-toggle='modal' data-target='#delete_paper_modal'>Delete</button></div>";
+    };
+
+    var delete_button_col = {'title': 'Delete', 'width':80, formatter:paper_deleteButton, align:"center",
+                    cellClick:function(e, cell){delete_paper_modal(cell.getRow().getData().title,
+                                                                   cell.getRow().getData()._id,
+                                                                   cell.getRow().getData().short_citation)}}
+    papers_columns.push(delete_button_col)
+
+    function delete_paper_modal(name, id, cit) {
+            document.getElementById("paper_cit").innerHTML = cit;
+            document.getElementById("paper_name").innerHTML = name;
+            document.getElementById("paper_id").innerHTML = id;
+            hide_delete_confirm()
+        }
+
+</script>

@@ -1,0 +1,107 @@
+<div class="modal fade" id="heatmap_launch_box_modal" tabindex="-1" role="dialog" aria-labelledby="heatmap_launch_box_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modal_title_heatmap"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <ul class="nav nav-tabs" id="tab_list" role="tablist" hidden>
+                    <li class="nav-item">
+                        <a class="nav-link active" id="reactions_link"
+                           data-toggle="tab" href="#reactions_tab"
+                           role="tab" aria-controls="reactions"
+                           aria-selected="true">
+                            Reactions
+                        </a>
+                    </li>
+
+                    <li class="nav-item" hidden>
+                        <a class="nav-link" id="activity_data_content_link"
+                           data-toggle="tab" href="#activity_data_content"
+                           role="tab" aria-controls="activity_data_content">
+                            Activity data
+                        </a>
+                    </li>
+                </ul>
+
+                <div class="tab-content" id="tab_content">
+                    <div class="tab-pane fade show active" id="reactions_tab" role="tabpanel" aria-labelledby="top_hits_tab">
+                        <div id="modal_reactions_div" align="center"></div>
+                    </div>
+
+                     <div class="tab-pane fade" id="activity_data_content" role="tabpanel" aria-labelledby="activity_data_content">
+                        {% include 'heatmap/heatmap_modal_more_info.html' %}
+                     </div>
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    $("#heatmap_launch_box_modal").on("hidden.bs.modal", function () {
+        console.log('Modal closed')
+        $('[href="#activity_info"]').tab('show')
+        $('[href="#reactions_tab"]').tab('show')
+        document.getElementById('modal_reactions_div').innerHTML = ""
+    });
+
+    function heatmap_launch_box_modal(act_ids) {
+        $('#heatmap_launch_box_modal').modal('show');
+        $('[href="#reactions_tab"]').tab('show')
+        $.post($SCRIPT_ROOT + '/_heatmap_modal_info', {
+            act_ids: act_ids,
+            }).done(function(response_data) {
+                let reactions = response_data.result.reactions
+                let div = document.getElementById('modal_reactions_div')
+                div.innerHTML = ""
+
+                reactions.forEach(function (item, index) {
+                    add_reaction_to_dom(div, item)
+                });
+
+                let enzyme_name = response_data.result.enzyme_name
+                let enzyme_type = response_data.result.enzyme_type
+                document.getElementById('modal_title_heatmap').innerHTML = "<p><b>Reactions by: </b>" + enzyme_name +
+                            " <small><b>(" + enzyme_type + ")</b></small></p>"
+            })
+    }
+
+    function launch_activity_more_info(enzyme_name, activity_id, paper_id) {
+        $('[href="#activity_data_content"]').tab('show')
+        load_sequence_data(enzyme_name)
+        load_single_activity_data(activity_id)
+        load_paper_data(paper_id)
+    }
+
+    function add_reaction_to_dom(div, reaction, info) {
+
+        var new_div = document.createElement('div')
+            div.appendChild(new_div)
+        new_div.innerHTML += "<hr/>"
+        new_div.innerHTML += reaction['reaction_svg']
+
+        var new_btn =  document.createElement('button')
+            new_btn.className = 'btn btn-sm btn-outline-danger float-right';
+            new_btn.innerHTML = 'More info'
+            new_btn.onclick  = function() {
+                launch_activity_more_info(reaction['enzyme_name'], reaction['activity_id'], reaction['paper_id'])
+            }
+        div.appendChild(new_btn)
+
+        var info_div = document.createElement('div')
+        info_div.innerHTML += reaction['reaction_info']
+        div.appendChild(info_div)
+
+    }
+
+
+</script>

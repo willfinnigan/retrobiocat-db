@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div id='card_div' class="card card-form my-5" style="width: 32rem;">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">{{ title }}</h3>
+
+                        <div class="progress">
+                            <div class="progress-bar" id='progressbar'></div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+    <script>
+
+        function getStatus(taskID) {
+            $.get('{{status_url}}/' + taskID, {
+            }).done(function(response) {
+                const taskStatus = response.data.task_status;
+                const taskProgress = response.data.task_progress;
+                if (taskProgress === 'started') {
+                    document.getElementById("progressbar").style = response.data.progressbar_style
+                    document.getElementById("progressbar").innerText = response.data.inner_text
+                    document.getElementById("progressbar").className = response.data.class_name
+                } else if (taskProgress === 'visualising') {
+                    document.getElementById("progressbar").style = response.data.progressbar_style
+                    document.getElementById("progressbar").innerText = response.data.inner_text
+                }
+
+                if (taskStatus === 'finished') {
+                    document.getElementById("progressbar").style = response.data.progressbar_style
+                    document.getElementById("progressbar").innerText = response.data.inner_text
+                    let url = '/{{finish_url}}/' + taskID + '/'
+                    location.assign(url);
+                    return false;
+                } else if (taskStatus === 'failed') {
+                    document.getElementById("progressbar").style = response.data.progressbar_style
+                    document.getElementById("progressbar").innerText = response.data.inner_text
+                    document.getElementById("progressbar").className = response.data.class_name
+                    return false;
+                } else {
+                    setTimeout(function() {
+                        getStatus(response.data.task_id);
+                        }, {{query_time}});
+                }
+            })
+        }
+
+        var task_id = '{{task_id}}'
+
+        if (task_id !== '') {
+            getStatus(task_id);
+            document.getElementById("progressbar").style = "width: 33%"
+            document.getElementById("progressbar").innerText = "Queuing"
+        }
+
+    </script>
+
+
+{% endblock %}

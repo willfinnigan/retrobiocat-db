@@ -1,0 +1,26 @@
+{% extends "build_paper_tables/base_papers_table.html" %}
+
+{% block add_columns %}
+    <script>
+        papers_columns.push({'title': "Num. activity", align:"center", 'minWidth':80, 'field': "num_activity"})
+        papers_columns.push({'title': "Num. seqs.", align:"center", 'minWidth':80, 'field': "num_seqs"})
+    </script>
+{% endblock %}
+
+{% block add_functions %}
+
+    {% include 'build_paper_tables/modals/paper_row_click_modal.html' %}
+
+    <script>
+        papers_table.on("rowClick", function(e, row){
+            console.log('row_click')
+            var rowData = row.getData();
+            var paper_id = rowData['_id']
+            var short_cit = rowData['short_citation']
+            load_paper_data(paper_id)
+            document.getElementById('paper_row_click_model_title').innerHTML = short_cit;
+            $('#paper_row_modal').modal('show');
+        });
+    </script>
+
+{% endblock %}

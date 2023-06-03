@@ -1,0 +1,58 @@
+<!-- Main modal -->
+<div class="modal fade" id="cytoscape_modal" tabindex="-1" role="dialog" aria-labelledby="cytoscape_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cytoscape</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>Download the current SSN shown as a file which can be opened in cytoscape</p>
+                <button class="btn btn-outline-primary" id='download_cytoscape_btn' onclick="download_as_cytoscape()">Download as cytoscape</button>
+                <a id="downloadAnchorElem" style="display:none"></a>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    function download_as_cytoscape() {
+        var download_button = document.getElementById("download_cytoscape_btn");
+        download_button.disabled = true
+        $.post($SCRIPT_ROOT + '/_download_cytoscape', {
+            enzyme_type: window.enzyme_type,
+            alignment_score: window.alignment_score,
+            list_nodes: JSON.stringify(data['nodes'].getIds()),
+            hide_mutants: window.hide_mutants,
+            only_biocatdb: window.only_biocatdb
+
+        }).done(function (response_data) {
+
+            var cytoscape = response_data.result.cytoscape
+            console.log(cytoscape)
+            var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(cytoscape));
+            var dlAnchorElem = document.getElementById('downloadAnchorElem');
+            dlAnchorElem.setAttribute("href",     dataStr );
+            dlAnchorElem.setAttribute("download", "ssn.json");
+            dlAnchorElem.click();
+
+            $('#cytoscape_modal').modal('hide');
+            download_button.disabled = false
+        })
+
+    }
+
+
+
+
+
+
+</script>

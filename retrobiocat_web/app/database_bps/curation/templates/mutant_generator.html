@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+{% set active_page = "more_info" %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            <div class="col-10 mx-auto">
+                <div class="card card-form my-5">
+                    <div class="card-body">
+                        <h3 class="card-title py-5">Mutant generator</h3>
+
+                        <div class="form-group">
+                            <label for='enzyme_name'>Enzyme name</label>
+                            <input type="text" class="form-control" id="enzyme_name" value="{{ enzyme_name }}" placeholder="">
+                        </div>
+
+                        <div class="form-group">
+                            <label for='sequence'>Protein sequence</label>
+                            <textarea class="form-control" id="sequence" placeholder="" rows="5">{{ protein_sequence }}</textarea>
+                            <button class="btn btn-sm btn-outline-info" onclick="copy_to_clipboard()">Copy to clipboard</button>
+                            <div id="sequence_response_div"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for='mutations_to_make'>Mutations to make</label>
+                            <input type="text" class="form-control" id="mutations_to_make" placeholder="">
+                            <small>Either G120P, L154Y, P321G ect..</small>
+                            <small>or G120P_L154Y_P321G ect..</small>
+                            <div id="mutations_to_make_check_div"></div>
+                        </div>
+
+                        <button type="button" onclick="makeMutations()" class="btn btn-primary" id="execute" disabled>Execute</button>
+                        <div id="execute_response_div"></div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function copy_to_clipboard() {
+            var sequence = document.getElementById("sequence").value
+            navigator.clipboard.writeText(sequence).then(() => {
+                response_msg('Sequence copied', 'success', [], "sequence_response_div")
+            })
+        }
+
+        function is_seq_or_mut_fields_empty() {
+            if (document.getElementById('mutations_to_make').value === "") {
+                return true
+            } else if (document.getElementById("sequence").value === "") {
+                return true
+            } else {
+                return false
+            }
+        }
+
+        document.getElementById("sequence").onchange = function() {
+            if (is_seq_or_mut_fields_empty() === false) {
+                checkMutations()
+            }
+        }
+
+        document.getElementById("mutations_to_make").onchange = function() {
+            if (is_seq_or_mut_fields_empty() === false) {
+                checkMutations()
+            }
+        }
+
+        function get_mutations_to_make() {
+            var mutations = document.getElementById('mutations_to_make').value.replace(' ', '').replace(',', '_').split('_')
+            var mutations_objs = []
+            mutations.forEach(function (mutation, i) {
+                var to_mutate = mutation[0]
+                var into = mutation.slice(-1)
+                var position = parseInt(mutation.replace(to_mutate, '').replace(into, ''))
+                var mut_obj = {
+                    'to_mutate': to_mutate,
+                    'into': into,
+                    'position': position
+                }
+                mutations_objs.push(mut_obj)
+            });
+            return mutations_objs
+        }
+
+
+        function checkMutations() {
+            close_alerts()
+            var sequence = document.getElementById("sequence").value
+            var mutations = get_mutations_to_make()
+            var msgs = []
+            mutations.forEach(function (mut, i) {
+                var zero_index_pos = mut['position'] -1
+                var aa_at_pos_in_seq = sequence[zero_index_pos]
+                var aa_it_should_be = mut['to_mutate']
+                if (aa_at_pos_in_seq !== aa_it_should_be) {
+                    msgs.push("Residue at " + mut['position'] + " is " + aa_at_pos_in_seq + " instead of " + aa_it_should_be )
+                }
+            });
+
+            if (msgs.length !== 0) {
+                response_msg_stay('Can not make mutant', 'danger', msgs, "mutations_to_make_check_div")
+                document.getElementById("execute").disabled = true
+                return false
+            } else {
+                response_msg_stay('Amino acid positions in agreement', 'success', [], "mutations_to_make_check_div")
+                document.getElementById("execute").disabled = false
+                return true
+            }
+        }
+
+        function setCharAt(str,index,chr) {
+            if(index > str.length-1) return str;
+            return str.substring(0,index) + chr + str.substring(index+1);
+        }
+
+        function makeMutations() {
+            if (checkMutations() === false) {
+                response_msg('Error, please check specified mutations', 'danger', [], "execute_response_div")
+                return
+            }
+
+            var sequence = document.getElementById("sequence").value
+            var mutations = get_mutations_to_make()
+            mutations.forEach(function (mut, i) {
+                var zero_index_pos = mut['position'] - 1
+                var aa_mutate_into = mut['into']
+                sequence = setCharAt(sequence,zero_index_pos,aa_mutate_into)
+            })
+
+            document.getElementById("sequence").value = sequence
+            document.getElementById("enzyme_name").value = document.getElementById("enzyme_name").value + "_" + document.getElementById('mutations_to_make').value
+            document.getElementById('mutations_to_make').value = ""
+            document.getElementById("execute").disabled = true
+            close_alerts()
+            response_msg('Mutations made', 'success', [], "execute_response_div")
+        }
+
+
+    </script>
+
+{% endblock %}

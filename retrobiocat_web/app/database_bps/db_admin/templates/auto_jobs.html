@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div id="response_div_auto"></div>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div class="card card-form my-5" style="width: 50rem;">
+                    <div class="card-body" align="center">
+                        <h3>Auto Bioinformatics Jobs</h3>
+                        <p class="no_margin">Running = {{ running }}</p>
+                        <div class="form-check">
+                            {% if running == True %}
+                                <input type="checkbox" class="form-check-input" id="run_bio_jobs" checked>
+                            {% else %}
+                                <input type="checkbox" class="form-check-input" id="run_bio_jobs">
+                            {% endif %}
+                            <label class="form-check-label" for="run_bio_jobs">Running = check / Pause = uncheck</label>
+                        </div>
+                        <p><b>Status: </b>{{status}}</p>
+                        <p><b>Last ran: </b>{{last_ran}}</p>
+
+                        <hr/>
+                        <h3>Redis Queues</h3>
+                        {% for name in queues %}
+                            <p><b>{{ name }}: </b> {{ queues[name] }} jobs
+                            <button class="btn btn-sm btn-outline-danger" onclick="clear_queue('{{name}}')">clear</button>
+                            </p>
+                        {% endfor %}
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("run_bio_jobs").onchange = function(){
+            pause_unpause_bio_jobs_updated()
+        };
+
+        function pause_unpause_bio_jobs_updated() {
+            $.post('/_change_auto_jobs', {
+                pause: document.getElementById('run_bio_jobs').checked,
+                }).done(function(data) {
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "response_div_auto")
+                })
+            }
+
+    function clear_queue(name) {
+            $.post('/_clear_queue', {
+                name: name,
+                }).done(function(data) {
+                    document.body.scrollTop = 0; // For Safari
+                    document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+                    response_msg(data.result.msg, data.result.status, data.result.issues, "response_div_auto")
+                })
+            }
+
+
+    </script>
+
+
+{% endblock %}

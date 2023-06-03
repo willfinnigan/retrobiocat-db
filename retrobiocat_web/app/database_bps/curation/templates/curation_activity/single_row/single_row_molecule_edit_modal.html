@@ -1,0 +1,49 @@
+<div class="modal fade" id="single_molecule_edit_modal" tabindex="-1" role="dialog" aria-labelledby="single_molecule_edit_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body" align="center">
+                <div id="single_molecule_marvin-molecule_drawer" style="width: 600px; height: 480px"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-success"  onclick="single_save_updated_mol()">Update Molecule</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    var single_molecule_marvin
+    ChemicalizeMarvinJs.createEditor("#single_molecule_marvin-molecule_drawer").then(function (marvin) {
+        single_molecule_marvin = marvin
+    });
+
+    function single_save_updated_mol() {
+        single_molecule_marvin.exportStructure("smiles").then(function (smiles) {
+            $.post('/_get_svg_for_smi', {
+                smi: smiles,
+            }).done(function (data) {
+                if (data.result.status === 'success') {
+                    molecules_svg_all[smiles] = data.result.svg
+                    $('#single_molecule_edit_modal').modal('hide');
+                    single_set_button(smiles, select_mol_button_id)
+                }
+            }).fail(function(xhr, status, error) {
+                console.log(error)
+            });
+
+
+        })
+    }
+
+
+</script>

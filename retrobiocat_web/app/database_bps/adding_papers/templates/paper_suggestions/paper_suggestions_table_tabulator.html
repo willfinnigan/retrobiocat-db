@@ -1,0 +1,61 @@
+<div class="">
+    <div class="custom-control custom-checkbox">
+        <input class="custom-control-input" type="checkbox" id="filter_by_status" onclick="filter_closed_open()">
+        <label class="custom-control-label" for="filter_by_status">Show closed suggestions</label>
+    </div>
+</div>
+
+<p class="text-danger no_margin">Click on a row to load the suggestion and see comments.</p>
+<div id="paper_suggestions_table"></div>
+
+<script>
+    var columns = [
+
+        {'title': "_id", 'field': "_id", visible:false},
+        {title:"Date", field:"date", formatter:"datetime", 'minWidth':100,
+            formatterParams:{inputFormat:"iso", invalidPlaceholder:"(invalid date)"}},
+        {'title': "DOI", 'field': "doi", 'minWidth':100, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Tags", 'field': "tags", 'minWidth':100, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Notes", 'field': "notes", 'minWidth':100, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Status", 'field': "status", 'minWidth':100, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Created by", 'field': "owner", 'minWidth':100, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+
+        ]
+
+    var tabledata = {{paper_suggestions_data|safe}}
+
+    var table = new Tabulator("#paper_suggestions_table", {
+        data:tabledata, //assign data to table
+        maxHeight:"75vh",
+        columnDefaults:{
+            hozAlign:"center",
+            vertAlign:"middle"
+        },
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:columns,
+    });
+
+    table.on("rowClick", function(e, row){
+        var rowData = row.getData();
+        var suggestion_id = rowData['_id']
+        location.href = Flask.url_for("adding_papers.paper_suggestion", {"suggestion_id": suggestion_id})
+    });
+
+    table.on("tableBuilt", function(e, row){
+        table.setFilter("status", "=", 'Open');
+    })
+
+    function filter_closed_open() {
+        console.log('Checkbox clicked')
+        if (document.getElementById("filter_by_status").checked === false){
+            table.setFilter("status", "=", 'Open');
+        } else {
+            table.clearFilter();
+        }
+    }
+
+
+
+</script>
+

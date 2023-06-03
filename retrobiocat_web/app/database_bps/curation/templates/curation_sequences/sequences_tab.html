@@ -1,0 +1,13 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_sequences" %}
+
+{% block curation_content %}
+    <div class="container-fluid">
+        <h5 class="text-center mb-3">Sequences</h5>
+        {% include 'build_sequences_table/built_tables/curation_portal_edit_sequences_table.html' %}
+        {% include 'curation_sequences/sections/add_enzyme_buttons_section.html' %}
+        {% include 'curation_sequences/sections/sequence_review_section.html' %}
+    </div>
+{% endblock %}
+
+

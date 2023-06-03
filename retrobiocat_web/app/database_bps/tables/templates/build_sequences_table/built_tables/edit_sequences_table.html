@@ -1,0 +1,10 @@
+{% extends "build_sequences_table/base_sequences_table.html" %}
+
+{% block add_columns %}
+
+    {% include 'build_sequences_table/buttons/edit_seq_button.html' %}
+    {% include 'build_sequences_table/buttons/delete_seq_button.html' %}
+    {% include 'build_sequences_table/buttons/merge_seqs_button.html' %}
+    {% include 'build_sequences_table/buttons/show_papers_button.html' %}
+
+{% endblock %}

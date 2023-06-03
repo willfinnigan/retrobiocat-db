@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <div class="container px-5" align="center">
+        <h4 class="pt-5 pb-1">{{ title }}</h4>
+
+        <div class="row">
+            <div class="col-12 mx-auto">
+
+                {% for cat in ['High', 'Medium', 'Low', 'Active', 'Inactive'] %}
+                    <div class="card card-form mt-2 mb-3 activity-{{cat}}">
+                        <div class="card-body">
+                            <h3 class="card-title text-center">Activity level - {{cat}}</h3>
+                            {% if cat == 'Active' %}
+                                <p class="no_margin"><small class="no_margin">(no category assigned)</small></p>
+                            {% elif cat == 'Inactive' %}
+                                <p class="no_margin"><small class="no_margin">(only negative entries in the database, but not necessarily impossible)</small></p>
+                            {% endif %}
+
+                            {% for smi in svg_cats[cat] %}
+                                <button class="btn" onclick="launch_substrate_table('{{smi}}')">
+                                    {{ svg_cats[cat][smi]|safe}}
+                                    <p class="no_margin"><small class="no_margin">
+                                        {{smi_stats[smi]['num_enzymes']}} enzymes, {{smi_stats[smi]['num_papers']}} papers
+                                    </small></p>
+                                </button>
+                            {% endfor %}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function launch_substrate_table(smi) {
+            smi = smi.replaceAll("#", "[hash]")
+            smi = smi.replaceAll("/", "fs")
+
+            var options = {'enzyme_type': '{{enzyme_type}}',
+                           'mol_type': '{{mol_type}}',
+                           'smiles': JSON.stringify([smi])}
+
+            window.location.href = Flask.url_for("tables.show_activity", options)
+        }
+
+
+    </script>
+
+
+
+{% endblock %}

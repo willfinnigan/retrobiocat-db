@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <div class="container-fluid">
+        {% if can_copy %}
+            {% if can_copy == True %}
+                <button class="btn btn-sm btn-outline-success float-right" onclick="copy_to_clipboard()">Copy</button>
+            {% endif %}
+        {% endif %}
+        <h5 class="text-center mt-4 mb-2">{{ title }}</h5>
+        <p class="text-danger no_margin">Click on a row for more information and links to related data</p>
+        {% include 'build_sequences_table/built_tables/show_sequences_table.html' %}
+    </div>
+{% endblock %}

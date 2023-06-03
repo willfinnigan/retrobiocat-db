@@ -1,0 +1,136 @@
+<!-- Main modal -->
+<div class="modal fade" id="cluster_analysis_modal" tabindex="-1" role="dialog" aria-labelledby="cluster_analysis_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl " role="document">
+        <div class="modal-content" style="background: rgba(255, 255, 255, 1)">
+            <div class="modal-header">
+                <h5 class="modal-title">Cluster analysis</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-10">
+                            <div class="btn-group my-auto text-center" role="group">
+                        <button type="button" id="left_cluster" class="btn btn-outline-primary btn-sm"
+                                onclick="select_cluster_button('left')"><-
+                        </button>
+                        <input type="number" id="cluster_select" class="" value='' style="width:50px" disabled>
+                        <button type="button" id="right_cluster" class="btn btn-outline-primary btn-sm"
+                                onclick="select_cluster_button('right')">->
+                        </button>
+                        <label id='clusters_selection' class="my-auto text-center pl-2 pr-1"></label>
+                    </div>
+                        </div>
+                        <div class="col pull-right">
+                            <button class="btn btn-sm btn-outline-danger" onclick="cluster_analysis_delete_selected()">Remove from SSN</button>
+                        </div>
+                    </div>
+
+                    <hr/>
+
+                    <div class="row">
+                        <div class="col">
+                            <p class="no_margin"><b>BioCatDB sequences: </b></p>
+                            <div class="ml-4" id="cluster_analysis_biocatdbs">
+                            </div>
+
+                            <p class="no_margin"><b>Names: </b></p>
+                            <div class="ml-4" id="cluster_analysis_names">
+                                <p>Names go here</p>
+                            </div>
+
+                        </div>
+                        <div class="col">
+                            <p class="no_margin"><b>Pfams: </b></p>
+                            <div class="ml-4" id="cluster_analysis_pfams">
+                                <p>pfams go here</p>
+                            </div>
+
+                            <p class="no_margin"><b>Rhea reactions: </b></p>
+                            <div class="ml-4" id="cluster_analysis_rheas">
+                                <p>Rhea reactions go here</p>
+                            </div>
+
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-outline-success" onclick="launch_cluster_to_analysis_modal()">Launch analysis tools for selected</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script>
+    var cluster_select = 0;
+    var cluster_select_index = 0
+    var current_cluster_ele = document.getElementById('cluster_select')
+
+    $('#cluster_analysis_modal').on('shown.bs.modal', function (e) {
+        var currently_selected = network.getSelectedNodes()
+        if (currently_selected.length !== 0) {
+            update_cluster_modal_contents(currently_selected)
+            document.getElementById('clusters_selection').innerHTML = " Currently selected " + currently_selected.length + " nodes"
+        } else {
+            select_cluster_button('right')
+        }
+    })
+
+
+    $('#cluster_analysis_modal').on('hide.bs.modal', function (e) {
+        cluster_select = 0;
+        cluster_select_index = 0
+        current_cluster_ele.value = ''
+    })
+
+    function select_cluster_button(direction) {
+        if (current_cluster_ele.value === '') {
+            cluster_select_index = 0
+        } else if (direction === 'left' && cluster_select_index > 0) {
+            cluster_select_index -= 1
+        } else if (direction === 'right' && cluster_select_index < window.list_clusters.length-1) {
+            cluster_select_index += 1
+        }
+
+        cluster_select = window.list_clusters[cluster_select_index]
+
+        current_cluster_ele.value = cluster_select
+        var selected = select_cluster_by_number(cluster_select)
+        document.getElementById('clusters_selection').innerHTML = "Cluster " + cluster_select + " - " + selected.length + ' nodes'
+        move_view(selected)
+        update_cluster_modal_contents(selected)
+    }
+
+    function update_cluster_modal_contents(selected) {
+        var cluster_dict = get_selected_nodes_info(selected, data)
+        add_names_to_div('cluster_analysis_names', cluster_dict['names'])
+        add_biocatdb_to_div('cluster_analysis_biocatdbs', cluster_dict['biocatdb'])
+        var pfam_id_dict = {{pfams|safe}}
+        add_pfam_to_div('cluster_analysis_pfams', cluster_dict['pfams'], pfam_id_dict)
+        add_rhea_to_div('cluster_analysis_rheas', cluster_dict['rheas'], window.rhea_imgs, window.rhea_equations)
+    }
+
+    function launch_cluster_to_analysis_modal() {
+        $('#cluster_analysis_modal').modal('hide');
+        $('#heatmap_selected_nodes_modal').modal('show');
+    }
+
+    function cluster_analysis_delete_selected() {
+        var selected = network.getSelectedNodes()
+        data['nodes'].remove(selected)
+        select_cluster_button('right')
+        window.list_clusters = create_list_clusters(data['nodes'])
+    }
+
+
+
+</script>

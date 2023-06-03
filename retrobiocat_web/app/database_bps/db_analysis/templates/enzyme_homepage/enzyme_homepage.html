@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <style>
+        @media (min-width: 576px) {
+            .card-columns {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .card-columns {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 992px) {
+            .card-columns {
+                column-count: 2;
+            }
+        }
+
+        @media (min-width: 1200px) {
+            .card-columns {
+                column-count: 2;
+            }
+        }
+    </style>
+
+
+    <div class="container">
+        {% if current_user.has_role('enzyme_types_admin') %}
+            {% include 'enzyme_type/modals/edit_modal.html' %}
+            <button class="btn btn-sm btn-outline-primary float-right"
+                    onclick="load_edit_data('{{enzyme_type}}')"
+                    data-toggle="modal" data-target="#edit_modal">Edit enzyme type</button>
+        {% endif %}
+        <h2 class="card-title text-center my-5">{{ enzyme_type }} - {{ fullname }}</h2>
+
+        {% include "enzyme_homepage/sections/database_links_card.html" %}
+
+        <div class="card-columns">
+
+            {% include "enzyme_homepage/sections/database_progress_card.html" %}
+
+            {% include "enzyme_homepage/sections/team_card.html" %}
+
+            {% if reactions|length >= 4 %}
+                {% include "enzyme_homepage/sections/database_stats_card.html" %}
+                {% include "enzyme_homepage/sections/reactions_card.html" %}
+            {% else %}
+                {% include "enzyme_homepage/sections/reactions_card.html" %}
+                {% include "enzyme_homepage/sections/database_stats_card.html" %}
+            {% endif %}
+
+        </div>
+    </div>
+
+    {% include "enzyme_homepage/modals/ssn_modal.html" %}
+    {% include "enzyme_homepage/modals/substrate_table_modal.html" %}
+    {% include "enzyme_homepage/modals/substrate_summary_modal.html" %}
+    {% include "enzyme_homepage/modals/heatmap_modal.html" %}
+     {% include "enzyme_homepage/modals/molecule_grid_modal.html" %}
+    {% include "enzyme_homepage/modals/scope_modal.html" %}
+{% endblock %}
+

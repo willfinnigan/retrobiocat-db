@@ -1,0 +1,154 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <link rel="stylesheet" href="{{ url_for('db_analysis.static', filename='css/ssn_css.css')}}" />
+
+    <div id='ssn_div'>
+        {% include 'ssn/ssn_top_bar.html' %}
+        <div id="myssn"></div>
+    </div>
+
+    {% include 'ssn/modals/network_physics_modal.html' %}
+    {% include 'ssn/modals/pfam_modal.html' %}
+    {% include 'ssn/modals/clusters_modal.html' %}
+    {% include 'ssn/modals/cytoscape_modal.html' %}
+    {% include 'ssn/modals/edit_selected_nodes_modal.html' %}
+    {% include 'ssn/modals/heatmap_selected_nodes_modal.html' %}
+    {% include 'ssn/modals/uniref_modal.html' %}
+    {% include 'ssn/modals/goto_modal.html' %}
+    {% if current_user.has_role('admin') %}
+        {% include 'ssn/modals/download_modal.html' %}
+    {% endif %}
+
+    {% include 'build_sequences_table/modals/seq_row_click_modal.html' %}
+
+    {% include 'ssn/modals/rhea_modal.html' %}
+    {% include 'ssn/modals/cluster_analysis_modal.html' %}
+
+    <script src="{{url_for('db_analysis.static', filename='js/draw_rhea.js')}}" type="text/javascript"></script>
+    <script src="{{url_for('db_analysis.static', filename='js/create_ssn.js')}}" type="text/javascript"></script>
+    <script src="{{url_for('db_analysis.static', filename='js/ssn_manipulation.js')}}" type="text/javascript"></script>
+    <script src="{{url_for('db_analysis.static', filename='js/selected_nodes_analysis.js')}}" type="text/javascript"></script>
+
+    <script type="text/javascript">
+
+        // Loading message for when page is first displayed
+        window.addEventListener("load", function(){
+            document.getElementById("loading_please_wait").remove();
+        });
+
+        // Create the SSN
+        var options = setup_network_options("ssn_network_config")
+        var data = create_network_data({{nodes|tojson}}, [])
+        var network = create_ssn(data, options, 'myssn')
+
+        // move network on loading to start position
+        network.moveTo({position: {{start_pos|safe}},
+                        scale: 0.1})
+
+        //variables from jinja
+        window.enzyme_type = "{{enzyme_type}}"
+        window.alignment_score = {{alignment_score|safe}}
+        window.only_biocatdb = "{{only_biocatdb|safe}}"
+        window.hide_mutants = "{{hide_mutants|safe}}"
+        window.load_edges_on_selection = true
+        window.rhea_equations = {{rhea|tojson}}
+        window.rhea_imgs = {{rhea_imgs|tojson}}
+        const all_edges = new vis.DataSet({{edges|tojson}})
+
+        window.selected_node = ''
+        window.all_selected_nodes = []
+        window.list_clusters = create_list_clusters(data['nodes'])
+
+        // network interaction events
+        network.on("selectNode", function(params) {
+            if (window.load_edges_on_selection === true) {
+                data['edges'].clear()
+                get_edges(params.nodes[0])
+            }
+            window.selected_node = params.nodes[0]
+            window.all_selected_nodes = params.nodes
+        })
+
+        network.on("deselectNode", function(params) {
+            if (window.load_edges_on_selection === true) {
+                data['edges'].clear()
+            }
+        })
+
+        network.on("hold", function(params) {
+            if (params['nodes'].length === 1) {
+                window.selected_node = params.nodes[0]
+                load_enzyme_modal()
+            }
+        })
+
+        // load edges when a node is clicked
+        async function get_edges(selected_node) {
+            $.post($SCRIPT_ROOT + '/_edge_ajax', {
+                enzyme_type: window.enzyme_type,
+                alignment_score: window.alignment_score,
+                selected_node: selected_node
+                }).done(function(response_data) {
+                    var newEdges = response_data.result.edges
+                    data['edges'].update(newEdges)
+                })
+        }
+
+        // selected any nodes which are connected to this node
+        async function select_connected_nodes() {
+            var currently_selected = network.getSelectedNodes()
+            $.post($SCRIPT_ROOT + '/_connected_nodes_ajax', {
+                enzyme_type: window.enzyme_type,
+                alignment_score: window.alignment_score,
+                selected_nodes: JSON.stringify(currently_selected)
+                }).done(function(response_data) {
+                    var new_nodes = response_data.result.nodes
+                    var to_select = new_nodes.concat(currently_selected)
+                    network.selectNodes(to_select)
+                })
+        }
+
+        // when a node is clicked - load the appropriate modal
+        function load_enzyme_modal() {
+            if (data['nodes'].get([window.selected_node])[0]['node_type'] === 'biocatdb') {
+                var enzyme_name = window.selected_node
+                load_sequence_data(enzyme_name)
+                load_seq_papers(enzyme_name)
+                document.getElementById('sequence_row_click_model_title').innerHTML = enzyme_name;
+                $('#sequence_row_modal').modal('show');
+            } else if (data['nodes'].get([window.selected_node])[0]['node_type'] === 'uniref') {
+                clear_uniref_modal()
+                $('#uniref_modal').modal('show');
+                load_uniref_data(window.selected_node)
+            }
+        }
+
+        // function to load all edges onto the ssn
+        function load_all_edges() {
+            var list_nodes = data['nodes'].getIds()
+            if (list_nodes.length < 500) {
+                response_msg('Loading all edges, please wait..', 'warning', ['Warning - loading large number of edge can break performance'], "live_ssn_response_bar")
+            } else {
+                response_msg('Loading all edges, please wait..', 'success', [''], "live_ssn_response_bar")
+                }
+
+            if (window.load_edges_on_selection === true) {
+                window.load_edges_on_selection = false
+                $.post($SCRIPT_ROOT + '/_load_all_edges_ajax', {
+                    enzyme_type: window.enzyme_type,
+                    alignment_score: window.alignment_score,
+                    list_nodes: JSON.stringify(list_nodes)
+                }).done(function(response_data) {
+                    var newEdges = response_data.result.edges
+                    data['edges'].update(newEdges)
+                    console.log('load_all_edges')
+                })
+            }
+        }
+
+    </script>
+
+{% endblock %}

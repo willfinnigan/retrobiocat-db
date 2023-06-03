@@ -1,0 +1,105 @@
+<script>
+    window.editable_columns = []
+    get_editable_columns()
+
+    window.smi_col_mode = true
+    function switch_to_name_mode() {
+        table.hideColumn('substrate_1_smiles')
+        table.hideColumn('substrate_2_smiles')
+        table.hideColumn('product_1_smiles')
+        table.showColumn('substrate_1_name')
+        table.showColumn('substrate_2_name')
+        table.showColumn('product_1_name')
+        window.smi_col_mode = false
+    }
+
+    function switch_to_smiles_mode() {
+        table.showColumn('substrate_1_smiles')
+        table.showColumn('substrate_2_smiles')
+        table.showColumn('product_1_smiles')
+        table.hideColumn('substrate_1_name')
+        table.hideColumn('substrate_2_name')
+        table.hideColumn('product_1_name')
+        window.smi_col_mode = true
+    }
+
+    function smi_name_col_switch() {
+        if (window.smi_col_mode === true) {
+            document.getElementById('smi_name_switch_btn').innerHTML = 'SMILES mode'
+            document.getElementById('smi_name_switch_btn').className = 'btn btn-outline-info'
+            switch_to_name_mode()
+        } else {
+            document.getElementById('smi_name_switch_btn').innerHTML = 'Mol name mode'
+            document.getElementById('smi_name_switch_btn').className = 'btn btn-outline-success'
+            switch_to_smiles_mode()
+        }
+    }
+
+
+    function get_editable_columns() {
+        columns.forEach(function (item, index) {
+            if (('title' in item) && ('field' in item) && !('cellClick' in item)) {
+                if ((item.title !== 'N') && (item.title !== 'D') && (item.title !== 'ID') && (item.field !== 'checkbox_for_reaction')) {
+                    window.editable_columns.push(item)
+                }
+            }
+        })
+    }
+
+    function get_columns_with_data() {
+        var columns_with_data = []
+        table.getData().forEach(function (item, index) {
+            for (const [key, value] of Object.entries(item)) {
+                if (value !== undefined && value !== '' && columns_with_data.includes(key) === false) {
+                    columns_with_data.push(key)
+                }
+            }
+        })
+        return columns_with_data
+    }
+
+    function get_columns_without_data(columns_with_data) {
+        var columns_without_data = []
+        window.editable_columns.forEach(function(item, i) {
+            if (columns_with_data.includes(item.field) === false) {
+                columns_without_data.push(item.field)
+            }
+        })
+        return columns_without_data
+    }
+
+    function hide_columns(columns_to_hide) {
+        columns_to_hide.forEach(function (col, i) {
+            table.hideColumn(col)
+        })
+    }
+
+    function hide_empty() {
+        console.log('hide empty')
+        var columns_with_data = get_columns_with_data()
+        console.log(columns_with_data)
+        var columns_without_data = get_columns_without_data(columns_with_data)
+        hide_columns(columns_without_data)
+        console.log(columns_without_data)
+    }
+
+    function show_all() {
+        window.editable_columns.forEach(function(item, i) {
+            table.showColumn(item.field)
+        })
+
+        // toggle smi name switch twice to return to current setting
+        smi_name_col_switch()
+        smi_name_col_switch()
+    }
+
+    function toggle_hide_empty_columns() {
+        console.log(document.getElementById("hide_show_empty").checked)
+        if (document.getElementById("hide_show_empty").checked === true) {
+            hide_empty()
+        } else {
+            show_all()
+        }
+    }
+
+</script>

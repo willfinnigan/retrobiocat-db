@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <h5 class="text-center mt-4 mb-2">{{ title }}</h5>
+        <p class="text-danger no_margin">Click on a row for more information and links to related data</p>
+        {% include 'build_show_activity_table/show_activity_table.html' %}
+    </div>
+{% endblock %}

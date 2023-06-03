@@ -1,0 +1,114 @@
+<!-- Modal -->
+<div class="modal fade" id="edit_other_names_modal" tabindex="-1" role="dialog" aria-labelledby="edit_seq_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_seq_modalLabel">Edit other name</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <h5>Other names for <span id="other_names_seq_name"></span> (<span id="other_names_existing_name"></span>)</h5>
+
+                <div class="form-group">
+                    <label for="other_names_name">Name:</label>
+                    <input type='text' id='other_names_name' class="form-control w50"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="other_names_n_tag">N tag:</label>
+                    <input type='text' id='other_names_n_tag' class="form-control w50"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="other_names_c_tag">C tag:</label>
+                    <input type='text' id='other_names_c_tag' class="form-control w50"/>
+                </div>
+
+                <div class="form-group">
+                    <label for="other_names_notes">Notes:</label>
+                    <input type='text' id='other_names_notes' class="form-control w50"/>
+                </div>
+
+                <button class="btn btn-success" onclick="save_other_names()">Update other name</button>
+                <button class="btn btn-danger" onclick="delete_other_name()">Delete other names</button>
+                <hr/>
+
+                <div id="other_names_edit_div"></div>
+            </div>
+
+            <span id="other_names_saving_please_wait"></span>
+            <div id="other_names_save_response"></div>
+
+            <div class="modal-footer">
+                <button type="button" onclick="other_names_back_to_seq()" class="btn btn-outline-primary" data-dismiss="modal">Go back</button>
+                <button type="button" onclick="close_alerts()" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+
+    function load_other_names_data(data_result) {
+        var data = data_result.other_names_data
+        document.getElementById("other_names_existing_name").innerHTML = data.name
+        document.getElementById("other_names_name").value = data.name
+        document.getElementById("other_names_n_tag").value = data.n_tag
+        document.getElementById("other_names_c_tag").value = data.c_tag
+        document.getElementById("other_names_notes").value = data.notes
+    }
+
+    function clear_other_names_fields() {
+        document.getElementById("other_names_existing_name").innerHTML = ''
+        document.getElementById("other_names_name").value = ''
+        document.getElementById("other_names_n_tag").value = ''
+        document.getElementById("other_names_c_tag").value = ''
+        document.getElementById("other_names_notes").value = ''
+    }
+
+    function delete_other_name() {
+         function callback(result) {
+            clear_other_names_fields()
+         }
+
+         var enzyme_name = document.getElementById("other_names_seq_name").innerHTML
+         var other_name = document.getElementById("other_names_existing_name").innerHTML
+         seq_curate_ajax.delete_other_names(enzyme_name, other_name, callback, 'other_names_save_response')
+    }
+
+    function save_other_names() {
+        function callback(result) {
+            location.reload()
+         }
+
+        var enzyme_name = document.getElementById("other_names_seq_name").innerHTML
+        var other_names_dict = {'existing_name': document.getElementById("other_names_existing_name").innerHTML,
+                                'new_name': document.getElementById("other_names_name").value,
+                                'n_tag': document.getElementById("other_names_n_tag").value,
+                                'c_tag': document.getElementById("other_names_c_tag").value,
+                                'notes':  document.getElementById("other_names_notes").value}
+
+        seq_curate_ajax.update_other_names(enzyme_name, other_names_dict, callback, 'other_names_save_response')
+    }
+
+    $("#edit_other_names_modal").on("hidden.bs.modal", function () {
+        clear_other_names_fields()
+    })
+
+    function other_names_back_to_seq() {
+        $('#edit_other_names_modal').modal('hide');
+        $('#edit_seq_modal').modal('hide');
+        var enzyme_name = document.getElementById("other_names_seq_name").innerHTML
+        document.getElementById("original_name").innerHTML = enzyme_name;
+        load_edit_seq_data(enzyme_name)
+        $('#edit_seq_modal').modal('show');
+        $('body').addClass('modal-open'); // re-add class 'modal-open' to the body because it was removed when we close the second modal
+        $('#edit_seq_modal').focus();
+    }
+
+</script>

@@ -1,0 +1,42 @@
+<div class="card card-form mx-auto mt-4">
+    <div class="card-body">
+
+        <h4 class="mb-1">Reactions by {{ enzyme_type }}</h4>
+            {% for reaction in reactions %}
+                <div class="pl-3 mt-2">
+                    <div class="inline">
+                        <h5 class="no_margin">{{ reaction }}</h5>
+                        {% if current_user.has_role('rxn_rules_admin') %}
+                            <a href="{{url_for("db_admin.rule_editor", reaction=reaction)}}" class="btn btn-sm btn-outline-primary float-right">Edit rule</a>
+                        {% endif %}
+                    </div>
+
+                    <p class="no_margin">
+                        Featured in
+                        <a href="{{ url_for("tables.show_papers", enzyme_type=enzyme_type, reaction=reaction) }}">
+                            <span class="text-primary">{{ reactions[reaction]['num_papers'] }} </span> {{ enzyme_type }}
+                            papers
+                        </a>
+                    </p>
+
+                    <p class="no_margin">
+                        {% if reactions[reaction]['experimental'] == true %}
+                            <small class="text-danger">Experimental </small>
+                        {% endif %}
+                        {% if reactions[reaction]['multi_step'] == true %}
+                            <small class="text-info">Multi-step </small>
+                        {% endif %}
+                        {% if reactions[reaction]['requires_absence_of_water'] == true %}
+                            <small class="text-info">Requires absence of water</small>
+                        {% endif %}
+                    </p>
+
+                    {{ reactions[reaction]['svg']|safe }}
+                    <p>Cofactor usage: <small>{{ reactions[reaction]['cofactors_used'] }} <span
+                            class="text-dark">--></span> {{ reactions[reaction]['cofactors_produced'] }}</small>
+                    </p>
+                </div>
+            {% endfor %}
+
+    </div>
+</div>

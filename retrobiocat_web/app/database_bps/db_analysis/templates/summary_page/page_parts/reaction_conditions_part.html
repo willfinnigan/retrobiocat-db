@@ -1,0 +1,67 @@
+<h3 class="text-center">Reaction conditions</h3>
+<div class="row justify-content-center mb-5">
+    <div class='col-sm-auto mx-auto mb-2'>
+        {{graphs['temp_graph']['div']|safe}}
+        {{graphs['temp_graph']['script']|safe}}
+    </div>
+
+    <div class='col-sm-auto mx-auto mb-2'>
+        {{graphs['ph_graph']['div']|safe}}
+        {{graphs['ph_graph']['script']|safe}}
+    </div>
+</div>
+
+<div class="row justify-content-center mb-5">
+    <div class='col-sm-auto mx-auto mb-2'>
+        {{graphs['solvent_graph']['div']|safe}}
+        {{graphs['solvent_graph']['script']|safe}}
+    </div>
+
+    <div class='col-sm-auto mx-auto mb-2'>
+        {{graphs['formulation_graph']['div']|safe}}
+        {{graphs['formulation_graph']['script']|safe}}
+    </div>
+</div>
+
+{% include 'summary_page/modals/ph_modal.html' %}
+{% include 'summary_page/modals/temperature_modal.html' %}
+{% include 'summary_page/modals/formulation_modal.html' %}
+{% include 'summary_page/modals/solvent_modal.html' %}
+
+<script>
+    function launch_ph_modal(ph_left, ph_right) {
+        document.getElementById('ph_left').value = ph_left
+        document.getElementById('ph_right').value = ph_right
+        set_ph_link()
+        $('#ph_modal').modal('show');
+    }
+
+    function launch_temp_modal(temp_left, temp_right) {
+        document.getElementById('temp_left').value = temp_left
+        document.getElementById('temp_right').value = temp_right
+        set_temp_link()
+        $('#temperature_modal').modal('show');
+    }
+
+    function launch_solvent_modal(solvent) {
+        var arguments = {'enzyme_type': window.enzyme_type,
+                         'reaction': window.reaction,
+                         'solvent': solvent}
+
+        document.getElementById('selected_solvent').innerHTML = solvent
+        document.getElementById('link_for_solvent_activity').href = Flask.url_for("tables.show_activity", arguments)
+
+        $('#solvent_modal').modal('show');
+    }
+
+    function launch_formulation_modal(formulation) {
+        var arguments = {'enzyme_type': window.enzyme_type,
+                         'reaction': window.reaction,
+                         'formulation': formulation}
+
+        document.getElementById('selected_formulation').innerHTML = formulation
+        document.getElementById('link_for_formulation_activity').href = Flask.url_for("tables.show_activity", arguments)
+
+        $('#formulation_modal').modal('show');
+    }
+</script>

@@ -1,0 +1,108 @@
+version: "3"
+
+services:
+  redis:
+    restart: always
+    image: redis:alpine
+
+  mongo:
+    image: mongo
+    restart: always
+    volumes:
+      - ${MONGO_DATA_PATH}/mongo-volume:/data/db
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile_nginx
+    restart: always
+    ports:
+       - ${NGINX_PORT}:80
+    links:
+      - rbc_app
+    depends_on:
+      - rbc_app
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  rbc_app:
+    image: willfinnigan/retrobiocat_bayer:latest
+    restart: always
+    volumes:
+      - ${RBC_DATA}/:/retrobiocat_web/retro/data
+      - ${RBC_ANALYSIS_DATA}/:/retrobiocat_web/analysis/analysis_data
+      - ${RBC_MONGO_DUMP}:/retrobiocat_web/mongo/mongo_dump
+      - ${RBC_OSRA}:/retrobiocat_web/curation/uploaded_molecule_images/
+    environment:
+      - PRODUCTION=${PRODUCTION}
+      - SECRET_KEY=${SECRET_KEY}
+      - SECURITY_PASSWORD_SALT=${SECURITY_PASSWORD_SALT}
+      - REDIS_URL=${REDIS_URL}
+      - MONGO_HOST=${MONGO_HOST}
+      - MARVINJS_ENABLED=${MARVINJS_ENABLED}
+      - HIDE_CURATION=${HIDE_CURATION}
+      - ALLOW_PUBCHEM_LOOKUP=${ALLOW_PUBCHEM_LOOKUP}
+      - ALLOW_BIOCATHUB_INTEGRATION=${ALLOW_BIOCATHUB_INTEGRATION}
+      - ALLOW_UNIPROT=${ALLOW_UNIPROT}
+      - ALLOW_SSN_CREATION=${ALLOW_SSN_CREATION}
+      - JAX_PLATFORM_NAME=${JAX_PLATFORM_NAME}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    links:
+      - redis
+      - mongo
+    depends_on:
+      - redis
+      - mongo
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    command: gunicorn -b :5000 --timeout ${GUNICORN_TIMEOUT} --workers ${NUM_GUNICORN_WORKERS} --access-logfile - --error-logfile - main:main_app
+
+  worker_1:
+    image: willfinnigan/retrobiocat_bayer:latest
+    restart: always
+    volumes:
+      - ${RBC_DATA}/:/retrobiocat_web/retro/data
+      - ${RBC_ANALYSIS_DATA}/:/retrobiocat_web/analysis/analysis_data
+      - ${RBC_MONGO_DUMP}:/retrobiocat_web/mongo/mongo_dump
+      - ${RBC_OSRA}:/retrobiocat_web/curation/uploaded_molecule_images/
+    depends_on:
+      - redis
+      - mongo
+    links:
+      - redis
+      - mongo
+    environment:
+      - PRODUCTION=${PRODUCTION}
+      - SECRET_KEY=${SECRET_KEY}
+      - SECURITY_PASSWORD_SALT=${SECURITY_PASSWORD_SALT}
+      - REDIS_URL=${REDIS_URL}
+      - MONGO_HOST=${MONGO_HOST}
+      - MARVINJS_ENABLED=${MARVINJS_ENABLED}
+      - HIDE_CURATION=${HIDE_CURATION}
+      - ALLOW_PUBCHEM_LOOKUP=${ALLOW_PUBCHEM_LOOKUP}
+      - ALLOW_BIOCATHUB_INTEGRAGION=${ALLOW_BIOCATHUB_INTEGRATION}
+      - ALLOW_UNIPROT=${ALLOW_UNIPROT}
+      - ALLOW_SSN_CREATION=${ALLOW_SSN_CREATION}
+      - JAX_PLATFORM_NAME=${JAX_PLATFORM_NAME}
+      - ADMIN_EMAIL=${ADMIN_EMAIL}
+      - ADMIN_PASSWORD=${ADMIN_PASSWORD}
+      - ADMIN_API_KEY=${ADMIN_API_KEY}
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+    command: python3 ./worker.py

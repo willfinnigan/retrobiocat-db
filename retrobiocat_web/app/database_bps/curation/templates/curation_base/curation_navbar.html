@@ -1,0 +1,66 @@
+
+<nav class="nav nav-tabs nav-fill mx-5 mb-3 mt-1">
+    <a class="nav-item nav-link" id="curation_overview" href="{{url_for('curation.curation_overview', paper_id=paper_id)}}">
+        Overview
+        <i class="bi bi-newspaper" style="font-size: 1.25rem;"></i>
+    </a>
+    <a class="nav-item nav-link" id="curation_paper" href="{{url_for('curation.edit_paper_metadata', paper_id=paper_id)}}">
+        Paper metadata
+        <i class="bi bi-newspaper" style="font-size: 1.25rem;"></i>
+        {% if reviewed_dict['paper_metadata_reviewed'] =='checked' %}
+            <i class="bi bi-check-all" style="font-size: 1.25rem; color: green"></i>
+        {% endif %}
+    </a>
+    <a class="nav-item nav-link" id="curation_sequences" href="{{url_for('curation.sequence_curation_tab', paper_id=paper_id)}}">
+        Sequences
+        <i class="bi bi-list-check" style="font-size: 1.25rem;"></i>
+        {% if reviewed_dict['seq_reviewed'] =='checked' %}
+            <i class="bi bi-check-all" style="font-size: 1.25rem; color: green"></i>
+        {% elif reviewed_dict['seq_review_ready'] =='checked' %}
+            <i class="bi bi-check" style="font-size: 1.25rem; color: orange"></i>
+        {% endif %}
+    </a>
+
+    <a class="nav-item dropdown nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+        Molecules <i class="bi bi-bounding-box-circles" style="font-size: 1.25rem;"></i>
+    </a>
+    <div class="dropdown-menu nav-fill">
+        <a class="dropdown-item" href="{{url_for('curation.molecules_tab', paper_id=paper_id)}}">Molecules tab</a>
+        <a class="dropdown-item" href="{{url_for('curation.molecules_osr_tab', paper_id=paper_id)}}">Optical structure recognition</a>
+    </div>
+
+    <a class="nav-item nav-link" id="curation_activity" href="{{url_for('curation.curation_activity_main', paper_id=paper_id)}}">
+        Activity
+        <i class="bi bi-bar-chart" style="font-size: 1.25rem;"></i>
+        {% if reviewed_dict['activity_reviewed'] =='checked' %}
+            <i class="bi bi-check-all" style="font-size: 1.25rem; color: green"></i>
+        {% elif reviewed_dict['activity_review_ready'] =='checked' %}
+            <i class="bi bi-check" style="font-size: 1.25rem; color: orange"></i>
+        {% endif %}
+    </a>
+
+{#    <li class="nav-item dropdown">#}
+{#        <a class="nav-link dropdown-toggle" id="curation_activity" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">#}
+{#            Activity#}
+{#            <i class="bi bi-bar-chart" style="font-size: 1.25rem;"></i>#}
+{#        </a>#}
+{#        <div class="dropdown-menu">#}
+{#          <a class="dropdown-item" href="{{url_for('curation.curation_activity_main', paper_id=paper_id)}}">Main table</a>#}
+{#        </div>#}
+{#      </li>#}
+
+
+    {% if current_user.has_role('admin') %}
+        <a class="nav-item nav-link" id="curation_admin" href="{{url_for('curation.curation_admin', paper_id=paper_id)}}">
+            Admin
+            <i class="bi bi-gear" style="font-size: 1.25rem;"></i>
+        </a>
+    {% endif %}
+</nav>
+
+
+<script>
+    $(document).ready(function () {
+        $("#{{curation_active_page}}").addClass("active");
+    })
+</script>

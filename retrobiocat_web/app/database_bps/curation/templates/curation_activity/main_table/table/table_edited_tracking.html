@@ -1,0 +1,87 @@
+<script>
+    window.tabulator_edited_rows = [] // keeps track of row id's which are edited
+    // if length of this list is not 0, then there is unsaved data.  Block review until saved.
+    // Put a warning?
+
+    function add_table_has_been_edited_msg() {
+        document.getElementById("data_not_saved_msg").hidden = false
+
+        // Enable navigation prompt
+        window.onbeforeunload = function() {
+            return true
+        };
+    }
+
+    // this should be called whenever a row is edited
+    function row_edited(row_data) {
+        if (!window.tabulator_edited_rows.includes(row_data['_id'])) {
+                window.tabulator_edited_rows.push(row_data['_id'])
+                add_table_has_been_edited_msg()
+            }
+    }
+
+    function get_col(column_field) {
+        var mol_cols = ['substrate_1', 'substrate_2', 'product_1']
+        var col_name = ''
+        mol_cols.forEach(function (col, index) {
+            if (column_field.includes(col) === true) {
+                col_name = col
+                return col_name
+            }
+        })
+        return col_name
+    }
+
+    function get_smi_or_name(column_field) {
+        if (column_field.includes('_smiles') === true) {
+            return 'smiles'
+        } else if (column_field.includes('_name')) {
+            return 'name'
+        }
+        return ''
+    }
+
+    function empty_smi_and_name_cells(row_data, col) {
+        var smi_col = col+'_smiles'
+        var name_col = col+'_name'
+        row_data[smi_col] = ''
+        row_data[name_col] = ''
+        return row_data
+    }
+
+    function interconvert_smis_and_names(row_data, column) {
+        var col = get_col(column)
+
+        if (col === '') {
+            console.log('Inverconvert - column name is empty string for column=' + column)
+            return row_data
+        }
+
+        var col_type = get_smi_or_name(column)
+        if (col_type === '') {
+            console.log('Inverconvert - no col type for column=' + column)
+            return row_data
+        } else if (!(column in row_data)) {
+            console.log('Inverconvert - column not in row_data - ' + column)
+            return row_data
+        }
+
+        if (row_data[column] === "") {
+            return empty_smi_and_name_cells(row_data, col)
+        } else if (col_type === 'smiles') {
+            return smi_to_name(row_data, col)
+        } else if (col_type === 'name') {
+            return name_to_smi(row_data, col)
+        }
+    }
+
+    table.on("cellEdited", function(cell){
+        var row = cell.getRow()
+        var row_data = row.getData()
+        row_edited(row_data)
+
+        var column = cell.getColumn().getField()
+        var to_update = interconvert_smis_and_names(row_data, column)
+        table.updateData([to_update])
+    });
+</script>

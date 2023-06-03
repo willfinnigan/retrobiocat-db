@@ -1,0 +1,58 @@
+<div class="modal fade" id="fragment_modal" tabindex="-1" role="dialog" aria-labelledby="fragment_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="fragment_modalLabel">Fragment molecule</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <div id="fragments"></div>
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $('#fragment_modal').on('show.bs.modal', function () {
+        fragment_molecule()
+    })
+
+    function fragment_molecule() {
+        $.post('/_fragment_molecule', {
+            smiles: document.getElementById('target_smiles').value
+        }).done(function (data) {
+            make_fragment_buttons(data.result.mol_dict)
+        }).fail(function(xhr, status, error) {
+            console.log(error)
+        });
+    }
+
+    function make_fragment_buttons(mol_dict) {
+        var btn_div = document.getElementById('fragments')
+        btn_div.innerHTML = ''
+
+        for (const [key, value] of Object.entries(mol_dict)) {
+            var btn = document.createElement("BUTTON");
+            btn.style = "width: 220px; height: 220px"
+            btn.id = "button_" + key
+            btn.onclick =  function(){fragment_clicked(key)}
+            btn.className = 'btn btn-outline-danger'
+            btn.innerHTML = value
+            btn_div.appendChild(btn);
+        }
+    }
+
+    function fragment_clicked(smiles) {
+        document.getElementById('target_smiles').value = smiles
+        $('#fragment_modal').modal('hide');
+
+    }
+
+</script>

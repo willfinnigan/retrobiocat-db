@@ -1,0 +1,163 @@
+{% extends "base.html" %}
+{% set active_page = "enzyme_database" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div id='card_div' class="card card-form my-5" style="width: 32rem;">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Sequence similarity networks</h3>
+
+                        <form id="main_form" method="POST" action="" novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <hr/>
+                            <p><b>Step 1 - Select enzyme type</b></p>
+
+                            <div class="form-group">
+                                <label for="enzyme_type">Enzyme type</label>
+                                {{ form.enzyme_type(type='select', id='enzyme_type', class="form-control custom-select") }}
+                                <br/><small><strong>SSN status: </strong><span id="ssn_object_status"></span></small>
+                                <br/><small><strong>Num database seqs: </strong><span id='num_biocatdb'></span></small>
+                                <br/><small><strong>Num uniref50 seqs: </strong><span id='num_uniref'></span></small>
+                                {% for error in form.enzyme_type.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <hr/>
+                            <p><b>Step 2 - Select alignment score</b></p>
+                            <div class="container-fluid">
+                                <div class="row my-auto">
+                                    <div class="col-4 my-auto">
+                                        <input type="radio" id="pre" name="alignment_radio" onchange="set_active_score()" checked>
+                                        <label for="pre"><small>Pre-calculated</small></label>
+                                    </div>
+
+                                    <div class="col-8 my-auto">
+                                        <div class="form-group">
+                                            <select id="precalculated_select" class="form-control custom-select">
+
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="row my-auto ">
+                                    <div class="col-4 mt-4">
+                                        <input type="radio" id="custom" name="alignment_radio" onchange="set_active_score()">
+                                        <label for="custom"><small>Custom (slow)</small></label>
+                                    </div>
+
+                                    <div class="col-8 mt-4">
+                                        <div class="form-group">
+                                            {{ form.alignment_score(type='number', id='alignment_score', form="main_form", class="form-control form-control-sm w-50 text-center") }}
+                                            {% for error in form.alignment_score.errors %}
+                                                <span style="color: red;">[{{ error }}]</span>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <hr class="mt-4"/>
+                            <p><b>Step 3 - Additional options</b></p>
+
+                            <!--
+                            <div class="custom-control custom-checkbox mt-4">
+                                {{ form.hide_mutants(type='checkbox', form="main_form", class="custom-control-input", hidden='true') }}
+                                {{ form.hide_mutants.label(class="custom-control-label") }}
+                            </div>
+                            //-->
+
+                            <div class="custom-control custom-checkbox">
+                                {{ form.only_biocatdb(type='checkbox', form="main_form", class="custom-control-input") }}
+                                {{ form.only_biocatdb.label(class="custom-control-label") }}
+                            </div>
+
+                            <div class="form-group mt-4">
+                                {{ form.submit(class="btn-lg btn-block btn-success") }}
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+
+    <script>
+
+        function set_active_score() {
+            if (document.getElementById('pre').checked) {
+                document.getElementById('alignment_score').disabled = false
+                document.getElementById('alignment_score').hidden = true
+                document.getElementById('precalculated_select').disabled = false
+                set_score_from_select()
+            } else if (document.getElementById('custom').checked) {
+                document.getElementById('alignment_score').disabled = false
+                document.getElementById('alignment_score').hidden = false
+                document.getElementById('precalculated_select').disabled = true
+            }
+        }
+
+        function set_select(select_id, arraySeq) {
+            var select = document.getElementById(select_id);
+            select.options.length = 0;
+            for (index in arraySeq) {
+                select.options[select.options.length] = new Option(arraySeq[index], index);
+            }
+            var num = select.options.length
+            $('#'+select_id).prop('selectedIndex', num-1)
+        }
+
+        function get_ssn_object() {
+            $.post('/_ssn_object', {
+                enzyme_type: document.getElementById("enzyme_type").value
+                }).done(function(data) {
+                    document.getElementById("ssn_object_status").innerHTML = data.result.status
+                    if (data.result.status === 'Complete') {
+                        document.getElementById("ssn_object_status").className = "text-success"
+                    } else {
+                        document.getElementById("ssn_object_status").className = "text-danger"
+                    }
+
+                    document.getElementById('num_biocatdb').innerHTML = data.result.num_biocatdb
+                    document.getElementById('num_uniref').innerHTML = data.result.num_uniref
+
+                    set_select("precalculated_select", data.result.precalculated)
+                    set_score_from_select()
+                })
+        }
+
+        function set_score_from_select() {
+            var select_obj = document.getElementById("precalculated_select")
+            if (select_obj.options.length === 0) {
+                document.getElementById("alignment_score").value = 100
+            } else {
+                document.getElementById("alignment_score").value = select_obj.value
+            }
+        }
+
+        get_ssn_object()
+        set_active_score()
+        set_score_from_select()
+
+        document.getElementById("enzyme_type").onchange = function(){
+            get_ssn_object()
+        }
+
+        document.getElementById("precalculated_select").onchange = function(){
+            set_score_from_select()
+        }
+
+    </script>
+
+
+
+{% endblock %}

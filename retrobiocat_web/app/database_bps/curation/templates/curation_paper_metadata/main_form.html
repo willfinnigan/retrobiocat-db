@@ -1,0 +1,64 @@
+<p>Paper is currently assigned to: <small>{{paper['paper_owner_name']}}</small></p>
+
+<div class="custom-control custom-checkbox mt-1 mb-2">
+    <input class="custom-control-input paper_form_field" type="checkbox" id="importance" {{ access_dict['importance_disabled'] }} {{ paper['importance_checked'] }}>
+    <label class="custom-control-label" for="importance">High priority</label>
+    <small class="form-text text-muted no_margin">Paper is listed in the 'high priority' page</small>
+</div>
+
+<div class="custom-control custom-checkbox mb-2">
+    <input class="custom-control-input" type="checkbox" id="paper_metadata_reviewed" {{reviewed_dict['paper_metadata_reviewed']}} {{access_dict['review_disabled']}}>
+    <label class="custom-control-label" for="paper_metadata_reviewed">Paper metadata reviewed</label>
+</div>
+
+<div class="form-group">
+    <label for='short_cit'>Short citation</label>
+    <input type="text" class="form-control paper_form_field" id="short_cit" value="{{paper['short_cit']}}">
+    <small class="form-text text-muted">Eg.  First author et al, Journal, Year</small>
+</div>
+
+<div class="form-group">
+    <label for='doi'>DOI</label>
+    <div class="input-group">
+        <input type="text" class="form-control paper_form_field" id="doi" value="{{paper['doi']}}">
+        <a href="https://doi.org/{{paper['doi']}}" target="_blank"><button type="button" class="btn btn-outline-primary" id="doi_link">Link</button></a>
+    </div>
+    <small class="form-text text-muted">For example "10.1002/cctc.201601249"</small>
+</div>
+
+<div class="form-group">
+    <label for='date'>Date</label>
+    <input class="form-control paper_form_field" type="date" id="date" value="{{paper['date']}}">
+    <small class="form-text text-muted"></small>
+</div>
+
+<div class="form-group">
+    <label for='title'>Title</label>
+    <textarea class="form-control paper_form_field" id="title" rows="2">{{paper['title']}}</textarea>
+    <small class="form-text text-muted">Optional</small>
+</div>
+
+<div class="form-group">
+    <label for='authors'>Authors</label>
+    <textarea class="form-control paper_form_field" id="authors" rows="2">{{paper['authors']}}</textarea>
+    <small class="form-text text-muted">Optional - Enter as name_1, name_2, ect..</small>
+</div>
+
+<div class="form-group">
+    <label for='journal'>Journal</label>
+    <input type="text" class="form-control paper_form_field" id="journal" value="{{paper['journal']}}">
+    <small class="form-text text-muted">Optional</small>
+</div>
+
+<div class="form-group">
+    <label for='tags'>Tags</label>
+    <input type="text" class="form-control paper_form_field" id="tags" value="{{paper["tags"]}}">
+    <small class="form-text text-muted">Tag1, Tag2 ect..</small>
+    <small class="form-text text-muted">Please tag any enzyme types which appear in the paper.  Eg CAR, TA, IRED</small>
+</div>
+
+<button type="button" onclick="save_paper()" class="btn btn-success paper_form_field" id="save_paper">Save</button>
+<button type="button" onclick="query_journal_db('pubmed')" class="btn btn-warning paper_form_field" id="get_pubmed">Query Pubmed</button>
+<button type="button" onclick="query_journal_db('crossref')" class="btn btn-info paper_form_field" id="get_crossref">Query Crossref</button>
+
+<div id="save_response"></div>

@@ -1,0 +1,111 @@
+
+<div class="modal fade" id="activity_hide_columns_modal" tabindex="-1" role="dialog" aria-labelledby="activity_hide_columns_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Choose columns to display</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <button class="btn btn-outline-primary my-2" onclick="main_table_select_all_options()">Select all</button>
+                <button class="btn btn-outline-secondary my-2" onclick="main_table_select_no_options()">Select none</button>
+                <button class="btn btn-outline-info my-2" onclick="model_hide_columns_with_no_data()">Select with data</button>
+                <div id="activity_col_checkbox_div"></div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    var hide_column_checkbox_ids = {}
+
+    function modal_hide_show_column(field_name, hide) {
+        if (hide === false) {
+            table.hideColumn(field_name)
+        } else {
+            table.showColumn(field_name)
+        }
+    }
+
+    function model_hide_columns_with_no_data() {
+        main_table_select_no_options()
+        let data = table.getData()
+        var array_of_cols = []
+        data.forEach(function (item, index) {
+            for (const [key, value] of Object.entries(item)) {
+                if (value !== undefined && array_of_cols.includes(key) === false) {
+                    array_of_cols.push(key)
+                }
+            }
+        })
+
+        for (let [key, value] of Object.entries(hide_column_checkbox_ids)) {
+            if (array_of_cols.includes(value) === true) {
+                document.getElementById(key).checked = true
+                modal_hide_show_column(value, true)
+            }
+        }
+    }
+
+    function activity_create_column_checkbox(col_name, field_name) {
+
+        var parentDiv = document.getElementById("activity_col_checkbox_div")
+
+        var form_div = document.createElement('div');
+        form_div.className = "form-check"
+        parentDiv.appendChild(form_div);
+
+        var checkbox = document.createElement('input');
+        var c_id = "checkbox_for_" + field_name;
+        hide_column_checkbox_ids[c_id] = field_name
+        form_div.appendChild(checkbox);
+        checkbox.type = "checkbox";
+        checkbox.id = c_id
+        checkbox.name = c_id
+        checkbox.checked = true;
+
+        checkbox.addEventListener('change', (event) => {
+            modal_hide_show_column(field_name, event.currentTarget.checked)
+        })
+
+
+        var label = document.createElement('label');
+        form_div.appendChild(label);
+        label.htmlFor = "checkbox_for_" + field_name;
+        label.innerHTML = col_name
+
+    }
+
+    function create_checkboxes_in_modal() {
+        document.getElementById("activity_col_checkbox_div").innerHTML = ""
+        window.editable_columns.forEach(function (item, index) {
+            activity_create_column_checkbox(item.title, item.field)
+        })
+    }
+
+    create_checkboxes_in_modal()
+
+    function main_table_select_all_options() {
+        for (let [key, value] of Object.entries(hide_column_checkbox_ids)) {
+            document.getElementById(key).checked = true
+            modal_hide_show_column(value, true)
+        }
+    }
+
+    function main_table_select_no_options() {
+        for (let [key, value] of Object.entries(hide_column_checkbox_ids)) {
+            document.getElementById(key).checked = false
+            modal_hide_show_column(value, false)
+        }
+    }
+
+</script>

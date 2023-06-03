@@ -1,0 +1,47 @@
+<div class="card card-form mx-auto mt-4">
+    <div class="card-body">
+        <h4 class="mb-1">{{ enzyme_type }} database completion</h4>
+        <div class="ml-3">
+            <h6 class="mt-3">Paper search score</h6>
+            <div class="progress progress-bar_override">
+                <div class="progress-bar {{ database_dict['paper_search'][0] }}"
+                     style="width: {{ database_dict['paper_search'][1] }}">
+                    {{ database_dict['paper_search'][1] }}
+                </div>
+            </div>
+        <small>{{ database_dict['paper_search'][2] }}</small>
+
+            <h6 class="mt-3">Data entry completion</h6>
+            <div class="progress progress-bar_override">
+                <div class="progress-bar {{ database_dict['data_entry_completion'][0] }}"
+                     style="width: {{ database_dict['data_entry_completion'][1] }}">
+                        {{ database_dict['data_entry_completion'][1] }}
+                </div>
+            </div>
+            <small>{{ database_dict['data_entry_completion'][2] }}</small>
+
+            <h6 class="mt-3"><u><a class="text-dark" href="{{ url_for('tables.high_importance_papers') }}">Priority
+                papers</a></u> completed</h6>
+            <div class="progress progress-bar_override">
+                <div class="progress-bar {{ database_dict['priority_completion'][0] }}"
+                     style="width: {{ database_dict['priority_completion'][1] }}">
+                        {{ database_dict['priority_completion'][1] }}
+                </div>
+            </div>
+            <small>{{ database_dict['priority_completion'][2] }}</small>
+
+            {% if has_admin_rights == True %}
+                <h6 class="mt-3">{{ enzyme_type }} papers admin</h6>
+                <button type="button" class="btn btn-sm btn-outline-primary" data-toggle="modal"
+                        data-target="#paper_search_modal">Search for papers
+                </button>
+                <button type="button" class="btn btn-sm btn-outline-info" data-toggle="modal"
+                        data-target="#search_history_modal">Add a paper search record
+                </button>
+                {% include 'enzyme_homepage/modals/search_history_modal.html' %}
+                {% include 'enzyme_homepage/modals/paper_search_modal.html' %}
+            {% endif %}
+        </div>
+    </div>
+</div>
+

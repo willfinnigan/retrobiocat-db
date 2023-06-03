@@ -1,0 +1,130 @@
+<!-- Main modal -->
+<div class="modal fade" id="biocathub_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-dialog-scrollable modal-xl" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Send cascade to biocathub</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="container">
+
+                    <p id="able_to_send_p"></p>
+                    <button id="send_cascade_to_biocathub_button" class="btn btn-outline-success mb-4" onclick="send_cascade_to_biocathub()">
+                        Send to BioCatHub
+                    </button>
+
+                    <button id="sending_cascade_to_biocathub_button" class="btn btn-outline-primary mb-4" disabled hidden>
+                        Sending...
+                    </button>
+
+                    <a href="#" target="_blank" id="biocathub_cascade_ready_button" class="btn btn-outline-primary mb-4" hidden>
+                        BioCatHub ready
+                    </a>
+
+                    <div id="biocathub_resonse_div"></div>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    window.biocathub_cascade_json = []
+
+    $("#biocathub_modal").on("show.bs.modal", function () {
+
+        // on modal launch, get json
+        console.log('BioCatHub modal launched')
+        reset_biocathub_cascade_buttons()
+        load_data_ready_to_send()
+    });
+
+    function reset_biocathub_cascade_buttons() {
+        document.getElementById("send_cascade_to_biocathub_button").hidden = false
+        document.getElementById("sending_cascade_to_biocathub_button").hidden = true
+        document.getElementById("biocathub_cascade_ready_button").hidden = true
+    }
+
+    function get_reactions() {
+        var all_nodes = data['nodes'].get()
+        var reactions = []
+        all_nodes.forEach(function (item, index) {
+            if (item['type'] === 'reaction') {
+                reactions.push(item)
+            }
+        });
+        return reactions
+    }
+
+    function check_all_reactions_are_retrobiocat(reactions) {
+        var all_retrobiocat = true
+        reactions.forEach(function (item, index) {
+            if (item['reaction_type'] !== 'retrobiocat') {
+                all_retrobiocat = false
+            }
+        });
+        return all_retrobiocat
+    }
+
+    function prepare_biocathub_json(reactions) {
+        var biocathub_json = []
+        reactions.forEach(function (reaction, index) {
+            var reaction_json = get_biocathub_reaction_json(reaction, network)
+            biocathub_json.push(reaction_json)
+        });
+
+        return biocathub_json
+    }
+
+    function load_data_ready_to_send() {
+        var reactions = get_reactions()
+        console.log(reactions)
+        var msg_p = document.getElementById('able_to_send_p')
+        if (check_all_reactions_are_retrobiocat(reactions)) {
+            msg_p.innerHTML = reactions.length + ' reactions will be sent to BioCatHub.  Please ensure correct enzymes are selected in the network.'
+            msg_p.className = 'text-dark'
+            document.getElementById("send_cascade_to_biocathub_button").disabled = false
+            window.biocathub_cascade_json = prepare_biocathub_json(reactions)
+        } else {
+            msg_p.innerHTML = 'Not all reactions are RetroBioCat reactions, unable to send to BioCatHub'
+            msg_p.className = 'text-danger'
+            document.getElementById("send_cascade_to_biocathub_button").disabled = true
+            window.biocathub_cascade_json = []
+        }
+    }
+
+    function send_cascade_to_biocathub() {
+        {% if current_user.has_role('experimental') %}
+            {% if config['ALLOW_BIOCATHUB_INTEGRATION'] == True %}
+                function redirect_callback(url) {
+                    document.getElementById("send_cascade_to_biocathub_button").hidden = true
+                    document.getElementById("sending_cascade_to_biocathub_button").hidden = true
+                    document.getElementById("biocathub_cascade_ready_button").hidden = false
+                    document.getElementById("biocathub_cascade_ready_button").href = url
+                }
+
+                console.log('sending..')
+
+                document.getElementById("send_cascade_to_biocathub_button").hidden = true
+                document.getElementById("sending_cascade_to_biocathub_button").hidden = false
+                document.getElementById("biocathub_cascade_ready_button").hidden = true
+
+                biocathub_ajax.send_and_redirect(JSON.stringify(window.biocathub_cascade_json), redirect_callback, "biocathub_resonse_div")
+            {% endif %}
+        {% endif %}
+    }
+
+
+
+
+</script>

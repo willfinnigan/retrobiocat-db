@@ -1,0 +1,21 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_overview" %}
+
+{% block curation_content %}
+    <div class="container-fluid">
+        <h5 class="text-center mb-3">Overview</h5>
+        <div class="row">
+            <div class="col mx-auto" style="max-width:48rem">
+                {% include 'curation_overview/status_content/self_assign.html' %}
+                <h4><strong>Status: </strong><span id='status' style="color:{{status['status_colour']}}">{{status['status']}}</span></h4>
+                {% include 'curation_overview/status_content/status_bars.html' %}
+                {% include 'curation_overview/status_content/issues.html' %}
+                <script>
+                    window.parent_type = "paper" // for comments
+                    window.parent_id = "{{paper_id}}" // for comments
+                </script>
+                {% include 'comments/comments.html' %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

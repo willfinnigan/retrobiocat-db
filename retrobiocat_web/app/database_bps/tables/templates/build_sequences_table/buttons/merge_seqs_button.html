@@ -1,0 +1,11 @@
+{% include 'build_sequences_table/modals/merge_modal.html' %}
+
+<script>
+    var mergeButton = function(cell, formatterParams, onRendered){ //plain text value
+            return "<button class='btn btn-sm btn-outline-warning' data-toggle='modal' data-target='#merge_modal'>Merge</button>";
+        };
+
+    var merge_button_col = {'title': 'Merge', 'width':80, formatter:mergeButton, align:"center", cellClick:function(e, cell){load_seq_merge(cell.getRow().getData().enzyme_name)}}
+        seq_columns.push(merge_button_col)
+
+</script>

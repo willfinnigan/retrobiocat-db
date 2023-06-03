@@ -1,0 +1,19 @@
+<script>
+    var removeButton = function(cell, formatterParams, onRendered){ //plain text value
+            return "<button class='btn btn-sm btn-outline-danger'>Remove</button>";
+        };
+
+
+    function remove_sequence(name) {
+        function callback(result) {
+            let seq_id = result.seq_id
+            let row = seq_table.getRow(seq_id)
+            row.delete()
+        }
+        var paper_id = '{{ paper_id }}'
+        seq_curate_ajax.remove_sequence_from_paper(name, paper_id, callback, "seq_response")
+        }
+
+        var remove_button_col = {'title': 'Remove', 'field': 'remove', 'width':80, formatter:removeButton, cellClick:function(e, cell){remove_sequence(cell.getRow().getData().enzyme_name)}}
+        seq_columns.push(remove_button_col)
+</script>

@@ -1,0 +1,126 @@
+<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="{{ url_for('main_site.home') }}">
+        <img src="{{ url_for('static', filename='logos/logo_main.png') }}" width="30px" height="30px" alt=" "/>
+        RetroBioCat
+    </a>
+
+    <button class="navbar-toggler collapsed" type="button" data-toggle="collapse" data-target="#main_navbar"
+            aria-controls="main_navbar" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="navbar-collapse collapse" id="main_navbar" style="">
+        <ul class="navbar-nav mr-auto">
+            <li id='retrosynthesis' class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">Retrosynthesis</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                    <a class="dropdown-item" href="{{ url_for('retrobiocat.network_explorer_form') }}">Network explorer</a>
+                    <a class="dropdown-item" href="{{ url_for('retrobiocat.pathway_explorer_form') }}">Pathway explorer</a>
+                    <a class="dropdown-item" href="{{ url_for('main_site.retrosynthesis_help') }}">Help</a>
+                </div>
+            </li>
+
+            <li id='biocatdb' class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="navbarDropdownMenuLink"
+                   data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Biocatalysis database
+                </a>
+
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li><a class="dropdown-item" href="{{ url_for('db_analysis.enzymes') }}">Explore the enzyme toolbox</a></li>
+                    <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Search</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('db_analysis.enzyme_name_search') }}">Enzyme name lookup</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('db_analysis.blast_search') }}">BLAST search</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('db_analysis.substrate_specificity_form') }}">Substrate specificity search</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Summary</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{url_for("db_analysis.top_enzymes_and_products", enzyme_type='All', reaction='All')}}">Top enzymes and molecules</a></li>
+                            <li><a class="dropdown-item" href="{{url_for("db_analysis.reaction_conditions", enzyme_type='All', reaction='All')}}">Reaction conditions</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li id='community_driven' class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown02" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">Community-driven</a>
+
+                <ul class="dropdown-menu" aria-labelledby="navbarDropdownMenuLink">
+                    <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Reaction rules</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{{ url_for('retrobiocat.suggest_new_reaction') }}">Suggest a new reaction</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('retrobiocat.reaction_suggestions_table') }}">Reaction suggestions</a></li>
+                            <li><a class="dropdown-item" href="{{ url_for('retrobiocat.reaction_issues_table') }}">Reaction issues</a></li>
+                        </ul>
+                    </li>
+
+                    <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Enzyme database</a>
+                        <ul class="dropdown-menu">
+                            {% if config['HIDE_CURATION'] == False  %}
+                                <li><a class="dropdown-item" href="{{url_for('tables.high_importance_papers')}}">Priority papers</a></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{{url_for('curation.activity_data_issues_table')}}">Activity data issues</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('adding_papers.suggest_new_paper')}}">Suggest a paper for inclusion</a></li>
+                            <li><a class="dropdown-item" href="{{url_for('adding_papers.paper_suggestions_table')}}">Paper suggestions</a></li>
+                            {% if not current_user.has_role('contributor') and config['HIDE_CURATION'] == False %}
+                                <li><a class="dropdown-item text-success" href="{{url_for('curation.contributor_sign_up')}}">Become a database contributor</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+
+                    <li class="dropdown-submenu"><a class="dropdown-item dropdown-toggle" href="#">Other</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="https://github.com/willfinnigan/RetroBioCat/issues" target="_blank">Report a bug</a></li>
+                            <li><a class="dropdown-item" href="https://groups.google.com/g/retrobiocat" target="_blank">Forum</a></li>
+                        </ul>
+                    </li>
+                </ul>
+            </li>
+
+            <li id='more_info' class="nav-item dropdown">
+                <a class="nav-link dropdown-toggle" href="#" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
+                   aria-expanded="false">More info</a>
+                <div class="dropdown-menu" aria-labelledby="dropdown01">
+                    <a class="dropdown-item" href="{{ url_for('retrobiocat.reaction_rules') }}">Reaction rules</a>
+                    <a class="dropdown-item" href="{{ url_for('main_site.automated_cascade_design') }}">Automated Cascade Design</a>
+                    {% if config['HIDE_CURATION'] == False  %}
+                        <a class="dropdown-item" href="{{url_for('curation.contributors')}}">Contributors</a>
+                    {% endif %}
+                </div>
+            </li>
+        </ul>
+
+        {% if current_user.has_role('enzyme_teams') or current_user.has_role('enzyme_champion')  %}
+            <ul class="navbar-nav">
+                {% include 'navbar/enzyme_teams.html' %}
+            </ul>
+        {% endif %}
+
+
+        {% if current_user.has_role('contributor') %}
+            <ul class="navbar-nav">
+                {% include 'navbar/contributor_menu.html' %}
+            </ul>
+        {% endif %}
+
+        <ul class="navbar-nav">
+            {% if current_user.is_anonymous %}
+                <li id='pathway_explorer' class="nav-item">
+                    <a class="nav-link" href="/login">Login / Sign-up</a>
+                </li>
+            {% else %}
+                {% include 'navbar/logged_in_menu.html' %}
+            {% endif %}
+        </ul>
+
+    </div>
+
+</nav>
+
+{% include "navbar/navbar_submenu.html" %}
+

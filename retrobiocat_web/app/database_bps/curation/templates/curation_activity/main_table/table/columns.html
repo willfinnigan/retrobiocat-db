@@ -1,0 +1,227 @@
+<script>
+    var reaction_editor_params = {
+        'values': {{reactions|safe}},
+        'clearable': true,
+        'autocomplete': true,
+        'allowEmpty': true,
+        'freetext': true,
+        'listOnEmpty': true
+    }
+
+    var enzyme_editor_params = {
+        'values': {{enzyme_names|safe}},
+        'clearable': true,
+        'autocomplete': true,
+        'allowEmpty': true,
+        'freetext': true,
+        'listOnEmpty': true
+    }
+
+    var molecule_editor_params = {
+        'values': mol_names,
+        'clearable': true,
+        'autocomplete': true,
+        'allowEmpty': true,
+        'listOnEmpty': true,
+        'freetext': true,
+    }
+
+    var categorical_editor_params = {
+        'values': ["High", 'Medium', "Low", 'None'],
+        'clearable': true,
+        'autocomplete': true,
+        'allowEmpty': true,
+        'listOnEmpty': true,
+    }
+
+    var binary_editor_params = {
+        'values': [1, 0],
+        'clearable': true,
+        'autocomplete': true,
+        'allowEmpty': true,
+        'listOnEmpty': true,
+    }
+
+    function update_table(selectedRows, result, interconvert) {
+        var smi_columns = ['substrate_1_smiles', 'substrate_2_smiles', 'product_1_smiles']
+
+        //result.new_rows.forEach(function (row, index) {
+            //row_edited(row)
+          //  if (interconvert === true) {
+            //    smi_columns.forEach(function (col, i) {
+              //      result.new_rows[i] = interconvert_smis_and_names(row_data, col)
+               // })
+           // }
+        //})
+
+        table.updateData(result.new_rows)
+    }
+
+    function chunk(arr, chunkSize) {
+      if (chunkSize <= 0) throw "Invalid chunk size";
+      var R = [];
+      for (var i=0,len=arr.length; i<len; i+=chunkSize)
+        R.push(arr.slice(i,i+chunkSize));
+      return R;
+    }
+
+
+    var reaction_header_menu = [
+        {
+            label: "↔️ Apply reaction rules to selected",
+            action: function (e, column) {
+                var selectedData = table.getSelectedData()
+                var selectedRows = table.getSelectedRows();
+                apply_reaction_rules_ajax.apply_reaction_rules(selectedData, selectedRows, "table_response_div", update_table)
+            }
+        },
+        {
+            label: "🔍 Auto-detect reaction name for selected",
+            action: function (e, column) {
+                var selectedData = table.getSelectedData()
+                var selectedRows = table.getSelectedRows();
+                apply_reaction_rules_ajax.autodetect_reaction_names(selectedData, selectedRows, "table_response_div", update_table)
+            }
+        },
+    ]
+
+    var columns = [
+
+        {'title': "ID", 'field': "_id", visible: false, headerSort: false},
+        {
+            formatter: "rowSelection",
+            titleFormatter: "rowSelection",
+            width: 30,
+            hozAlign: "center",
+            headerSort: false,
+            cellClick: function (e, cell) {
+                cell.getRow().toggleSelect();
+            }
+        },
+        {'title': "N", 'field': 'n', width: 30, headerSort: false, align: "center"},
+
+        {
+            'title': "Reaction", 'field': "reaction", 'width': 200, 'headerSort': false,
+            'editor': "list", 'editorParams': reaction_editor_params, headerMenu: reaction_header_menu,
+             headerMenuIcon:'<i class="fa-solid fa-square-caret-left"></i><i class="fa-solid fa-square-caret-right"></i>'
+        },
+        {
+            'title': "Enzyme name", 'field': "enzyme_name", 'width': 120, 'editor': 'list', 'headerSort': false,
+            'editorParams': enzyme_editor_params
+        },
+        {
+            'title': "Substrate 1 SMILES",
+            'field': "substrate_1_smiles",
+            'width': 150,
+            'editor': "input",
+            'headerSort': false
+        },
+        {
+            'title': "Substrate 2 SMILES",
+            'field': "substrate_2_smiles",
+            'width': 150,
+            'editor': "input",
+            'headerSort': false
+        },
+        {
+            'title': "Product 1 SMILES",
+            'field': "product_1_smiles",
+            'width': 150,
+            'editor': "input",
+            'headerSort': false
+        },
+        {
+            'title': "Substrate 1 Name", 'field': "substrate_1_name", visible: false, 'width': 150, 'headerSort': false,
+            'editor': "list", editorParams: molecule_editor_params
+        },
+        {
+            'title': "Substrate 2 Name", 'field': "substrate_2_name", visible: false, 'width': 150, 'headerSort': false,
+            'editor': "list", editorParams: molecule_editor_params
+        },
+        {
+            'title': "Product 1 Name", 'field': "product_1_name", visible: false, 'width': 150, 'headerSort': false,
+            'editor': "list", editorParams: molecule_editor_params
+        },
+        {'title': "Selectivity", 'field': "selectivity", 'width': 100, 'editor': "input", 'headerSort': false},
+        {
+            'title': "Temp.",
+            'field': "temperature",
+            'width': 80,
+            'editor': "input",
+            'headerSort': false,
+        },
+        {
+            'title': "pH",
+            'field': "ph",
+            'width': 50,
+            'editor': "number",
+            'headerSort': false,
+            editorParams: {min: 1, max: 12}
+        },
+        {'title': "Solvent", 'field': "solvent", 'width': 80, 'editor': "input", 'headerSort': false},
+        {
+            'title': "Other conditions", 'field': "other_conditions", 'width': 250, 'editor': "textarea", 'headerSort': false
+        },
+        {
+            'title': "Notes", 'field': "notes", 'width': 250, 'editor': "textarea", 'headerSort': false
+        },
+        {'title': "Reaction vol.", 'field': "reaction_vol", 'width': 100, 'editor': "input", 'headerSort': false},
+        {'title': "Formulation", 'field': "formulation", 'width': 100, 'editor': "input", 'headerSort': false},
+        {'title': "Biocatalyst conc.", 'field': "biocat_conc", 'width': 130, 'editor': "input", 'headerSort': false},
+        {
+            'title': "Substrate 1 conc. (mM)",
+            'field': "substrate_1_conc",
+            'width': 175,
+            'editor': "textarea",
+            'headerSort': false
+        },
+        {
+            'title': "Substrate 2 conc. (mM)",
+            'field': "substrate_2_conc",
+            'width': 175,
+            'editor': "textarea",
+            'headerSort': false
+        },
+        {'title': "Kcat (min-1)", 'field': "kcat", 'width': 100, 'editor': "number", 'headerSort': false},
+        {'title': "Km (mM)", 'field': "km", 'width': 100, 'editor': "number", 'headerSort': false},
+        {
+            'title': "Specific activity (U/mg)",
+            'field': "specific_activity",
+            'width': 175,
+            'editor': "number",
+            'headerSort': false
+        },
+        {
+            'title': "Conversion (%)",
+            'field': "conversion",
+            'width': 150,
+            'editor': "number",
+            'headerSort': false,
+            editorParams: {min: 0, max: 100}
+        },
+        {
+            'title': "Conversion time (hrs)",
+            'field': "conversion_time",
+            'width': 175,
+            'editor': "number",
+            'headerSort': false
+        },
+        {
+            'title': "Categorical", 'field': "categorical", 'width': 100,
+            'headerSort': false,
+            'editor': "list", 'editorParams': categorical_editor_params
+        },
+        {
+            'title': "Binary", 'field': "binary", 'minWidth': 100,
+            'headerSort': false,
+            'editor': "list", 'editorParams': binary_editor_params
+        },
+        {
+            'title': "D", 'field': 'd', formatter: "buttonCross", width: 30, align: "center", headerSort: false,
+            cellClick: function (e, cell) {
+                delete_row(cell)
+            }
+        },
+    ]
+
+</script>

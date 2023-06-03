@@ -1,0 +1,76 @@
+<div class="modal fade" id="activity_table_functions_modal" tabindex="-1" role="dialog" aria-labelledby="activity_table_functions_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Functions</h5>
+            </div>
+
+
+            <div class="modal-body">
+                <div id="activity_table_other_functions_response"></div>
+                <p>These functions are applied only to the currently selected rows</p>
+                <button class="btn btn-success mb-3" id='activity_apply_reaction_rules' onclick="table_function_apply_reaction_rules()">Apply reaction rules</button>
+                <br/>
+                <div class="btn-group my-auto text-center" role="group">
+                    <button class="btn btn-info" id='activity_copy_metadata' onclick="table_function_copy_meta_data()">Copy meta data from row </button>
+                    <input type="number" id="table_row_select_to_copy_metadata" class="" value="1" style="width:50px">
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function table_function_apply_reaction_rules() {
+        var selectedData = table.getSelectedData()
+        var selectedRows = table.getSelectedRows();
+        $.post('/_apply_reaction_rules_table', {
+            rows: JSON.stringify(selectedData)
+        }).done(function (data) {
+            if (data.result.status === 'success') {
+                selectedRows.forEach(function (row, index) {
+                    table.updateRow(row, data.result.new_rows[index]);
+                    row_edited(row)
+                })
+                response_msg(data.result.msg, data.result.status, data.result.issues, "activity_table_other_functions_response")
+            }
+        }).fail(function (xhr, status, error) {
+            console.log(error)
+        });
+    }
+
+    var meta_data_to_copy = ['temperature', 'ph', 'solvent', 'other_conditions', 'notes',
+                             'reaction_vol', 'biocat_conc', 'substrate_1_conc', 'substrate_2_conc',
+                             'conversion_time', 'formulation']
+
+    function table_function_copy_meta_data() {
+        var row_num = document.getElementById("table_row_select_to_copy_metadata").value
+        var row_copy_from = table.getRow(row_num)
+        if (row_copy_from === false) {
+            response_msg('Row not found', 'danger', [], "activity_table_other_functions_response")
+            return
+        }
+        var row_copy_from_data = row_copy_from.getData()
+        let subset = Object.keys(row_copy_from_data)
+                            .filter(key => meta_data_to_copy.indexOf(key) >= 0)
+                            .reduce((obj2, key) => Object.assign(obj2, { [key]: row_copy_from_data[key] }), {});
+        var selectedRows = table.getSelectedRows();
+
+        selectedRows.forEach(function (row, index) {
+                    table.updateRow(row, subset);
+                })
+
+        response_msg('Meta data copied to selected rows', 'success', ['' + meta_data_to_copy], "activity_table_other_functions_response")
+
+
+    }
+
+</script>

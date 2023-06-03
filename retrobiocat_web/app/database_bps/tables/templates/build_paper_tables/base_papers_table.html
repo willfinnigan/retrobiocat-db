@@ -1,0 +1,67 @@
+<div class="custom-control custom-checkbox">
+    <input class="custom-control-input" type="checkbox" id="filter_cascades" onclick="filter_cascades()">
+    <label class="custom-control-label" for="filter_cascades">Hide cascades</label>
+</div>
+<div class="no_margin" id="papers_response"></div>
+<div id="papers_table"></div>
+
+
+<script>
+    function doi_formatter(cell, formatterParams) {
+        var cell_value = cell.getValue();
+        var row_data = cell.getData()
+        var doi = row_data['doi']
+        var url = "<a href='https://doi.org/" + doi + "' target='_blank'>" + cell_value + "</a>";
+
+        cell.getElement().style.display = 'inline-flex'
+        cell.getElement().style["white-space"]  = 'pre-wrap'
+        return url
+        }
+
+    var papers_columns = [
+        {'title':"ID", 'field':"_id", visible:false, headerSort:false},
+        {'title': "Short cit.", 'minWidth':200, 'field': "short_citation", headerFilter:"input", formatter:"textarea"},
+        {'title': "Title", 'field': "title", 'minWidth':300, headerFilter:"input", formatter:"textarea"},
+        {'title': "DOI", 'minWidth':200, 'field': "doi", headerFilter:"input", formatter:doi_formatter},
+        {'title': "Status", 'minWidth':125, 'field': "status", formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+        {'title': "Tags", 'minWidth':100, 'field': "tags", headerFilter:"input"},
+        {'title': "Curated by", 'minWidth':100, 'field': "owner", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}},
+
+    ];
+
+    </script>
+
+    {% block add_columns %}{% endblock %}
+
+    <script>
+
+    var papers_tabledata = {{papers_data|safe}};
+
+    var papers_table = new Tabulator("#papers_table", {
+        data:papers_tabledata, //assign data to table
+        columnDefaults:{
+            hozAlign:"center",
+            vertAlign:"middle"
+        },
+        maxHeight:"{{paper_table_options['table_height']}}", // "60vh"
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:papers_columns,
+        index:"_id"
+    });
+
+    function customFilter(data){
+        return !data.tags.includes("Cascade");
+    }
+
+    function filter_cascades() {
+        if (document.getElementById("filter_cascades").checked === true){
+            papers_table.setFilter(customFilter);
+        } else {
+            papers_table.clearFilter();
+        }
+    }
+
+</script>
+
+{% block add_functions %}{% endblock %}

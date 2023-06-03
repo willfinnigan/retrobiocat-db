@@ -1,0 +1,49 @@
+
+<div class="modal fade" id="temperature_modal" tabindex="-1" role="dialog" aria-labelledby="formOptionsLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="formOptionsLabel">Temperature query</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <p>from
+                    <div class="form-inline">
+                        <label for='temp_left' class=""></label>
+                        <input type="number" id="temp_left" value="0" onchange="set_temp_link()" class="form-control form-control-sm w-25"/>
+                    </div>
+                    to
+                    <div class="form-inline">
+                        <label for='temp_right' class=""></label>
+                        <input type="number" id="temp_right" value="0" onchange="set_temp_link()" class="form-control form-control-sm w-25"/>
+                    </div>
+                </p>
+
+                <a id='link_for_temp_activity' href=""><button class="btn btn-outline-success">Activity data within this temperature range</button></a>
+
+            </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+
+    </div>
+  </div>
+</div>
+
+
+<script>
+    function set_temp_link() {
+        var arguments = {'enzyme_type': window.enzyme_type,
+                         'reaction': window.reaction,
+                         'temp_left': document.getElementById('temp_left').value,
+                         'temp_right': document.getElementById('temp_right').value}
+
+
+        document.getElementById('link_for_temp_activity').href = Flask.url_for("tables.show_activity", arguments)
+    }
+</script>
+

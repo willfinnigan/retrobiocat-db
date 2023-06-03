@@ -1,0 +1,114 @@
+<div class="custom-control custom-checkbox mt-2">
+    <input class="custom-control-input" type="checkbox" id="sequences_ready_for_review" {{reviewed_dict['seq_review_ready']}}>
+    <label class="custom-control-label" for="sequences_ready_for_review" id="sequences_ready_for_review_label">
+        Sequence entry complete - ready for review
+    </label>
+</div>
+
+<div class="custom-control custom-checkbox mt-2">
+    <input class="custom-control-input" type="checkbox" id="paper_sequences_reviewed" {{reviewed_dict['seq_reviewed']}} {{access_dict['review_disabled']}}>
+    <label class="custom-control-label" for="paper_sequences_reviewed" id="paper_sequences_reviewed_label">
+        Sequences reviewed
+    </label>
+    <small class='form-text text-muted no_margin'>{{ reviewed_dict['seq_reviewed_by'] }}</small>
+    <small class='form-text text-success' id="reviewing_sequences_please_wait"></small>
+</div>
+
+<button class="btn btn-sm btn-outline-primary" id="seq_review_unreview_button" hidden {{access_dict['unreview_disabled']}}>Unreview to allow editing</button>
+
+<div id="seq_review_response_div"></div>
+
+<script>
+
+    function reviewing_sequences_please_wait() {
+        document.getElementById("paper_sequences_reviewed").disabled = true
+        document.getElementById("reviewing_sequences_please_wait").innerHTML = 'Reviewing sequences please wait..'
+        document.getElementById("seq_review_unreview_button").disabled = true
+    }
+
+    document.getElementById("paper_sequences_reviewed").onchange = function(){
+        var reviewed = document.getElementById("paper_sequences_reviewed").checked
+        var paper_id = "{{paper_id}}"
+
+        function callback(status) {
+            if (status === 'success') {
+                console.log('success')
+                location.reload()
+            } else {
+                document.getElementById("paper_sequences_reviewed").checked = !reviewed
+                document.getElementById("paper_sequences_reviewed").disabled = false
+                document.getElementById("reviewing_sequences_please_wait").innerHTML = ''
+            }
+        }
+        reviewing_sequences_please_wait()
+        reviewing_ajax.sequences_review(paper_id, reviewed, callback, "seq_review_response_div")
+    };
+
+    document.getElementById("sequences_ready_for_review").onchange = function(){
+        var ready = document.getElementById("sequences_ready_for_review").checked
+        var paper_id = "{{paper_id}}"
+        function callback(status) {
+            if (status === 'success') {
+                console.log('success')
+            } else {
+                document.getElementById("sequences_ready_for_review").checked = !ready
+            }
+        }
+        reviewing_ajax.sequences_ready_review(paper_id, ready, callback, "seq_review_response_div")
+    };
+
+
+    function sequences_reviewed_lock() {
+        // lock review ready button
+        document.getElementById("sequences_ready_for_review").disabled = true
+
+        // lock ability to save sequence edits
+        document.getElementById("seq_edit_save_btn").disabled = true
+        document.getElementById("seq_edit_save_and_close_btn").disabled = true
+
+
+        // lock buttons
+        document.getElementById("add_enzyme_button").disabled = true
+        document.getElementById("upload_seq_excel").disabled = true
+        document.getElementById("upload_seq_excel").disabled = true
+        document.getElementById("remove_all_sequences_button").disabled = true
+        document.getElementById("alt_seq_naming_button").disabled = true
+
+        // show unreview button if its not disabled
+        if (document.getElementById("seq_review_unreview_button").disabled !== true) {
+            document.getElementById("seq_review_unreview_button").hidden = false
+        }
+
+    }
+
+    $(document).ready(function () {
+        if ("{{reviewed_dict['seq_reviewed']}}" === 'checked') {
+            sequences_reviewed_lock()
+            window.disable_all_seq_fields = true
+        }
+    })
+
+    document.getElementById("seq_review_unreview_button").onclick = function () {
+        document.getElementById("paper_sequences_reviewed").checked = false
+        var reviewed = false
+        var paper_id = "{{paper_id}}"
+
+        function callback(status) {
+            if (status === 'success') {
+                console.log('success')
+                location.reload()
+            } else {
+                document.getElementById("paper_sequences_reviewed").checked = !reviewed
+                document.getElementById("paper_sequences_reviewed").disabled = false
+                document.getElementById("reviewing_sequences_please_wait").innerHTML = ''
+            }
+        }
+
+        reviewing_sequences_please_wait()
+        reviewing_ajax.sequences_review(paper_id, reviewed, callback, "seq_review_response_div")
+    }
+
+
+
+
+</script>

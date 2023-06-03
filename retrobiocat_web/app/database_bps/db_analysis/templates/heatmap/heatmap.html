@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <div class="container-fluid" align="center">
+        <p></p>
+        <h5 class="mx-3">{{ title }}</h5>
+        <p id="loading_please_wait">Loading, please wait..</p>
+
+        <div id="heatmap_div">
+            {{ div|safe}}
+        </div>
+    </div>
+
+    {{script|safe}}
+
+    {% include 'heatmap/heatmap_box_select_modal.html' %}
+
+    <script>
+
+        window.addEventListener("load", function(){
+            document.getElementById("loading_please_wait").remove();
+        });
+
+    </script>
+
+{% endblock %}
+

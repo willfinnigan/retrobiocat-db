@@ -1,0 +1,86 @@
+<!-- Modal -->
+<div class="modal fade" id="edit_modal" tabindex="-1" role="dialog" aria-labelledby="edit_modalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="edit_modalLabel">Edit enzyme type</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+          <p><strong id="original_name"></strong></p>
+          <div class="form-group">
+              <label for='enzyme_type'>Enzyme type</label>
+              <input type="text" class="form-control" id="enzyme_type" placeholder="">
+          </div>
+
+          <div class="form-group">
+              <label for='enzyme_type'>Full name</label>
+              <input type="text" class="form-control" id="full_name" placeholder="">
+          </div>
+
+          <div class="form-group">
+              <label for='enzyme_type'>Other abbreviations</label>
+              <input type="text" class="form-control" id="other_abbreviations" placeholder="">
+          </div>
+
+          <div class="form-group">
+              <label for="description">Description</label>
+              <textarea class="form-control" id="description" placeholder="" rows="6"></textarea>
+          </div>
+
+          <div class="form-group">
+              <label for='rep_reaction'>Representative reaction</label>
+              <input type="text" class="form-control" id="rep_reaction" placeholder="">
+          </div>
+      </div>
+
+      <div id="save_response"></div>
+
+      <div class="modal-footer">
+          <p id="saving"></p>
+          <button type="button" id='save' class="btn btn-success" onclick="save_changes()">Save changes</button>
+          <button type="button" onclick="close_alerts()" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+    function load_edit_data(name) {
+        $.post('/_load_enzyme_type_data', {
+            enzyme_type: name,
+            }).done(function(data) {
+                document.getElementById("original_name").innerHTML = data.result.name;
+                document.getElementById("enzyme_type").value = data.result.name;
+                document.getElementById("description").value = data.result.description;
+                document.getElementById("full_name").value = data.result.full_name;
+                document.getElementById("other_abbreviations").value = data.result.other_abbreviations;
+                document.getElementById("rep_reaction").value = data.result.rep_reaction;
+            })
+    }
+
+
+    function save_changes() {
+        document.getElementById("saving").innerHTML = "saving, please wait.."
+        document.getElementById("save").disabled = true;
+        $.post('/_save_enzyme_type_changes', {
+            original_name: document.getElementById("original_name").innerHTML,
+            new_name: document.getElementById("enzyme_type").value,
+            full_name: document.getElementById("full_name").value,
+            other_abbreviations: document.getElementById("other_abbreviations").value,
+            description: document.getElementById("description").value,
+            rep_reaction: document.getElementById("rep_reaction").value
+            }).done(function(data) {
+                console.log('saved')
+                response_msg(data.result.msg, data.result.status, data.result.issues, "save_response")
+                if (data.result.status === 'success') {
+                    location.reload()
+                }
+                document.getElementById("save").disabled = false;
+            })
+    }
+
+
+</script>

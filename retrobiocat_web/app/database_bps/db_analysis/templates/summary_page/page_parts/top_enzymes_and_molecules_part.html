@@ -1,0 +1,40 @@
+<h3 class="text-center">Top enzymes and molecules</h3>
+<div class="row justify-content-center mb-5">
+    <div class='col-sm-auto mx-auto mb-2'>
+        {{graphs['enzyme_graph']['div']|safe}}
+        {{graphs['enzyme_graph']['script']|safe}}
+    </div>
+
+    <div class='col-sm-auto mx-auto mb-2'>
+        {{graphs['mol_graph']['div']|safe}}
+        {{graphs['mol_graph']['script']|safe}}
+    </div>
+</div>
+
+{% include 'build_sequences_table/modals/seq_row_click_modal.html' %}
+{% include 'summary_page/modals/molecule_modal.html' %}
+
+<script>
+    function load_enzyme_modal(enzyme_name) {
+        load_sequence_data(enzyme_name)
+        document.getElementById('sequence_row_click_model_title').innerHTML = enzyme_name;
+        $('#sequence_row_modal').modal('show');
+    }
+
+    function molecule_bar_clicked(smi, svg) {
+        smi = smi.replaceAll("#", "[hash]")
+        smi = smi.replaceAll("/", "fs")
+
+        // if there is no smiles string, send 'None' to route.
+        if (smi === '') {
+            smi = 'None'
+        }
+
+        document.getElementById('molecule_svg_div').innerHTML = svg
+        document.getElementById('link_for_papers_for_mol').href = Flask.url_for("tables.papers_for_molecule", {"product_1_smiles": smi})
+        document.getElementById('link_for_activity_for_mol').href = Flask.url_for("tables.show_activity", {'mol_type': 'product_1_smiles', 'smiles': smi})
+        $('#summary_molecule_modal').modal('show');
+
+    }
+
+</script>

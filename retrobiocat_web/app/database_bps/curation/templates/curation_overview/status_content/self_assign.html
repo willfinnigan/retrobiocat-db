@@ -1,0 +1,44 @@
+<p>Paper is currently assigned to: <small>{{paper_ownership['owner_name']}}</small></p>
+
+<div class="custom-control custom-checkbox mb-2">
+    <input class="custom-control-input" type="checkbox" id="assign_to_me" {{paper_ownership['self_assign_checked']}} {{paper_ownership['disable_self_assign']}}>
+    <label class="custom-control-label" for="assign_to_me">Assign this paper to me</label>
+    <small class="form-text text-muted" id="assign_to_me_small_txt">Assign to yourself (checked), or leave open for somebody else (unchecked)</small>
+</div>
+<hr/>
+
+
+
+<script>
+    function change_assignment(self_assign) {
+        function assign_callback() {
+            location.reload()
+        }
+
+        function unassign_callback(status) {
+                if (status === 'success') {
+                    location.reload()
+                } else {
+                    document.getElementById("assign_to_me").checked = true
+                    document.getElementById("assign_to_me").disabled = true
+                    document.getElementById("assign_to_me_small_txt").innerHTML = "Users may only un-assign a few papers a month to prevent malicous activity. Un-assigning this paper is currently not possible. Please email william.finnigan@manchester.ac.uk if this is a problem."
+                    document.getElementById("assign_to_me_small_txt").className = ('form-text text-danger')
+                }
+            }
+
+        var paper_id = "{{paper_id}}"
+        if (self_assign === true) {
+            paper_assignment_ajax.self_assign_paper(paper_id, assign_callback, 'response_div')
+        }
+        else {
+            paper_assignment_ajax.unassign_paper(paper_id, unassign_callback, 'response_div')
+        }
+
+    }
+
+    document.getElementById("assign_to_me").onchange = function(){
+        var self_assign = document.getElementById("assign_to_me").checked
+        change_assignment(self_assign)
+    };
+
+</script>

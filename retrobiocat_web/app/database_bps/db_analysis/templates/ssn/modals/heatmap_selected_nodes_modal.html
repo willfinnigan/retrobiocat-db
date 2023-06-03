@@ -1,0 +1,128 @@
+<!-- Main modal -->
+<div class="modal fade" id="heatmap_selected_nodes_modal" tabindex="-1" role="dialog" aria-labelledby="heatmap_selected_nodes_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-scrollable modal" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Launch a heatmap for the selected database sequences</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+                <div class="form-group mt-4">
+                    <p>
+                        <span id="num_biocatdb_nodes"></span> database nodes selected
+                        <button class="btn btn-sm btn-outline-primary" onclick="select_all_nodes()">Select all nodes</button>
+                    </p>
+                    <label for="reaction">Reaction</label>
+                    <select id='reaction' class="form-control custom-select w-50">
+                        {% for reaction in reactions %}
+                            <option value="{{ reaction }}">{{ reaction }}</option>
+                        {% endfor %}
+                    </select>
+                    <br/><small>Optionally filter by reaction</small>
+                </div>
+
+                <div class="form-group mt-4">
+                    <label for="molecule">Molecule</label>
+                    <select id="molecule" class="form-control custom-select w-50">
+                        <option value="product_1_smiles">Product</option>
+                        <option value="substrate_1_smiles">Substrate 1</option>
+                        <option value="substrate_2_smiles">Substrate 2</option>
+                    </select>
+                    <br/><small>Select the molecule in the reaction to show on the heatmap</small>
+                </div>
+
+                <div class="form-group mt-4">
+                    <label for="negative_data">Negative data</label>
+                    <select id="negative_data" class="form-control custom-select w-50">
+                        <option value="all">Do not include</option>
+                        <option value="false">Include all</option>
+                        <option value="only_negative">Remove molecules with only negative data</option>
+                    </select>
+                </div>
+
+                <div class="custom-control custom-checkbox mt-4">
+                    <input type="checkbox" id='only_reviewed' class="custom-control-input" checked>
+                    <label for='only_reviewed' class="custom-control-label">Only reviewed</label>
+                </div>
+                <div class="col-md-12 text-center">
+                    <button class="btn btn-success btn-lg mt-3" onclick="launch_heatmap()">Launch Heatmap</button>
+                    <button class="btn btn-primary btn-lg mt-3" onclick="launch_scope()">Launch Chemical-Sequence Space View</button>
+                </div>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+
+
+        </div>
+    </div>
+</div>
+
+<script>
+    window.selected_database_ids = []
+
+    function updated_num_selected_nodes() {
+        var selected_nodes = network.getSelectedNodes()
+        var biocatdb_nodes = data['nodes'].get({
+          filter: function (item) {
+            return selected_nodes.includes(item.id) && item.node_type == 'biocatdb';
+          }
+        });
+        window.selected_database_ids = biocatdb_nodes.map(a => a.id);
+        document.getElementById("num_biocatdb_nodes").innerHTML = window.selected_database_ids.length
+    }
+
+    $('#heatmap_selected_nodes_modal').on('shown.bs.modal', function (e) {
+        updated_num_selected_nodes()
+    })
+
+    function launch_heatmap() {
+        var options = {"enzyme_names": window.selected_database_ids,
+                       "only_reviewed": "True",
+                       "remove_negative": document.getElementById("negative_data").value,
+                       "mol_type": document.getElementById("molecule").value}
+
+        if (document.getElementById("only_reviewed").checked == false) {
+            options['only_reviewed'] = 'False'
+        }
+
+        var reaction = document.getElementById("reaction").value
+        if (reaction != '-') {
+            options['reaction'] = reaction
+        }
+
+        window.open(Flask.url_for("db_analysis.heatmap", options));
+    }
+
+    function launch_scope() {
+        var options = {"enzyme_names": window.selected_database_ids,
+                       "only_reviewed": "True",
+                       "remove_negative": document.getElementById("negative_data").value,
+                       "mol_type": document.getElementById("molecule").value}
+
+        if (document.getElementById("only_reviewed").checked == false) {
+            options['only_reviewed'] = 'False'
+        }
+
+        var reaction = document.getElementById("reaction").value
+        if (reaction != '-') {
+            options['reaction'] = reaction
+        }
+
+        window.open(Flask.url_for("db_analysis.scope", options));
+    }
+
+    function select_all_nodes() {
+        var to_select = []
+        data['nodes'].forEach(function (node_dict, i) {
+            to_select.push(node_dict['id'])
+        })
+        network.selectNodes(to_select)
+        updated_num_selected_nodes()
+    }
+
+</script>

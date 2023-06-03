@@ -1,0 +1,18 @@
+
+{% include 'build_sequences_table/modals/edit_seq_modal.html' %}
+{% include 'build_sequences_table/modals/edit_other_names_modal.html' %}
+
+<script>
+    function load_edit_sequence_modal(name) {
+            window.seq_save_callback_mode = "tabulator"
+            document.getElementById("original_name").innerHTML = name;
+            load_edit_seq_data(name)
+        }
+
+    var editButton = function(cell, formatterParams, onRendered){ //plain text value
+            return "<button class='btn btn-sm btn-outline-info' data-toggle='modal' data-target='#edit_seq_modal'>Edit</button>";
+        };
+
+    var edit_button_col = {'title': 'Edit', 'width':150, formatter:editButton, hozAlign:"center", cellClick:function(e, cell){load_edit_sequence_modal(cell.getRow().getData().enzyme_name)}}
+    seq_columns.splice(1, 0, edit_button_col)
+</script>

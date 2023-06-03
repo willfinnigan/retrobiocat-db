@@ -1,0 +1,199 @@
+<style>
+    .paper_heading {
+        font-weight: bold;
+        margin: 0px;
+        padding: 0px;
+        padding-top: 20px;
+    }
+
+    .paper_field {
+        margin: 0px;
+        padding: 5px;
+        padding-left:30px;
+    }
+
+</style>
+
+<div class="modal fade" id="paper_search_row_modal" tabindex="-1" role="dialog"
+     aria-labelledby="paper_search_row_modal_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="paper_search_row_modal_title"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="container-fluid">
+                    <div class="row">
+                        <div class='col'>
+                            <h4 class="text-center mt-3"><span id="title"></span></h4>
+                            <p class="no_margin text-center" id="authors"></p>
+                            <a id="doi_link" href="#"><p class="no_margin text-center"><small id="doi"></small></p></a>
+                            <p class="no_margin text-center"><small id="journal"></small></p>
+                            <p class="no_margin text-center"><small id="date"></small></p>
+
+                            <p>
+                                <button class="btn btn-outline-info" id="not_rel_btn" onclick="toggle_not_relevant()">Toggle not relevant</button>
+                                <button class="btn btn-outline-success" id="add_paper_btn" onclick="add_new_paper()">Add paper</button>
+                                <button class="btn btn-outline-danger" id="remove_paper_btn" onclick="remove_paper()">Remove paper</button>
+                                <button class="btn btn-outline-primary" id="priority_paper_btn" onclick="toggle_priority_paper()">Toggle priority paper</button>
+                            </p>
+                            <p class="paper_field"><span id="button_status"></span></p>
+
+                            <p class="paper_heading">Status:</p>
+                            <p class="paper_field"><span id="status"></span></p>
+
+                            <p class="paper_heading">Tags:</p>
+                            <div class="form-group">
+                                <input type="text" class="w-50" id="tags">
+                            </div>
+
+                            <p class="paper_heading">Urgency:</p>
+                            <p id='paper_priority' class="paper_field text-success"></p>
+
+                            <p class="paper_heading">Abstract:</p>
+                            <p class="paper_field"><span id="abstract"></span></p>
+
+                        </div>
+
+                    </div>
+                </div>
+
+
+
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function set_buttons_and_text_colour() {
+        var status = document.getElementById('status').innerHTML
+
+        if (status === 'Not relevant') {
+            document.getElementById('status').className = 'text-secondary'
+            document.getElementById('not_rel_btn').disabled = false
+            document.getElementById('add_paper_btn').disabled = true
+            document.getElementById('priority_paper_btn').disabled = true
+            document.getElementById('remove_paper_btn').disabled = true
+            document.getElementById('tags').disabled = true
+        } else if (status === 'Missing') {
+            document.getElementById('status').className = 'text-danger'
+            document.getElementById('not_rel_btn').disabled = false
+            document.getElementById('add_paper_btn').disabled = false
+            document.getElementById('priority_paper_btn').disabled = true
+            document.getElementById('remove_paper_btn').disabled = true
+            document.getElementById('tags').value = "{{enzyme_type}}";
+            document.getElementById('tags').disabled = false
+        } else {
+            document.getElementById('status').className = 'text-success'
+            document.getElementById('not_rel_btn').disabled = true
+            document.getElementById('add_paper_btn').disabled = true
+            document.getElementById('priority_paper_btn').disabled = false
+            document.getElementById('remove_paper_btn').disabled = false
+            document.getElementById('tags').disabled = true
+        }
+    }
+
+    function parse_paper_data(title, authors, journal, date, doi, tags, status, abstract, priority) {
+        document.getElementById("title").innerHTML = title;
+        document.getElementById("authors").innerHTML = authors;
+        document.getElementById('journal').innerHTML = journal;
+        document.getElementById('date').innerHTML = date;
+        document.getElementById('doi').innerHTML = doi;
+        document.getElementById('doi_link').href = "https://doi.org/" + doi;
+        document.getElementById('tags').value = tags;
+        document.getElementById('status').innerHTML = status;
+        document.getElementById('abstract').innerHTML = abstract;
+        document.getElementById('button_status').innerHTML = ""
+        document.getElementById('paper_priority').innerHTML = priority
+
+        set_buttons_and_text_colour()
+    }
+
+    function update_table(doi, tags, biocatdb, db_status, id) {
+        papers_table.updateData([{'row_num': selected_row_num, 'doi': doi, 'tags': tags, 'biocatdb': biocatdb, 'db_status': db_status, 'id':id}])
+    }
+
+    function update_table_priority(priority) {
+        papers_table.updateData([{'row_num': selected_row_num, 'priority': priority}])
+    }
+
+    function add_new_paper() {
+        document.getElementById('button_status').innerHTML = 'Adding paper, please wait...';
+        $.post('/_add_paper_from_query', {
+            doi: document.getElementById('doi').innerHTML,
+            tags: document.getElementById('tags').value,
+            journal: document.getElementById('journal').innerHTML,
+            title: document.getElementById("title").innerHTML
+        }).done(function (data) {
+            var new_id = data.result.new_id
+            document.getElementById('status').innerHTML = "Present"
+            set_buttons_and_text_colour()
+            update_table(document.getElementById('doi').innerHTML, document.getElementById('tags').value, 'Present', 'Data required', new_id)
+            document.getElementById('button_status').innerHTML = 'Paper added to database.';
+            current_paper_id = new_id
+        })
+    }
+
+    function remove_paper() {
+        if (current_paper_id !== "") {
+            document.getElementById('button_status').innerHTML = 'Removing paper, please wait...';
+            $.post('/_delete_paper', {
+                paper_id: current_paper_id,
+            }).done(function (data) {
+                if (data.result.status === 'success') {
+                    document.getElementById('status').innerHTML = "Missing"
+                    set_buttons_and_text_colour()
+                    update_table(document.getElementById('doi').innerHTML, "", 'Missing', '', '')
+                    update_table_priority('')
+                    document.getElementById('button_status').innerHTML = data.result.msg
+                    document.getElementById('paper_priority').innerHTML = ""
+                } else {
+                    document.getElementById('button_status').innerHTML = "Could not delete - " + data.result.msg
+                }
+
+
+            })
+        }
+    }
+
+    function toggle_not_relevant() {
+        $.post('/_toggle_not_relevant', {
+            doi: document.getElementById('doi').innerHTML,
+            enzyme_type: "{{enzyme_type}}"
+        }).done(function (data) {
+            document.getElementById('status').innerHTML = data.result.status
+            set_buttons_and_text_colour()
+            update_table(document.getElementById('doi').innerHTML, "", data.result.status, "", document.getElementById('paper_priority').innerHTML)
+            if (data.result.status === 'Not relevant') {
+                document.getElementById('button_status').innerHTML = 'Paper marked not relevant for this enzyme type';
+            } else {
+                document.getElementById('button_status').innerHTML = 'Paper marked as missing';
+            }
+        })
+    }
+
+    function toggle_priority_paper() {
+        if (current_paper_id !== "") {
+            $.post('/_toggle_priority_paper', {
+                paper_id: current_paper_id,
+            }).done(function (data) {
+                if (data.result.priority === 'Priority') {
+                    document.getElementById('paper_priority').innerHTML = 'Priority paper';
+                    update_table_priority('Priority paper')
+                } else {
+                    document.getElementById('paper_priority').innerHTML = '';
+                    update_table_priority('')
+                }
+            })
+        }
+    }
+
+
+
+
+</script>

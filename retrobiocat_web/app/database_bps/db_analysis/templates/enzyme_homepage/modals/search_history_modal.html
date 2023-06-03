@@ -1,0 +1,68 @@
+<!-- Modal -->
+{% macro radio(name, value, checked='') %}
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="radio_score" id="{{ name }}"
+               value="{{ value }}" {{ checked }}>
+        <label class="form-check-label" for="{{ name }}">{{ name }}</label>
+    </div>
+{% endmacro %}
+
+<div class="modal fade" id="search_history_modal" tabindex="-1" role="dialog"
+     aria-labelledby="search_history_modalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add (or update) search record on {{today_date}}</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                <small class="form-text text-muted mb-4">
+                    Select the level of search carried out,
+                    or how well you feel the papers in the database cover the available biocatalysis literature for this
+                     enzyme class at this point in time. How complete the search is, and how long ago,
+                    is used to calculate the paper search score shown.
+                </small>
+                <p></p>
+                {{ radio('10 - Thorough', 10, checked='checked') }}
+                {{ radio('8 - Good ', 8) }}
+                {{ radio('5 - Modest', 5) }}
+                {{ radio('2 - Basic', 2) }}
+
+                <button class="btn btn-success mt-2" onclick="submit_papers_search_record()">Submit search record</button>
+                <small class="form-text text-muted">Only one update record will be created per 24 hour window.
+                    New entries overwrite old ones in this window.</small>
+
+                <p id="paper_history_saving_please_wait" hidden>Saving, please wait...</p>
+
+                <h5 class="mt-5">Previous searches</h5>
+                {% for paper_search in paper_searches %}
+                    <p>{{paper_search['score']}} search by {{paper_search['user']}} on {{paper_search['date'] }}</p>
+                {% endfor %}
+
+            </div>
+
+
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function submit_papers_search_record() {
+        document.getElementById('paper_history_saving_please_wait').hidden = false
+        $.post('/_submit_papers_search_record', {
+            enzyme_type: "{{enzyme_type}}",
+            score: document.querySelector('input[name="radio_score"]:checked').value
+        }).done(function (data) {
+            console.log("updated")
+            location.reload()
+        })
+    }
+</script>
+

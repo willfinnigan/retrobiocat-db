@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+{% block content %}
+
+    <div class="container">
+
+        <div id="substrate_summary_response_div"></div>
+        <h2 class="text-center my-5">{{result['title']}}</h2>
+
+        <div class="row row-cols-xs-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4">
+
+            {% for core_smi in result['not_leaf_cores'] %}
+                <div class="col mb-4">
+                    <div class="card" id="{{core_smi}}" style="width: 250px; min-height:150px">
+                        <div class="card-body">
+                        {{result['not_leaf_cores'][core_smi]|safe}}
+                        </div>
+                        <p class="text-center"><b>{{result['not_leaf_counts'][core_smi]}} examples</b></p>
+                        {% if core_smi in result['expandable_not_leafs'] %}
+                            <a class="btn btn-sm btn-outline-success text-center" href="{{url_for("db_analysis.substrate_summary", start_node=core_smi|string, **result['args'])}}">Summarise further</a>
+                        {% else %}
+                            <button class="btn btn-sm btn-outline-dark text-center" style="pointer-events: none;" disabled>No further summary</button>
+                        {% endif %}
+
+                        <div class="card-footer">
+                            <p class="text-center no_margin">
+                                <button class="btn btn-sm btn-outline-danger" onclick="launch_heatmap('{{core_smi}}')">Heatmap</button>
+                                <button class="btn btn-sm btn-outline-primary" onclick="launch_examples_modal('{{core_smi}}')">View examples</button>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="col mb-4">
+                <div class="card" style="width: 250px; min-height:150px">
+                    <div class="card-body">
+                    {{result['parent_core']|safe}}
+                    </div>
+
+                    <p class="text-center"><b>{{result['leafs']|length}} other examples</b></p>
+                    <button class="btn btn-sm btn-outline-dark text-center text-danger" disabled>Current core</button>
+
+                    <div class="card-footer">
+
+                        <p class="text-center no_margin">
+                            <button class="btn btn-sm btn-outline-danger" onclick="launch_heatmap('{{result['parent_smi']}}')">Heatmap</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="launch_examples_modal('{{result['parent_smi']}}')">View examples</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% if result['non_matches']|length > 0 %}
+                 <div class="col mb-4">
+                <div class="card" style="width: 250px; min-height:150px">
+                    <div class="card-body">
+                        Other
+                    </div>
+
+                    <p class="text-center"><b>{{result['non_matches']|length}} non-matching examples</b></p>
+                    <button class="btn btn-sm btn-outline-dark text-center text-warning" disabled>No core</button>
+
+                    <div class="card-footer">
+
+                        <p class="text-center no_margin">
+                            <button class="btn btn-sm btn-outline-danger" onclick="launch_heatmap('non_match')">Heatmap</button>
+                            <button class="btn btn-sm btn-outline-primary" onclick="launch_examples_modal('non_match')">View examples</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            {% endif %}
+
+        </div>
+    </div>
+
+    {% include 'substrate_summary/modals/examples_modal.html' %}
+
+    <script src="{{url_for('db_analysis.static', filename='js/ajax/substrate_summary_ajax.js')}}?v={{v}}" type="text/javascript"></script>
+
+    <script>
+
+        window.leafs_dict = {{ result['not_leaf_children']|tojson}}
+        window.leafs_dict["{{result['parent_smi']}}"] = {{result['leafs']|tojson}}
+        window.leafs_dict["non_match"] = {{result['non_matches']|tojson}}
+
+        function set_modal_html(html) {
+                document.getElementById("substrate_summary_examples_div").innerHTML = html
+                $(`#substrate_summary_examples_modal`).modal('show');
+            }
+
+        function launch_examples_modal(core_smi) {
+            var leafs = window.leafs_dict[core_smi]
+            var args_dict = {{result['args']|tojson}}
+            substrate_summary_ajax.get_examples(leafs, args_dict, set_modal_html, "substrate_summary_response_div")
+        }
+
+        function redirect_to_heatmap(mol_list_uuid) {
+            var args_dict = {{result['args']|tojson}}
+            args_dict['mol_list_id'] = mol_list_uuid
+            location.href = Flask.url_for('db_analysis.heatmap', args_dict)
+        }
+
+        function launch_heatmap(core_smi) {
+            var leafs = window.leafs_dict[core_smi]
+            substrate_summary_ajax.send_heatmap_mol_list(leafs, redirect_to_heatmap, "substrate_summary_response_div")
+        }
+
+
+    </script>
+
+{% endblock %}
+
+
+

@@ -1,0 +1,15 @@
+<script>
+    var paper_editButton = function(cell, formatterParams, onRendered){ //plain text value
+        var row_data = cell.getData()
+        var id = row_data['_id']
+        var url = Flask.url_for("curation.curation_overview", {"paper_id": id})
+        return "<div><a href=" + url + " class='btn btn-sm btn-outline-info'>Edit</a></div>";
+    };
+
+var edit_button_col = {'title': 'Edit', 'width':80, formatter:paper_editButton, cellClick:function(e, cell){edit_paper(cell.getRow().getData()._id)}}
+papers_columns.push(edit_button_col)
+
+
+
+
+</script>

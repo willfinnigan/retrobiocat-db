@@ -1,0 +1,109 @@
+<style>
+    .no_line:hover {
+      text-decoration: None;
+    }
+
+    .link_button {
+        width: 250px
+    }
+
+
+
+</style>
+
+
+<div class="card card-form mx-auto mt-4">
+    <div class="card-body">
+        <h4 class="">Explore the data</h4>
+        <h6 class="">Tables</h6>
+        <a class='no_line' href="{{url_for("tables.show_papers", enzyme_type=enzyme_type)}}">
+            <button class="btn btn-outline-primary link_button">
+                <i class="fa-solid fa-newspaper"></i>
+                Papers
+            </button>
+        </a>
+
+        <a class='no_line' href="{{url_for("tables.show_sequences", enzyme_type=enzyme_type, reviewed=True)}}">
+            <button class="btn btn-outline-success link_button">
+                <i class="fa-solid fa-dna"></i>
+                Enzymes
+            </button>
+        </a>
+
+        <a class='no_line' href="{{url_for("tables.show_activity", enzyme_type=enzyme_type, reviewed=True)}}">
+            <button class="btn btn-outline-danger link_button">
+                <i class="fa-solid fa-chart-simple"></i>
+                Activity
+            </button>
+        </a>
+
+        <h6 class="mt-4">Biological context</h6>
+            <a class='no_line'>
+                <button class="btn btn-outline-success link_button" data-toggle="modal" data-target="#SSN_modal">
+                    <i class="fa-solid fa-circle-nodes"></i>
+                    Sequence Network
+                </button>
+            </a>
+
+        <h6 class="mt-4">Substrate specificity</h6>
+            <a class='no_line'>
+                <button class="btn btn-outline-danger link_button" data-toggle="modal" data-target="#heatmap_modal">
+                    <i class="fa-solid fa-table-cells"></i>
+                    Heatmap
+                </button>
+            </a>
+
+            <a class='no_line'>
+                <button class="btn btn-outline-success link_button" data-toggle="modal" data-target="#molecule_grid_modal">
+                    <i class="fa-solid fa-grip"></i>
+                    Molecule grid
+                </button>
+            </a>
+
+            <a class='no_line'>
+                <button class="btn btn-outline-primary link_button" data-toggle="modal" data-target="#substrate_summary_modal">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    Summarise specificity
+                </button>
+            </a>
+
+            <!--
+            <a class='no_line'>
+                <button class="btn btn-outline-dark" data-toggle="modal" data-target="#substrate_table_modal">Substrates by activity</button>
+            </a>
+
+            <a class='no_line'>
+                <button class="btn btn-outline-info"  data-toggle="modal" data-target="#specificity_modal">Similarity search</button>
+            </a>
+            -->
+
+        <h6 class="mt-4">Summary views</h6>
+            <a class='no_line' href="{{url_for("db_analysis.reaction_conditions", enzyme_type=enzyme_type, reaction='All')}}">
+                <button class="btn btn-outline-primary link_button">
+                    <i class="fa-solid fa-temperature-low"></i>
+                    Reaction conditions
+                </button>
+            </a>
+
+            <a class='no_line' href="{{url_for("db_analysis.top_enzymes_and_products", enzyme_type=enzyme_type, reaction='All')}}">
+                <button class="btn btn-outline-danger link_button">
+                    <i class="fa-solid fa-arrow-trend-up"></i>
+                    Top entries
+                </button>
+            </a>
+
+
+        <div class="my-3"></div>
+
+
+
+
+
+
+
+
+
+
+
+    </div>
+</div>

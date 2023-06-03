@@ -1,0 +1,41 @@
+<div class="modal fade" id="remove_all_sequences_modal" tabindex="-1" role="dialog" aria-labelledby="upload_seq_excel_modalLabel"
+     aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Remove all sequences?</h5>
+            </div>
+
+            <div class="modal-body">
+                <button class="btn btn-danger" id="remove_all_seqs_button" onclick="remove_all_sequences_from_paper()">Remove all sequences</button>
+                <p id="remove_all_seqs_please_wait"></p>
+            </div>
+
+            <div class="modal-footer">
+                <button type="button" id="remove_all_seqs_button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+<script>
+    function remove_all_sequences_from_paper() {
+        document.getElementById("remove_all_seqs_button").disabled = true
+        document.getElementById("remove_all_seqs_please_wait").innerHTML = "Please wait.."
+
+        function callback() {
+            location.reload()
+        }
+
+        function onFinish() {
+            document.getElementById("remove_all_seqs_button").disabled = false
+            document.getElementById("remove_all_seqs_please_wait").innerHTML = ""
+        }
+
+        var paper_id = "{{paper_id}}"
+        seq_curate_ajax.remove_all_sequence_from_paper(paper_id, callback, "seq_response", onFinish)
+    }
+
+</script>

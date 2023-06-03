@@ -1,0 +1,51 @@
+
+<div id="cascade_results_table"></div>
+
+<script>
+    var columns = [
+
+        {'title': "_id", 'field': "_id", visible:false},
+
+        {'title': "test_id", 'field': "test_id", visible:false},
+
+        {'title': "Test name", 'field': "test_name", 'minWidth':100, formatter:"textarea", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "Test type", 'field': "test_type", 'minWidth':100, formatter:"textarea", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "DOI", 'field': "doi", 'minWidth':100, formatter:"textarea", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "Target", 'field': "target_smiles", 'minWidth':100, formatter:"image", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "Substrates", 'field': "substrates", 'minWidth':100, formatter:"image", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "Enzymes", 'field': "enzymes", 'minWidth':100, formatter:"textarea", headerFilter:"select", headerFilterParams:{values:true}},
+
+        {'title': "Ranking any", 'field': "ranking_any", 'minWidth':50},
+
+        {'title': "Ranking specific", 'field': "ranking_specific", 'minWidth':50},
+
+        {'title': "Time (s)", 'field': "time_taken", 'minWidth':50},
+
+        {'title': "Total pathways", 'field': "total_pathways", 'minWidth':50},
+
+        ]
+
+    var tabledata = {{cascade_results_table|safe}}
+
+    var table = new Tabulator("#cascade_results_table", {
+        data:tabledata, //assign data to table
+        maxHeight:"75vh",
+        layout:"fitColumns",
+        addRowPos:"bottom",
+        columns:columns,
+        cellHozAlign:"center",
+        cellVertAlign:"middle",
+        rowClick:function(e, row){
+            var rowData = row.getData();
+            var test_id = rowData['test_id']
+            location.href = Flask.url_for("retrobiocat.specific_cascade_test", {"test_id": test_id})
+            },
+    });
+
+</script>
+

@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+{% set active_page = "contributions_menu" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-form">
+                    <div class="card-body">
+                        <h5>Adding papers for {{enzyme_type}}</h5>
+                        <p class="text-danger no_margin">Click on a row to <b>add paper</b>, or mark as not relevant</p>
+                        <div id="papers_table"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% include 'add_paper_workflow/query_results_paper_modal.html' %}
+
+    <script>
+
+        function doi_formatter(cell, formatterParams) {
+                var cell_value = cell.getValue();
+                var row_data = cell.getData()
+                var doi = row_data['doi']
+                var url = "<a href='https://doi.org/" + doi + "' target='_blank'>" + cell_value + "</a>";
+                cell.getElement().style.display = 'inline-flex'
+                cell.getElement().style["white-space"]  = 'pre-wrap'
+                return url
+        }
+
+        var papers_columns = [
+
+            {'title': "Row num", 'field': "row_num", visible:false},
+            {'title': "Title", align:"center", 'field': "title", 'minWidth':300, headerFilter:"input", formatter:"textarea"},
+            {'title': "DOI", align:"center", 'minWidth':200, 'field': "doi", headerFilter:"input", formatter:doi_formatter},
+            {'title': "Authors", align:"center", 'minWidth':125, 'field': "authors", formatter:"textarea", headerFilter:"input"},
+            {'title': "Journal", align:"center", 'minWidth':125, 'field': "journal", formatter:"textarea", headerFilter:"input"},
+            {title:"Date", field:"date", formatter:"datetime", 'minWidth':100,
+                formatterParams:{inputFormat:"iso", invalidPlaceholder:"(invalid date)", outputFormat:"dd/MM/yy",}},
+            {'title': "Present/Missing", align:"center", 'minWidth':125, 'field': "biocatdb", formatter:"textarea", headerFilter:"input"},
+            {'title': "Tags", align:"center", 'minWidth':125, 'field': "tags", formatter:"textarea", headerFilter:"input"},
+            {'title': "DB status", align:"center", 'minWidth':125, 'field': "db_status", formatter:"textarea", headerFilter:"input"},
+            {'title': "Priority paper", align:"center", 'minWidth':125, 'field': "priority", formatter:"textarea", headerFilter:"input"},
+            {'title': "Abstract", 'field': "abstract", visible:false},
+            {'title': "Owner", 'field': "owner", visible:false},
+            {'title': "ID", 'field': "id", visible:false},
+        ];
+
+        var papers_tabledata = {{papers_data|safe}};
+
+        var selected_row_num = 0
+        var current_paper_id = ''
+
+        var papers_table = new Tabulator("#papers_table", {
+            data:papers_tabledata, //assign data to table
+            maxHeight:"75vh",
+            columnDefaults:{
+                hozAlign:"center",
+                vertAlign:"middle"
+            },
+            layout:"fitColumns",
+            addRowPos:"bottom",
+            columns:papers_columns,
+            index:"row_num"})
+
+        papers_table.on("rowClick", function(e, row){
+            var rowData = row.getData();
+                selected_row_num = rowData['row_num']
+                current_paper_id = rowData['id']
+                $('#paper_search_row_modal').modal('show');
+                parse_paper_data(rowData['title'],
+                                rowData['authors'],
+                                rowData['journal'],
+                                rowData['date'],
+                                rowData['doi'],
+                                rowData['tags'],
+                                rowData['biocatdb'],
+                                rowData['abstract'],
+                                rowData['priority'])
+            })
+
+    </script>
+
+{% endblock %}

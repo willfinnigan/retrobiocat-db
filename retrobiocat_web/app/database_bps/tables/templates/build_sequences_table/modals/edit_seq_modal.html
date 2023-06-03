@@ -1,0 +1,437 @@
+<!-- Modal -->
+<div class="modal fade" id="edit_seq_modal" role="dialog" aria-labelledby="edit_seq_modalLabel"
+     aria-hidden="true">
+
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="edit_seq_modalLabel">Edit sequence</h5>
+
+            </div>
+            <div class="modal-body">
+                <p><strong id="original_name"></strong>  <small class="no_margin" id="seq_edit_loading"></small></p>
+
+                <div id="self_assign_response_div"></div>
+
+                <div class="custom-control custom-checkbox">
+                    <input class="custom-control-input" type="checkbox" id="self_assigned">
+                    <label class="custom-control-label" for="self_assigned" id="self_assigned_label">Assign this sequence to
+                        me</label>
+                    <small class="form-text text-muted mb-2">Assign to yourself (checked), or leave open for somebody
+                        else (unchecked)</small>
+                </div>
+
+                <div id="seq_reviewed_response_div"></div>
+
+                <div class="custom-control custom-checkbox pb-2">
+                    <input class="custom-control-input" type="checkbox" id="seq_reviewed">
+                    <label class="custom-control-label" for="seq_reviewed" id="seq_reviewed_label">
+                        Sequence reviewed
+                    </label>
+                    <small class="form-text text-muted mb-2">Reviewing will lock key fields</small>
+                </div>
+
+                <hr/>
+                <h5 class="text-center"><u>Enzyme name and type</u></h5>
+                <div class="mt-2">
+                    <p class="no_margin"><b>Enzyme type</b></p>
+                    <div class="form-group mt-1">
+                        <select id="enzyme_type" class="js-example-basic-single" style="width: 50%">
+                            {% for enz_type in enzyme_types %}
+                                <option value="{{ enz_type }}">{{ enz_type }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+
+                <div class="mt-2">
+                    <p class="no_margin"><b>Enzyme name</b></p>
+                    <div class="form-group mt-1">
+                        <input type="text" class="form-control w-50" id="enzyme_name" placeholder="">
+                        <small class="form-text text-muted">For example msCAR or AspRedAm</small>
+                    </div>
+                </div>
+
+                <div class="mb-2 mt-2">
+                    <div id="other_names_div">
+                        <p class="no_margin"><b>Other names</b></p>
+                        <p class="" id="other_names_links"></p>
+                        <button class="btn btn-sm btn-outline-primary" id="edit_other_names_button" onclick="launch_edit_other_names('')" disabled>Add a new other name</button>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <h5 class="text-center"><u>Sequence information</u></h5>
+
+                <div class="pt-2">
+                    <p class="no_margin"><b>Protein sequence</b></p>
+                    <small class="form-text text-muted">Required if available - Enter amino acid sequence</small>
+                    <div class="form-group mt-1">
+                        <textarea class="form-control" id="sequence" placeholder="" rows="4"></textarea>
+                    </div>
+                </div>
+
+
+                <div class="custom-control custom-checkbox mt-1">
+                    <input class="custom-control-input" type="checkbox" id="sequence_unavailable">
+                    <label class="custom-control-label" for="sequence_unavailable"><b>Check if sequence is unavailable</b></label>
+                    <small class="form-text text-muted">If the protein sequence is definitely not available (for example
+                        proprietary)</small>
+                </div>
+
+                <div class="row pt-2 pb-2">
+                    <div class="col pt-1">
+                        <p class="no_margin pt-1"><b>Mutant of..</b></p>
+                        <small class="form-text text-muted">If the sequence is a mutant, select parent</small>
+                        <div class="form-group mt-1">
+                            <select id="mutant_of" class="form-control custom-select">
+                                <option value="">-</option>
+                            </select>
+                            <br/>
+                            <button class="btn btn-sm btn-outline-primary" onclick="launch_mutant_generator()" id="mutant_generator_link_btn">Launch mutant generator
+                            </button>
+                            <div id="launch_mutant_generator_response_div"></div>
+                        </div>
+                    </div>
+
+                    <div class="col pt-1">
+                        <p class="no_margin pt-1"><b>Accession number</b></p>
+                        <small class="form-text text-muted">Either UniProt or NCBI</small>
+                        <div class="form-group mt-1">
+                            <input type="text" class="form-control" id="accession" placeholder="">
+                            <button class="btn btn-sm btn-outline-primary" onclick="get_uniprot_from_accession()" id="uniprot_lookup_btn">Lookup
+                                Sequence
+                            </button>
+                            <div id="seq_lookup_response"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <hr/>
+
+                <h5 class="text-center"><u>Other information</u></h5>
+
+                <div class="row pt-1">
+                    <div class="col pt-1">
+                        <p class="no_margin mt-1"><b>N terminal tag</b></p>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="n_tag" placeholder="">
+                        </div>
+                    </div>
+
+                    <div class="col pt-1">
+                        <p class="no_margin mt-1"><b>C terminal tag</b></p>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="c_tag" placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row pt-1">
+                    <div class="col pt-1">
+                        <p class="no_margin mt-1"><b>Other identifiers</b></p>
+                        <div class="form-group mt-1">
+                            <input type="text" class="form-control" id="other_identifiers" placeholder="">
+                        </div>
+                    </div>
+
+                    <div class="col pt-1">
+                        <p class="no_margin mt-1"><b>PDB</b></p>
+                        <div class="form-group">
+                            <input type="text" class="form-control" id="pdb" placeholder="">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-1">
+                    <p class="no_margin mt-1"><b>Notes</b></p>
+                    <div class="form-group">
+                        <small class="form-text text-muted">Any notes on this entry</small>
+                        <textarea class="form-control" id="notes" placeholder="" rows="2"></textarea>
+                    </div>
+                </div>
+
+                <div class="custom-control custom-checkbox">
+                    <input class="custom-control-input" type="checkbox" id="bioinformatics_ignore">
+                    <label class="custom-control-label" for="bioinformatics_ignore">Ignore this sequence in
+                        bioinformatics searches</label>
+                    <small class="form-text text-muted">
+                        For example, if the sequence is not a good representative of the enzyme class, we may not wish
+                        to search for homologs.
+                    </small>
+                </div>
+
+            </div>
+
+            <span id="seq_edit_saving_please_wait"></span>
+            <div id="seq_edit_save_response"></div>
+
+            <div class="modal-footer">
+                <p id="saving"></p>
+                <button type="button" onclick="close_alerts()" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" onclick="save_seq_edit(false)" class="btn btn-primary" id="seq_edit_save_btn">Save</button>
+                <button type="button" onclick="save_seq_edit(true)" class="btn btn-success" id="seq_edit_save_and_close_btn">Save and Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+
+    $("#edit_seq_modal").on("hidden.bs.modal", function () {
+        // on closing the modal, remove all msgs
+        document.getElementById("seq_edit_save_response").innerHTML = ''
+        document.getElementById("seq_lookup_response").innerHTML = ''
+        document.getElementById("seq_reviewed_response_div").innerHTML = ''
+        document.getElementById("self_assign_response_div").innerHTML = ''
+    });
+
+
+
+    window.seq_save_callback_mode = 'None'
+    var lock_enz_type = {{seq_table_options['lock_enzyme_types']|tojson}}
+
+    var form_fields_value = ["enzyme_type", "enzyme_name", "sequence", "n_tag", "c_tag",
+        "accession", "other_identifiers", "pdb", "mutant_of", "notes"]
+    var form_fields_checked = ["sequence_unavailable", "self_assigned", "bioinformatics_ignore", 'seq_reviewed']
+    var all_fields = form_fields_value.concat(form_fields_checked)
+    var fields_to_disable_when_reviewed = ['enzyme_name', 'enzyme_type', 'sequence', 'n_tag', 'c_tag',
+        'sequence_unavailable', 'bioinformatics_ignore', 'mutant_of', 'accession']
+
+
+    function saving_seq_please_wait() {
+        document.getElementById("seq_edit_saving_please_wait").innerHTML = 'Saving please wait...'
+        document.getElementById("seq_edit_save_btn").disabled = true
+        document.getElementById("seq_edit_save_and_close_btn").disabled = true
+
+    }
+
+    function saving_seq_complete() {
+        document.getElementById("seq_edit_saving_please_wait").innerHTML = ''
+        document.getElementById("seq_edit_save_btn").disabled = false
+        document.getElementById("seq_edit_save_and_close_btn").disabled = false
+    }
+
+    function get_uniprot_from_accession() {
+        function callback(seq) {
+            document.getElementById('sequence').value = seq
+        }
+
+        seq_curate_ajax.uniprot_lookup(document.getElementById('accession').value, callback, "seq_lookup_response")
+    }
+
+    function launch_mutant_generator() {
+        document.getElementById("launch_mutant_generator_response_div").innerHTML = ''
+        var parent = document.getElementById('mutant_of').value
+        if (parent === "") {
+            response_msg("Please select a parent", 'danger', [], "launch_mutant_generator_response_div")
+        } else {
+            var url = Flask.url_for("curation.mutant_generator_load", {"parent_enzyme_name": parent})
+            window.open(url);
+        }
+    }
+
+    function add_other_name_links(other_names) {
+        var links = document.getElementById('other_names_links')
+        links.innerHTML = ''
+
+        other_names.forEach(function (item, index) {
+            links.innerHTML += "<a href='javascript:void(0);' onclick='launch_edit_other_names(`" + item + "`)'>" + item + "</a>, "
+        });
+    }
+
+    function set_form_fields(result) {
+        form_fields_value.forEach(function (item, index) {
+            console.log(item)
+            console.log(result[item])
+            var ele =  document.getElementById(item)
+            console.log(ele)
+            ele.value = result[item]
+        });
+
+        $('#enzyme_type').trigger('change')
+
+        form_fields_checked.forEach(function (item, index) {
+            document.getElementById(item).checked = result[item]
+        });
+    }
+
+    function disable_review_fields() {
+        // if sequence is reviewed, disable some of the fields
+        fields_to_disable_when_reviewed.forEach(function (item, index) {
+            document.getElementById(item).disabled = true
+        });
+
+        document.getElementById('uniprot_lookup_btn').disabled = true
+    }
+
+    function set_allowed_disallowed_form_fields(result) {
+
+        // result.can_edit = 'full', 'partial', 'none'
+
+        if (result.can_edit == 'full') {
+            disable_enable_seq_edit_fields(false) // enables fields
+            document.getElementById('uniprot_lookup_btn').disabled = false
+        } else if (result.can_edit == 'partial') {
+            disable_enable_seq_edit_fields(false)
+            disable_review_fields() // disables review fields only
+            document.getElementById('uniprot_lookup_btn').disabled = true
+        } else {
+            disable_enable_seq_edit_fields(true) // disables fields
+            document.getElementById('uniprot_lookup_btn').disabled = true
+        }
+
+        if (result.seq_reviewed === true) {
+            disable_review_fields()
+        }
+
+        if (result.owner_is_another_user == true) {
+            document.getElementById("self_assigned").disabled = true
+        } else {
+            document.getElementById("self_assigned").disabled = false
+        }
+
+        if (result.can_review == true) {
+            document.getElementById("seq_reviewed").disabled = false
+            document.getElementById("edit_other_names_button").disabled = false
+            document.getElementById("other_names_div").style.display = "inline";
+        } else {
+            document.getElementById("seq_reviewed").disabled = true
+            document.getElementById("edit_other_names_button").disabled = true
+            document.getElementById("other_names_div").style.display = "none";
+        }
+
+        if (lock_enz_type === true) {
+            document.getElementById("enzyme_type").disabled = true
+        }
+    }
+
+    function load_edit_seq_data(enzyme_name) {
+        var callback = function (result) {
+            set_select('mutant_of', result.sequences)
+            set_form_fields(result)
+            set_allowed_disallowed_form_fields(result)
+            add_other_name_links(result.other_names_list)
+            document.getElementById("seq_edit_loading").innerHTML = ''
+        }
+
+        document.getElementById("seq_edit_loading").innerHTML = 'Loading..'
+        seq_load_ajax.load_seq_data(enzyme_name, callback)
+    }
+
+    function disable_enable_seq_edit_fields(status) {
+        // function to disable or enable all form fields
+        all_fields.forEach(function (item, index) {
+            document.getElementById(item).disabled = status
+        });
+    }
+
+    function get_seq_update_dict() {
+        // creates update dict from form values
+        var update_dict = {'original_name': document.getElementById('original_name').innerHTML}
+
+        form_fields_value.forEach(function (item, index) {
+            update_dict[item] = document.getElementById(item).value
+        });
+
+        form_fields_checked.forEach(function (item, index) {
+            update_dict[item] = document.getElementById(item).checked
+        });
+
+        return update_dict
+
+    }
+
+    function save_seq_edit(close_on_save) {
+        var callback = function (result) {
+            if (window.seq_save_callback_mode === 'tabulator') {
+                seq_table.updateData([result.seq_table_entry])
+            }
+
+            if (close_on_save === true) {
+                $('#edit_seq_modal').modal('hide');
+                close_alerts()
+            }
+        }
+
+        var update_dict = get_seq_update_dict()
+        saving_seq_please_wait()
+        seq_curate_ajax.save_seq_edit(update_dict, callback, "seq_edit_save_response", saving_seq_complete)
+    }
+
+    function get_mutants_of_type() {
+        function callback(sequences) {
+            set_select("mutant_of", sequences)
+        }
+        var enzyme_name = document.getElementById("enzyme_name").value
+        seq_load_ajax.get_sequences_of_same_type(enzyme_name, callback)
+
+    }
+
+    document.getElementById("enzyme_type").onchange = function () {
+        get_mutants_of_type()
+    }
+
+    document.getElementById("self_assigned").onchange = function () {
+        change_sequence_assign()
+    }
+
+    document.getElementById("seq_reviewed").onchange = function () {
+        change_review_status()
+    }
+
+    function change_sequence_assign() {
+        function callback(enzyme_name) {
+            load_edit_seq_data(enzyme_name)
+        }
+
+        var enzyme_name = document.getElementById("original_name").innerHTML
+        var self_assigned = document.getElementById("self_assigned").checked
+
+        seq_curate_ajax.change_sequence_assign(enzyme_name, self_assigned, callback, "self_assign_response_div")
+    }
+
+    function change_review_status() {
+        function callback(enzyme_name) {
+            load_edit_seq_data(enzyme_name)
+        }
+
+        var enzyme_name = document.getElementById("original_name").innerHTML
+        var reviewed = document.getElementById("seq_reviewed").checked
+
+        seq_curate_ajax.change_sequence_reviewed(enzyme_name, reviewed, callback, "seq_reviewed_response_div")
+    }
+
+    function clear_all_fields() {
+        document.getElementById("original_name").innerHTML = ""
+        document.getElementById('other_names_links').innerHTML = ""
+
+        form_fields_value.forEach(function (item, index) {
+            document.getElementById(item).value = ""
+        });
+
+        form_fields_checked.forEach(function (item, index) {
+            document.getElementById(item).checked = false
+        });
+
+        disable_enable_seq_edit_fields(true) // disables fields
+    }
+
+    $("#edit_seq_modal").on("hidden.bs.modal", function () {
+        clear_all_fields()
+    })
+
+    function launch_edit_other_names(other_name) {
+        var seq_name = document.getElementById("original_name").innerHTML
+        seq_load_ajax.load_seq_other_names_data(seq_name, other_name, load_other_names_data)
+        document.getElementById("other_names_seq_name").innerHTML = seq_name
+        $('#edit_seq_modal').modal('hide');
+        $('#edit_other_names_modal').modal('show');
+        return false
+    }
+
+
+
+</script>

@@ -1,0 +1,121 @@
+body {
+  padding-top: 3.4rem;
+}
+
+.no_margin {
+        margin:0px;
+        padding:0px
+    }
+
+#mynetwork {
+    width: 100%;
+    height:87vh;
+    background-color: white;
+    border: 1px solid lightgray;
+    position: relative;
+    float: left; }
+
+
+.form-group input {
+  border-radius: 2rem;
+}
+
+.progress {
+  margin: 2rem;
+}
+
+.input-group input {
+  border-radius: 2rem;
+}
+
+.form-inline input {
+  border-radius: 2rem;
+}
+
+.card-form {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-form .card-title {
+  margin-bottom: 2rem;
+  font-weight: 300;
+  font-size: 2rem;
+}
+
+.card-form .card-body {
+  padding: 2rem;
+}
+
+.options {
+  padding: 2rem;
+}
+
+
+.card-enzyme {
+  border: 0;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);
+}
+
+.card-enzyme .card-title {
+  margin-bottom: 2rem;
+  font-weight: 300;
+  font-size: 2rem;
+}
+
+.card-enzyme .card-body {
+  padding: 2rem;
+}
+
+.card-enzyme:hover {
+  box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 150, 0.3);
+}
+
+
+.card-hover_red:hover {
+  box-shadow: 0 0.5rem 1rem 0 rgba(199, 0, 0, 0.3);
+}
+
+.card-hover_blue:hover {
+  box-shadow: 0 0.5rem 1rem 0 rgba(102, 66, 245, 0.3);
+}
+
+.card-hover_green:hover {
+  box-shadow: 0 0.5rem 1rem 0 rgba(6, 117, 0, 0.3);
+}
+
+.card-hover_yellow:hover {
+  box-shadow: 0 0.5rem 1rem 0 rgba(252, 232, 3, 0.3);
+}
+
+.activity-High {
+  box-shadow: 0 0.25rem 1rem 0 rgb(7, 198, 11);
+}
+
+.activity-Medium {
+  box-shadow: 0 0.25rem 1rem 0 rgb(192, 206, 0);
+}
+
+.activity-Low {
+  box-shadow: 0 0.25rem 1rem 0 rgba(255, 153, 0, 0.84);
+}
+
+.activity-Active {
+  box-shadow: 0 0.25rem 1rem 0 rgba(56, 54, 54, 0.3);
+}
+
+.activity-Inactive {
+  box-shadow: 0 0.25rem 1rem 0 rgba(217, 17, 17, 0.84);
+}
+
+.padding-0 {
+    padding-right:0;
+    padding-left:0;
+}
+
+.modal { overflow-y: auto !important; }
+
+
+

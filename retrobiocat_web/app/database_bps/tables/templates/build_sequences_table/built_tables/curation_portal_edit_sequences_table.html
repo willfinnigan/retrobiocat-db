@@ -1,0 +1,14 @@
+{% extends "build_sequences_table/base_sequences_table.html" %}
+
+{% block add_columns %}
+
+    {% include 'build_sequences_table/buttons/edit_seq_button.html' %}
+    {% include 'build_sequences_table/buttons/show_papers_button.html' %}
+    {% include 'build_sequences_table/buttons/remove_seq_button.html' %}
+
+    <script>
+        var paper_names_col = {'title': "Alt. name in paper", 'field': 'paper_name', headerFilter:"input", 'minWidth':100, 'width':160}
+        seq_columns.splice(4, 0, paper_names_col)
+    </script>
+
+{% endblock %}

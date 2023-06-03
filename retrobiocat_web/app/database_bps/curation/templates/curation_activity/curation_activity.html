@@ -1,0 +1,9 @@
+{% extends "curation_base/curation_base.html" %}
+{% set curation_active_page = "curation_activity" %}
+
+{% block curation_content %}
+    <div class="container-fluid no_margin">
+        {% include 'curation_activity/main_table/main_table_tab.html' %}
+    </div>
+
+{% endblock %}

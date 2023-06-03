@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% set active_page = "biocatdb" %}
+
+
+{% block content %}
+
+    {% set progress_height = "4px" %}
+
+    <div class="container-fluid">
+        <h3 class="card-title text-center mt-5">The Biocatalysis Database - BioCatDB</h3>
+        <h5 class="card-title text-center text-secondary mb-5">Enzyme toolbox</h5>
+        <div class="row justify-content-center">
+                {% for enzyme in enzymes %}
+                    <div class="col-auto mb-3">
+                        <div class="card card-enzyme mb-3 mx-auto" style="width: 24rem; min-height:350px">
+                            <div class="card-body">
+                                <h3 class="no_margin">{{enzyme}}</h3>
+                                <h6 class="text-muted">{{enzyme_info[enzyme]['full_name']}}</h6>
+
+                                <small class="">Literature search status</small>
+                                <div class="progress progress-bar_override mb-1">
+                                    <div class="progress-bar
+                                    {% if enzyme_info[enzyme]['score_dict']['search_score']*100 > 70 %}
+                                        bg-success"
+                                    {% elif enzyme_info[enzyme]['score_dict']['search_score']*100 > 20 %}
+                                        bg-warning"
+                                    {% else %}
+                                        bg-danger"
+                                    {% endif %}
+                                         style="height: {{progress_height}}; width: {{enzyme_info[enzyme]['score_dict']['search_score']*100}}%">
+                                    </div>
+                                </div>
+
+                                <small class="">Data entry status</small>
+                                <div class="progress progress-bar_override mb-1">
+                                    <div class="progress-bar
+                                        {% if enzyme_info[enzyme]['score_dict']['papers_complete']*100 > 70 %}
+                                            bg-success"
+                                        {% elif enzyme_info[enzyme]['score_dict']['papers_complete']*100 > 20 %}
+                                            bg-warning"
+                                        {% else %}
+                                            bg-danger"
+                                        {% endif %}
+                                         style="height: {{progress_height}}; width: {{enzyme_info[enzyme]['score_dict']['papers_complete']*100}}%">
+                                    </div>
+                                </div>
+
+                                <small class="">High priority papers completed</small>
+                                <div class="progress progress-bar_override mb-1">
+                                    <div class="progress-bar
+                                        {% if enzyme_info[enzyme]['score_dict']['priority_complete']*100 > 70 %}
+                                            bg-success"
+                                        {% elif enzyme_info[enzyme]['score_dict']['priority_complete']*100 > 20 %}
+                                            bg-warning"
+                                        {% else %}
+                                            bg-danger"
+                                        {% endif %}
+                                         style="height: {{progress_height}}; width: {{enzyme_info[enzyme]['score_dict']['priority_complete']*100}}%">
+                                    </div>
+                                </div>
+
+                                <small class="">Number of enzyme sequences</small>
+                                <div class="progress progress-bar_override mb-3">
+                                    <div class="progress-bar
+                                            {% if enzyme_info[enzyme]['score_dict']['num_enzymes_w_protein'] > 70 %}
+                                                bg-success"
+                                            {% elif enzyme_info[enzyme]['score_dict']['num_enzymes_w_protein'] > 20 %}
+                                                bg-warning"
+                                            {% else %}
+                                                bg-danger"
+                                            {% endif %}
+                                           {% if enzyme_info[enzyme]['score_dict']['num_enzymes_w_protein'] >= 100 %}
+                                                style="height: {{progress_height}}; width: 100%">
+                                           {% else %}
+                                               style="height: {{progress_height}}; width: {{enzyme_info[enzyme]['score_dict']['num_enzymes_w_protein']}}%">
+                                           {% endif %}
+                                    </div>
+                                </div>
+
+                                <div class="mt-1" align="center">
+                                    {{enzyme_info[enzyme]['svg']|safe}}
+                                </div>
+
+                            </div>
+
+                            <div class="card-footer">
+                                <a href="{{ url_for('db_analysis.enzyme_homepage', enzyme_type=enzyme) }}" class="stretched-link float-right">Go to {{enzyme}} page</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

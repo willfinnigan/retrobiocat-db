@@ -1,0 +1,43 @@
+<div role="group" class="btn-group">
+    <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown"
+                aria-haspopup="true" aria-expanded="false">
+            Menu
+        </button>
+
+        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+            {% if current_user.has_role('experimental') and config['ALLOW_BIOCATHUB_INTEGRATION'] == True %}
+                <a class="dropdown-item" data-toggle="modal" data-target="#biocathub_modal"
+                   class="btn btn-primary btn-sm">Send to BioCatHub</a>
+            {% endif %}
+
+            <a class="dropdown-item" data-toggle="modal" data-target="#help_macro"
+               class="btn btn-primary btn-sm">Help</a>
+        </div>
+    </div>
+</div>
+
+
+
+    <div class="btn-group my-auto text-center" role="group">
+        <button type="button" data-toggle="modal" data-target="#reorder_macro" class="btn btn-success btn-sm">Reorder pathways</button>
+        <label class="my-auto text-center pl-2 pr-1"><strong>Pathway:</strong></label>
+        <button type="button" id="left" class="btn btn-primary btn-sm"><-</button>
+        <input type="number" id="pathway_number_select" class="" value="1" style="width:50px">
+        <label class="my-auto text-center pl-2 pr-1">of <span id="num_pathways">{{ num_pathways }}</span></label>
+        <button type="button" id="right" class="btn btn-primary btn-sm">-></button>
+
+
+        <label class="my-auto text-center pl-2 pr-1"><strong>Variant:</strong></label>
+        <button type="button" id="left_varient" class="btn btn-warning btn-sm"><-</button>
+        <label class="my-auto text-center" id="pathway_varient_select">1 of {{max_varient}}</label>
+        <button type="button" id="right_varient" class="btn btn-warning btn-sm">-></button>
+
+        <label class="my-auto text-center pl-2 pr-1"><strong>Enzyme</strong></label>
+        <select class="" id="enzyme_select"></select>
+
+    </div>
+
+
+
+

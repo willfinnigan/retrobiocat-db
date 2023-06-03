@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% set active_page = "enzyme_database" %}
+
+{% block content %}
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col"></div>
+            <div class="col">
+                <div id='card_div' class="card card-form my-5" style="width: 32rem;">
+                    <div class="card-body">
+                        <h3 class="card-title text-center">Enzyme activity heatmaps</h3>
+
+                        <form id="main_form" method="POST" action="" novalidate>
+                            {{ form.hidden_tag() }}
+
+                            <div class="form-group">
+                                <label for="enzyme_type">Enzyme type</label>
+                                {{ form.enzyme_type(type='select', id='enzyme_type', class="form-control custom-select w-50") }}
+                                {% for error in form.enzyme_type.errors %}
+                                    <br/><span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reaction">Reaction</label>
+                                {{ form.reaction(type='select', class="form-control custom-select w-50") }}
+                                {% for error in form.reaction.errors %}
+                                    <br/><span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+                            <div class="form-group">
+                                <label for="reaction">Molecule type</label>
+                                {{ form.molecule(type='select', class="form-control custom-select w-50") }}
+                                <br/><small>Either the reaction product, or one of the substrates</small>
+                                {% for error in form.molecule.errors %}
+                                    <span style="color: red;">[{{ error }}]</span>
+                                {% endfor %}
+                            </div>
+
+
+                            <div class="custom-control custom-checkbox">
+                                {{ form.only_reviewed(type='checkbox', class="custom-control-input") }}
+                                {{ form.only_reviewed.label(class="custom-control-label") }}
+                            </div>
+
+                            {% include 'heatmap/heatmap_form_modal_options.html' %}
+
+                            <button type="button"
+                                    class="btn btn-sm btn-outline-primary mt-2"
+                                    data-toggle="modal" data-target="#heatmap_form_options_modal">Other Options</button>
+
+                            <div class="form-group mt-4">
+                                {{ form.submit(class="btn-lg btn-block btn-success") }}
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+            <div class="col"></div>
+        </div>
+    </div>
+
+    <script>
+        function set_select(select_id, arraySeq) {
+            var select = document.getElementById(select_id);
+            select.options.length = 1;
+            for (index in arraySeq) {
+                select.options[select.options.length] = new Option(arraySeq[index], index);
+            }
+        }
+
+        function get_reactions_of_type() {
+            $.post('/_reactions_of_type', {
+                enzyme_type: document.getElementById("enzyme_type").value,
+                }).done(function(data) {
+                    set_select("reaction", data.result.reactions)
+                })
+            }
+
+        document.getElementById("enzyme_type").onchange = function() {
+            get_reactions_of_type()
+        }
+
+
+    </script>
+
+{% endblock %}

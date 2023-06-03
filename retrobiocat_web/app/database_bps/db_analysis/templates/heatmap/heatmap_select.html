@@ -1,0 +1,123 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+
+    <div class="container-fluid" align="center">
+        <p></p>
+        <h5 class="mx-3">{{ title }}</h5>
+        <p class="mx-3 text-danger">Max heatmap size exceeded, data split over multiple figures..</p>
+
+        <div role="group" class="btn-group">
+            {% for button in buttons %}
+                <a href="{{ url_for('db_analysis.heatmap', reaction=reaction, enzyme_type=enzyme_type, enzyme_names=enzyme_names,
+                                       paper_id=paper_id, only_reviewed=only_reviewed, mol_type=mol_type,
+                                       max_molecules=max_molecules, max_enzymes=max_enzymes, remove_negative=remove_negative,
+                                       group=button, mols=mols, mol_list_id=mol_list_id)}}">
+                    <button class="btn btn-outline-primary">Group {{ button }}</button>
+                </a>
+            {% endfor %}
+        </div>
+
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-8 my-3">
+                <small>
+                    Heatmaps fail to load properly when they are too large.
+                    The data has therefore been clustered into groups via agglomerative clustering,
+                    to ensure no group has more than a maximum of {{max_molecules}} molecules or
+                    {{ max_enzymes  }} enzymes.  This is not an ideal solution.
+                    Consider amending your query to be more specific. Potential options listed below.
+                    Alternatively increase the maximum molecules or maxmimum enzymes allowed
+                    (newer computers can handle larger figures).
+                </small>
+            </div>
+            <div class="col"></div>
+        </div>
+
+
+        {% if remove_negative != 'all' %}
+            <hr/>
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-8 my-2">
+                    <h6>
+                        Remove all negative data to produce a smaller heatmap
+                    </h6>
+
+                    <a href="{{ url_for('db_analysis.heatmap', reaction=reaction, enzyme_type=enzyme_type, enzyme_names=enzyme_names,
+                                       paper_id=paper_id, only_reviewed=only_reviewed, mol_type=mol_type,
+                                       max_molecules=max_molecules, max_enzymes=max_enzymes, remove_negative='all', mols=mols, mol_list_id=mol_list_id)}}">
+                        <button class="btn btn-sm btn-outline-warning">Remove negative data</button>
+                    </a>
+                </div>
+                <div class="col"></div>
+            </div>
+
+
+        {% endif %}
+
+        {% if possible_reactions|length != 1 %}
+            <hr/>
+            <div class="row">
+                <div class="col"></div>
+                <div class="col-8 my-2">
+                    <h6>
+                        Select a specific reaction to produce a smaller heatmap
+                    </h6>
+
+                    {% for r in possible_reactions %}
+                        <a href="{{ url_for('db_analysis.heatmap', reaction=r, enzyme_type=enzyme_type, enzyme_names=enzyme_names,
+                                           paper_id=paper_id, only_reviewed=only_reviewed, mol_type=mol_type,
+                                           max_molecules=max_molecules, max_enzymes=max_enzymes, remove_negative=remove_negative, mols=mols, mol_list_id=mol_list_id)}}">
+                            <button class="btn btn-sm btn-outline-info">{{r}} reactions</button>
+                        </a>
+                    {% endfor %}
+                </div>
+                <div class="col"></div>
+            </div>
+        {% endif %}
+
+        <hr/>
+        <div class="row">
+            <div class="col"></div>
+            <div class="col-8 my-2">
+                <h6>
+                    Increase maximum heatmap size
+                </h6>
+                <small>warning - may not load if the resulting figure is too large</small><br/>
+                    <a href="{{ url_for('db_analysis.heatmap', reaction=reaction, enzyme_type=enzyme_type, enzyme_names=enzyme_names,
+                                       paper_id=paper_id, only_reviewed=only_reviewed, mol_type=mol_type,
+                                       max_molecules=max_molecules, max_enzymes=max_enzymes*2, remove_negative=remove_negative, mols=mols, mol_list_id=mol_list_id)}}">
+                        <button class="btn btn-sm btn-outline-danger">Increase max enzymes ({{max_enzymes*2}})</button>
+                    </a>
+
+                    <a href="{{ url_for('db_analysis.heatmap', reaction=reaction, enzyme_type=enzyme_type, enzyme_names=enzyme_names,
+                                       paper_id=paper_id, only_reviewed=only_reviewed, mol_type=mol_type,
+                                       max_molecules=max_molecules*2, max_enzymes=max_enzymes, remove_negative=remove_negative, mols=mols, mol_list_id=mol_list_id)}}">
+                        <button class="btn btn-sm btn-outline-danger">Increase max molecules ({{max_molecules*2}})</button>
+                    </a>
+
+                    <a href="{{ url_for('db_analysis.heatmap', reaction=reaction, enzyme_type=enzyme_type, enzyme_names=enzyme_names,
+                                       paper_id=paper_id, only_reviewed=only_reviewed, mol_type=mol_type,
+                                       max_molecules=max_molecules*2, max_enzymes=max_enzymes*2, remove_negative=remove_negative, mols=mols, mol_list_id=mol_list_id)}}">
+                        <button class="btn btn-sm btn-outline-danger">Double both</button>
+                    </a>
+            </div>
+            <div class="col"></div>
+        </div>
+
+    <p class="py-5"></p>
+
+
+    </div>
+
+
+    <script>
+
+
+    </script>
+
+
+{% endblock %}
+

@@ -1,0 +1,10 @@
+{% include 'build_sequences_table/modals/delete_modal.html' %}
+
+<script>
+    var deleteButton = function(cell, formatterParams, onRendered){ //plain text value
+            return "<button class='btn btn-sm btn-outline-danger' data-toggle='modal' data-target='#delete_modal'>Delete</button>";
+        };
+
+    var delete_button_col = {'title': 'Delete', 'width':80, formatter:deleteButton, align:"center", cellClick:function(e, cell){load_seq_delete(cell.getRow().getData().enzyme_name)}}
+    seq_columns.push(delete_button_col)
+</script>

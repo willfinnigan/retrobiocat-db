@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% set active_page = "" %}
+
+{% block content %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-12">
+                <div class="card card-form">
+                    <div class="card-body">
+                        <h3 class="text-center">{{ title }}</h3>
+                        {% include "substrate_grid/grid.html" %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

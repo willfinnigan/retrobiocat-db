@@ -1,0 +1,44 @@
+{% extends "build_sequences_table/base_sequences_table.html" %}
+
+{% block add_columns %}
+    <script>
+        var num_activity = {'title': "Num. activity", 'minWidth':100, 'width':120, 'field': "activity"}
+        seq_columns.push(num_activity)
+
+        var alt_names = {{alt_names|tojson}}
+        if (Object.keys(alt_names).length >= 1) {
+            var alt_name_col = {'title': "Alt. name used in paper", 'field': "alt_name", 'minWidth':75, formatter:"textarea", headerFilter:"list", headerFilterParams:{valuesLookup:"active"}}
+            seq_columns.splice(3, 0, alt_name_col)
+        }
+    </script>
+{% endblock %}
+
+{% block add_data %}
+    <script>
+    if (Object.keys(alt_names).length >= 1) {
+            seq_tabledata.forEach(function (item, index) {
+                if (item['enzyme_name'] in alt_names) {
+                    item['alt_name'] = alt_names[item['enzyme_name']]
+                } else {
+                    item['alt_name'] = ""
+                }
+            });
+        }
+    </script>
+{% endblock %}
+
+{% block add_functions %}
+    {% include 'build_sequences_table/modals/seq_row_click_modal.html' %}
+
+    <script>
+        seq_table.on("rowClick", function(e, row){
+            var rowData = row.getData();
+            var enzyme_name = rowData['enzyme_name']
+            load_sequence_data(enzyme_name)
+            load_seq_papers(enzyme_name)
+            document.getElementById('sequence_row_click_model_title').innerHTML = enzyme_name;
+            $('#sequence_row_modal').modal('show');
+        });
+    </script>
+
+{% endblock %}
